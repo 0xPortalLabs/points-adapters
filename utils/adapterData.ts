@@ -8,7 +8,7 @@ const getAdapters = async (): Promise<{
 }> => {
   const adapters = (
     await Array.fromAsync(
-      walk(path.join(Deno.cwd(), "adapters"), {
+      walk(path.join(import.meta.dirname, "../", "adapters"), {
         includeFiles: true,
         includeDirs: false,
       })
