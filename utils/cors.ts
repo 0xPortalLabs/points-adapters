@@ -5,7 +5,7 @@ const CORS_PROXY_URL =
 // @ts-ignore `document` exist on the browser, but not in Deno runtime.
 const IS_BROWSER = typeof document !== "undefined";
 
-const wrapCORSProxy = (url: string): string => CORS_PROXY_URL + encodeURI(url);
+const wrapCORSProxy = (url: string): string => CORS_PROXY_URL + url;
 
 // We like good CORS :)
 const isGoodCORS = async (url: string): Promise<boolean> => {
