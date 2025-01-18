@@ -1,6 +1,9 @@
 import type { AdapterExport } from "../utils/adapter.ts";
+import { maybeWrapCORSProxy } from "../utils/cors.ts";
 
-const API_URL = "https://app.ether.fi/api/portfolio/v3/{address}";
+const API_URL = await maybeWrapCORSProxy(
+  "https://app.ether.fi/api/portfolio/v3/{address}"
+);
 
 export default {
   fetch: async (address: string) => {

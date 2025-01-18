@@ -3,12 +3,12 @@ import type { AdapterExport } from "./adapter.ts";
 import * as path from "@std/path";
 import { walk } from "@std/fs";
 
-const getAdapters = async (): Promise<{
-  [name: string]: AdapterExport;
-}> => {
+const ADAPTERS_PATH = path.join(import.meta.dirname ?? "", "../", "adapters/");
+
+const getAdapters = async (): Promise<Record<string, AdapterExport>> => {
   const adapters = (
     await Array.fromAsync(
-      walk(path.join(import.meta.dirname, "../", "adapters"), {
+      walk(ADAPTERS_PATH, {
         includeFiles: true,
         includeDirs: false,
       })
@@ -17,7 +17,10 @@ const getAdapters = async (): Promise<{
 
   const adapterImports: AdapterExport[] = await Promise.all(
     adapters.map(
-      async (adapter) => (await import(`./../adapters/${adapter}.ts`)).default
+      async (adapter) =>
+        (
+          await import(path.join(ADAPTERS_PATH, `${adapter}.ts`))
+        ).default
     )
   );
 

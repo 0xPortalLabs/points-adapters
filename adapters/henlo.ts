@@ -1,6 +1,9 @@
 import type { AdapterExport } from "../utils/adapter.ts";
+import { maybeWrapCORSProxy } from "../utils/cors.ts";
 
-const API_URL = "https://app.henlo.com/api/user/points?addresses={address}";
+const API_URL = await maybeWrapCORSProxy(
+  "https://app.henlo.com/api/user/points?addresses={address}"
+);
 
 /*
 {

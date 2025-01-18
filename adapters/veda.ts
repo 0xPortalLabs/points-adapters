@@ -1,7 +1,9 @@
 import type { AdapterExport } from "../utils/adapter.ts";
+import { maybeWrapCORSProxy } from "../utils/cors.ts";
 
-const API_URL =
-  "https://app.veda.tech/api/user-veda-points?userAddress={address}";
+const API_URL = await maybeWrapCORSProxy(
+  "https://app.veda.tech/api/user-veda-points?userAddress={address}"
+);
 
 /* {
   base: { userChainVedaPointsSum: 0, vaults: {} },

@@ -1,5 +1,3 @@
-import adapters from "./adapterData.ts";
-
 type LabelledPoints = { [label: string]: number };
 // An adapter exporting a points function (address: string) -> number
 // or exporting function (address: string): {label1: number, label2: number, ...}
@@ -31,7 +29,10 @@ const runAdapter = async (adapter: AdapterExport, address: string) => {
   return ret;
 };
 
-const runAllAdapters = async (address: string) => {
+const runAllAdapters = async (
+  adapters: Record<string, AdapterExport>,
+  address: string
+) => {
   const results = await Promise.allSettled(
     Object.values(adapters).map((x) => runAdapter(x, address))
   );
