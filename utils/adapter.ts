@@ -61,4 +61,4 @@ const x = Object.fromEntries(
 );
 console.log(x); */
 
-export { type AdapterExport, runAdapter, runAllAdapters };
+export { type AdapterExport, type AdapterResult, runAdapter, runAllAdapters };
