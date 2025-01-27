@@ -29,5 +29,5 @@ export default {
     return Object.fromEntries(data.data.map((x) => [x.community, x.points]));
   },
   total: (data: { totalPoints: number }) => data.totalPoints,
-  claimable: (data: { claimed: boolean }) => data.claimed,
+  claimable: (data: { claimed: boolean }) => !data.claimed,
 } as AdapterExport;
