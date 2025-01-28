@@ -32,5 +32,6 @@ export default {
       total_attributions: data?.total_attributions ?? 0,
     };
   },
-  total: (data: { total_amount?: number }) => data?.total_amount ?? 0,
+  total: (data: { total_amount?: number }) =>
+    parseInt(String(data?.total_amount)) ?? 0,
 } as AdapterExport;
