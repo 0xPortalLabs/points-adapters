@@ -1,6 +1,7 @@
 const CORS_PROXY_URL =
-  (typeof Deno !== "undefined" && Deno.env.get("CORS_PROXY_URL")) ||
-  "https://api.cors.lol?url=";
+  typeof Deno !== "undefined" && Deno.env.has("CORS_PROXY_URL")
+    ? Deno.env.get("CORS_PROXY_URL")
+    : "https://c-proxy.dorime.org/";
 
 // @ts-ignore `document` exist on the browser, but not in Deno runtime.
 const IS_BROWSER = typeof document !== "undefined";

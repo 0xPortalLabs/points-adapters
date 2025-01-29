@@ -1,17 +1,18 @@
 type LabelledPoints = { [label: string]: number };
+type LabelledData = { [label: string]: string | number };
 // An adapter exporting a points function (address: string) -> number
 // or exporting function (address: string): {label1: number, label2: number, ...}
 type AdapterExport<T = object> = {
   fetch: (address: string) => Promise<T>;
-  points: (data: T) => LabelledPoints;
-  total: (data: T) => number;
+  points: (data: T) => LabelledData;
+  total: (data: T) => number | LabelledPoints;
   claimable?: (data: T) => boolean;
 };
 
 type AdapterResult<T = object> = {
   __data: T;
-  points: LabelledPoints;
-  total: number;
+  points: LabelledData;
+  total: number | LabelledPoints;
   claimable?: boolean;
 };
 

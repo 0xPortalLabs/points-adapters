@@ -52,7 +52,6 @@ Object.defineProperty(globalThis, "Deno", {
 });
 
 const res = await runAdapter(adapter, address);
-const pointsTotal = Object.values(res.points).reduce((x, y) => x + y, 0);
 
 if (Object.keys(res.points).length > 0) {
   console.table(
@@ -65,13 +64,16 @@ if (Object.keys(res.points).length > 0) {
 
 // TODO: export claimable
 
-console.log(`\nTotal Points from Adapter export: ${res.total}`);
-console.log(`Total Points from Adapter points data: ${pointsTotal}`);
-
-if (res.total != pointsTotal) {
-  console.error(
-    `The total points deviate! fix! delta: ${pointsTotal - res.total}`
+console.log("\nTotal Points from Adapter export:");
+if (typeof res.total === "object") {
+  console.table(
+    Object.entries(res.total).map(([label, points]) => ({
+      label,
+      points,
+    }))
   );
+} else {
+  console.log(res.total);
 }
 
 console.log("\nDoes the adapter work in the browser?");
