@@ -1,3 +1,5 @@
+import { convertValuesToInt, convertValuesToNormal } from "./object.ts";
+
 type LabelledPoints = { [label: string]: number };
 type LabelledData = { [label: string]: string | number };
 // An adapter exporting a points function (address: string) -> number
@@ -26,6 +28,13 @@ const runAdapter = async (adapter: AdapterExport, address: string) => {
   };
 
   if (adapter.claimable) ret.claimable = adapter.claimable(data);
+
+  ret.points = convertValuesToNormal(ret.points);
+  ret.total =
+    typeof ret.total === "number"
+      ? parseInt(String(ret.total)) || 0
+      : convertValuesToInt(ret.total);
+  ret.claimable = Boolean(ret.claimable);
 
   return ret;
 };
