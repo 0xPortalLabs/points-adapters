@@ -4,7 +4,7 @@ const convertValuesToInt = (
   return Object.fromEntries(
     Object.entries(obj).map(([k, v]) => [
       k,
-      typeof v === "number" ? v : parseInt(v, 10),
+      typeof v === "number" ? v : parseFloat(v),
     ])
   );
 };

@@ -68,9 +68,9 @@ export default {
   points: (data: Record<string, number | string>) => {
     return Object.fromEntries(
       Object.entries(data)
-        .filter(([_, v]) => !Number.isNaN(parseInt(String(v))))
+        .filter(([_, v]) => !Number.isNaN(parseFloat(String(v))))
         .map(([k, v]) => [k, Number(v)])
     );
   },
-  total: (data: Record<string, string>) => parseInt(data.totalPointsEarned),
+  total: (data: Record<string, string>) => parseFloat(data.totalPointsEarned),
 } as AdapterExport;
