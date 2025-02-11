@@ -1,7 +1,9 @@
 import type { AdapterExport } from "../utils/adapter.ts";
+import { maybeWrapCORSProxy } from "../utils/cors.ts";
 
-const API_URL =
-  "https://gfi-rewards.ridgetech.biz/reward_summary?wallet_addr={address}&validate_addresses=true";
+const API_URL = await maybeWrapCORSProxy(
+  "https://gfi-rewards.ridgetech.biz/reward_summary?wallet_addr={address}&validate_addresses=true"
+);
 
 /*
 {
@@ -35,7 +37,7 @@ export default {
       await fetch(API_URL.replace("{address}", address))
     ).json();
 
-    return data?.[address] ?? data.error;
+    return data?.[address.toLowerCase()] ?? data.error;
   },
   points: (data: {
     gravityStars?: {
