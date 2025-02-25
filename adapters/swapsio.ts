@@ -40,4 +40,5 @@ export default {
     const x = data?.rewards_total?.find((r) => r.id === "points");
     return x ? parseFloat(x.amount) : 0;
   },
+  rank: (data: { rank: number }) => data.rank,
 } as AdapterExport;

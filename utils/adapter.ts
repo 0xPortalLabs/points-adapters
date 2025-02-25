@@ -9,6 +9,7 @@ type AdapterExport<T = object> = {
   points: (data: T) => LabelledData;
   total: (data: T) => number | LabelledPoints;
   claimable?: (data: T) => boolean;
+  rank?: (data: T) => number;
 };
 
 type AdapterResult<T = object> = {
@@ -16,6 +17,7 @@ type AdapterResult<T = object> = {
   points: LabelledData;
   total: number | LabelledPoints;
   claimable?: boolean;
+  rank?: number;
 };
 
 const runAdapter = async (adapter: AdapterExport, address: string) => {
@@ -28,6 +30,7 @@ const runAdapter = async (adapter: AdapterExport, address: string) => {
   };
 
   if (adapter.claimable) ret.claimable = adapter.claimable(data);
+  if (adapter.rank) ret.rank = adapter.rank(data);
 
   ret.points = convertValuesToNormal(ret.points);
   ret.total =
@@ -35,6 +38,7 @@ const runAdapter = async (adapter: AdapterExport, address: string) => {
       ? parseFloat(String(ret.total)) || 0
       : convertValuesToInt(ret.total);
   ret.claimable = Boolean(ret.claimable);
+  ret.rank = Number(ret.rank) || 0;
 
   return ret;
 };
@@ -71,4 +75,11 @@ const x = Object.fromEntries(
 );
 console.log(x); */
 
-export { type AdapterExport, type AdapterResult, runAdapter, runAllAdapters };
+export {
+  type AdapterExport,
+  type AdapterResult,
+  type LabelledData,
+  type LabelledPoints,
+  runAdapter,
+  runAllAdapters,
+};

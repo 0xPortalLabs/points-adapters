@@ -6,14 +6,6 @@ const API_URL = await maybeWrapCORSProxy(
   "https://app.bedrock.technology/api/v2/bedrock/third-protocol/points"
 );
 
-/*
-{
-  balance: "1562957.092",
-  kernelsPerSec: "3.974207",
-  kernelsPerBlock: "0.000000",
-  turbo: "1.000000",
-}
- */
 export default {
   fetch: async (address: string) => {
     const res = await fetch(API_URL, {

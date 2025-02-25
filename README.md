@@ -58,6 +58,7 @@ export default {
     rank: data.rank,
   }),
   total: (data: Record<string, number>) => data.sonic_points,
+  rank: (data: { rank: number }) => data.rank,
 } as AdapterExport;
 ```
 
@@ -83,14 +84,6 @@ The first export is `fetch`. Just like the browser [fetch](https://developer.moz
 
 ```ts
 // [...]
-  total: (data: Record<string, number>) => data.sonic_points,
-// [...]
-```
-
-The second export is `total` which gives us the aggregate points for a wallet. This can also be a `Record<string, number>` to give aggregate season points as done in the [ether.fi adapter](./adapters/etherfi.ts). This is displayed on "total" info on a protocol.
-
-```ts
-// [...]
   points: (data: Record<string, number>) => ({
     sonic_points: data.sonic_points,
     loyalty_multiplier: data.loyalty_multiplier,
@@ -102,4 +95,18 @@ The second export is `total` which gives us the aggregate points for a wallet. T
 // [...]
 ```
 
-The third export is `points` which returns a `Record<string, string | number>` of labelled points and data. This is displayed on "detailed" info on a protocol.
+The second export is `points` which returns a `Record<string, string | number>` of labelled points and data. This is displayed on "detailed" info on a protocol.
+
+```ts
+// [...]
+  total: (data: Record<string, number>) => data.sonic_points,
+// [...]
+```
+
+The third export is `total` which gives us the aggregate points for a wallet. This can also be a `Record<string, number>` to give aggregate season points as done in the [ether.fi adapter](./adapters/etherfi.ts). This is displayed on "total" info on a protocol.
+
+```ts
+  rank: (data: { rank: number }) => data.rank,
+```
+
+The fourth export is `rank` which gives the user rank for the protocol's points program. This is displayed on the "leaderboard" info on a protocol.

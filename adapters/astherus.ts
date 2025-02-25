@@ -94,4 +94,5 @@ export default {
     });
   },
   total: (data: AstherusData) => data.auInfo.totalAu + data.auInfo.totalAu,
+  rank: (data: AstherusData) => parseInt(String(data.currentEpochRhInfo.rank)),
 } as AdapterExport;

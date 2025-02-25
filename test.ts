@@ -11,6 +11,14 @@ import * as path from "@std/path";
 
 const isValidAddress = (address: string) => /^0x[a-fA-F0-9]{40}$/.test(address);
 
+// ref: https://stackoverflow.com/a/39466341
+const nth = (n: number) => {
+  return (
+    n.toString() +
+    (["st", "nd", "rd"][((((n + 90) % 100) - 10) % 10) - 1] || "th")
+  );
+};
+
 const showErrorAndExit = (err: string) => {
   console.error(err);
   Deno.exit(1);
@@ -62,8 +70,6 @@ if (Object.keys(res.points).length > 0) {
   );
 }
 
-// TODO: export claimable
-
 console.log("\nTotal Points from Adapter export:");
 if (typeof res.total === "object") {
   console.table(
@@ -75,6 +81,9 @@ if (typeof res.total === "object") {
 } else {
   console.log(res.total);
 }
+
+if (res.rank) console.log(`User Rank: ${nth(res.rank)}`);
+if (res.claimable) console.log(`Is there an airdrop? ${res.claimable}`);
 
 console.log("\nDoes the adapter work in the browser?");
 console.log("Is this a good CORS URL?");

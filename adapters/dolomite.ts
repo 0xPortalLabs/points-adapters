@@ -12,4 +12,5 @@ export default {
     rank: data.rank ?? 0,
   }),
   total: (data: { amount?: number }) => data.amount ?? 0,
+  rank: (data: { rank: number | null }) => data.rank ?? undefined,
 } as AdapterExport;

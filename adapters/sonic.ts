@@ -30,4 +30,5 @@ export default {
     rank: data.rank,
   }),
   total: (data: Record<string, number>) => data.sonic_points,
+  rank: (data: { rank: number }) => data.rank,
 } as AdapterExport;
