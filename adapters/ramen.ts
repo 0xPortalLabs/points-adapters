@@ -2,7 +2,7 @@ import type { AdapterExport } from "../utils/adapter.ts";
 import { maybeWrapCORSProxy } from "../utils/cors.ts";
 
 const API_URL = await maybeWrapCORSProxy(
-  "https://prod-launchpad-1155389709.asia-southeast1.run.app/v1/rewards?address={address}"
+  "https://api.ramen.finance/v1/rewards?address={address}"
 );
 
 /**
