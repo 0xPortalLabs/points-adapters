@@ -34,5 +34,5 @@ export default {
   },
   total: (data: { total_amount?: number }) =>
     parseFloat(String(data?.total_amount)) ?? 0,
-  rank: (data: { rank: number }) => data.rank,
+  rank: (data: { rank?: number }) => data?.rank,
 } as AdapterExport;
