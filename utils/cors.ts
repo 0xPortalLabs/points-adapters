@@ -1,6 +1,9 @@
 const maybeReadEnv = (name: string, fallback: string) =>
   typeof Deno !== "undefined" && Deno.env.has(name)
     ? Deno.env.get(name)
+    : typeof import.meta.env !== "undefined" &&
+      Object.hasOwn(import.meta.env, "VITE_" + name)
+    ? import.meta.env["VITE_" + name]
     : fallback;
 
 const CORS_PROXY_URL = maybeReadEnv(
