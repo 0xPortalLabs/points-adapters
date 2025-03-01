@@ -1,7 +1,13 @@
-const CORS_PROXY_URL =
-  typeof Deno !== "undefined" && Deno.env.has("CORS_PROXY_URL")
-    ? Deno.env.get("CORS_PROXY_URL")
-    : "https://c-proxy.dorime.org/";
+const maybeReadEnv = (name: string, fallback: string) =>
+  typeof Deno !== "undefined" && Deno.env.has(name)
+    ? Deno.env.get(name)
+    : fallback;
+
+const CORS_PROXY_URL = maybeReadEnv(
+  "CORS_PROXY_URL",
+  "https://c-proxy.dorime.org/"
+);
+const FAST_LOAD = maybeReadEnv("FAST_LOAD", "false") !== "false";
 
 // @ts-ignore `document` exist on the browser, but not in Deno runtime.
 const IS_BROWSER = typeof document !== "undefined";
@@ -28,6 +34,7 @@ const isGoodCORS = async (url: string): Promise<boolean> => {
 // We run adapters on the browser so wrap in a CORS proxy for the browser.
 const maybeWrapCORSProxy = async (url: string): Promise<string> => {
   if (!IS_BROWSER) return url;
+  if (FAST_LOAD) return wrapCORSProxy(url);
 
   return (await isGoodCORS(url)) ? url : wrapCORSProxy(url);
 };
