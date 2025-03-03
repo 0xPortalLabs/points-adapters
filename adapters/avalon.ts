@@ -1,6 +1,8 @@
 import type { AdapterExport } from "../utils/adapter.ts";
 import { maybeWrapCORSProxy } from "../utils/cors.ts";
 
+import { getAddress } from "viem";
+
 // NOTE: leaderboard
 // GET https://aqwufqzelk.execute-api.us-east-1.amazonaws.com/topUsers
 
@@ -27,6 +29,7 @@ const endpoints = await Promise.all(
 
 export default {
   fetch: (address: string) => {
+    address = getAddress(address); // toCheckSum()
     return Promise.all(
       Object.entries(endpoints).map(async ([chain, url]) => {
         const res = await fetch(url + `/userPoints?address=${address}`);
