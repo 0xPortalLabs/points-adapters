@@ -93,6 +93,6 @@ export default {
       currentEpochRhInfo_teamBoost: currentEpochRhInfo.teamBoost,
     });
   },
-  total: (data: AstherusData) => data.auInfo.totalAu + data.auInfo.totalAu,
+  total: (data: AstherusData) => data.auInfo.totalAu,
   rank: (data: AstherusData) => parseInt(String(data.currentEpochRhInfo.rank)),
 } as AdapterExport;
