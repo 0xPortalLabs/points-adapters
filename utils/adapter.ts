@@ -34,7 +34,7 @@ const runAdapter = async (adapter: AdapterExport, address: string) => {
 
   ret.points = convertValuesToNormal(ret.points);
   ret.total =
-    typeof ret.total === "number"
+    typeof ret.total !== "object" || !ret.total
       ? parseFloat(String(ret.total)) || 0
       : convertValuesToInt(ret.total);
   ret.claimable = Boolean(ret.claimable);
