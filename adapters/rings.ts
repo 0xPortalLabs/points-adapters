@@ -1,6 +1,8 @@
 import type { AdapterExport } from "../utils/adapter.ts";
 import { convertValuesToNormal } from "../utils/object.ts";
 
+import { getAddress } from "viem";
+
 const API_URL = "https://points-api.rings.money/points/{address}";
 
 // NOTE: leaderboard api
@@ -53,6 +55,7 @@ const API_URL = "https://points-api.rings.money/points/{address}";
 */
 export default {
   fetch: async (address: string) => {
+    address = getAddress(address);
     return (await fetch(API_URL.replace("{address}", address))).json();
   },
   points: (data: { totalByType: Record<string, string> }) =>
