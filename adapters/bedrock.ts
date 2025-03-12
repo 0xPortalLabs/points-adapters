@@ -10,7 +10,7 @@ export default {
   fetch: async (address: string) => {
     const res = await fetch(API_URL, {
       method: "POST",
-      body: JSON.stringify({ address }),
+      body: JSON.stringify({ address: address.toLowerCase() }),
     });
     return (await res.json()).data;
   },
