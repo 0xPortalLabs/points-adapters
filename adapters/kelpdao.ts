@@ -6,8 +6,11 @@ const API_URL = "https://common.kelpdao.xyz/km-el-points/user/{address}";
 
 export default {
   fetch: async (address: string) => {
-    return (await (await fetch(API_URL.replace("{address}", address))).json())
-      .value;
+    return (
+      await (
+        await fetch(API_URL.replace("{address}", address.toLowerCase()))
+      ).json()
+    ).value;
   },
   points: (data: Record<string, string>) => convertValuesToInt(data),
   total: (data: Record<string, string>) =>
