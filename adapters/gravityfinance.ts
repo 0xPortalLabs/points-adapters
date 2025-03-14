@@ -44,7 +44,7 @@ export default {
       activities: Record<string, string | number>[];
     };
   }) => {
-    return data?.gravityStars
+    const gravityStars = data?.gravityStars
       ? Object.fromEntries(
           data.gravityStars.activities.map((x) => [
             x.activityName,
@@ -52,7 +52,10 @@ export default {
           ])
         )
       : {};
+
+    return { "Gravity Stars": gravityStars };
   },
-  total: (data: { gravityStars?: { totalPoints: number } }) =>
-    data.gravityStars?.totalPoints ?? 0,
+  total: (data: { gravityStars?: { totalPoints: number } }) => ({
+    "Gravity Stars": data.gravityStars?.totalPoints ?? 0,
+  }),
 } as AdapterExport;

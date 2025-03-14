@@ -22,8 +22,12 @@ export default {
       .data;
   },
   points: (data: Record<string, string>) => ({
-    amount_in_ether: parseFloat(data.amount_in_ether),
-    rewards_in_ether: parseFloat(data.rewards_in_ether),
+    Gacha: {
+      amount_in_ether: parseFloat(data.amount_in_ether),
+      rewards_in_ether: parseFloat(data.rewards_in_ether),
+    },
   }),
-  total: (data: Record<string, string>) => parseFloat(data.rewards_in_ether),
+  total: (data: Record<string, string>) => ({
+    Gatcha: parseFloat(data.rewards_in_ether),
+  }),
 } as AdapterExport;

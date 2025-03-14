@@ -15,10 +15,14 @@ export default {
     return (await fetch(API_URL.replace("{address}", address))).json();
   },
   points: (data: Record<string, string>) => ({
-    balance: parseFloat(data.balance),
-    kernelsPerSec: parseFloat(data.kernelsPerSec),
-    kernelsPerBlock: parseFloat(data.kernelsPerBlock),
-    turbo: parseFloat(data.turbo),
+    Kernels: {
+      balance: parseFloat(data.balance),
+      kernelsPerSec: parseFloat(data.kernelsPerSec),
+      kernelsPerBlock: parseFloat(data.kernelsPerBlock),
+      turbo: parseFloat(data.turbo),
+    },
   }),
-  total: (data: Record<string, string>) => parseFloat(data.balance),
+  total: (data: Record<string, string>) => ({
+    Kernels: parseFloat(data.balance),
+  }),
 } as AdapterExport;
