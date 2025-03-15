@@ -39,7 +39,7 @@ export default {
 
     return data?.[address.toLowerCase()] ?? data.error;
   },
-  points: (data: {
+  data: (data: {
     gravityStars?: {
       activities: Record<string, string | number>[];
     };

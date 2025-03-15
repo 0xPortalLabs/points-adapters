@@ -34,7 +34,7 @@ export default {
     ).json();
     return res.data.accountById;
   },
-  points: (data: { dripsEarned: number; lendingApy: string }) => ({
+  data: (data: { dripsEarned: number; lendingApy: string }) => ({
     Drips: {
       dripsEarned: data.dripsEarned,
       lendingApy: data.lendingApy,

@@ -14,7 +14,7 @@ export default {
   fetch: async (address: string) => {
     return (await fetch(API_URL.replace("{address}", address))).json();
   },
-  points: (data: Record<string, string>) => ({
+  data: (data: Record<string, string>) => ({
     Kernels: {
       balance: parseFloat(data.balance),
       kernelsPerSec: parseFloat(data.kernelsPerSec),

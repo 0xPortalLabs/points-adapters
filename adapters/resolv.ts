@@ -54,7 +54,7 @@ export default {
 
     return { data, rankData };
   },
-  points: ({ data }: { data: { dailyActivities: Record<string, number> } }) =>
+  data: ({ data }: { data: { dailyActivities: Record<string, number> } }) =>
     data.dailyActivities,
   total: ({ data }: { data: { totalPoints: number } }) => data.totalPoints,
   rank: ({

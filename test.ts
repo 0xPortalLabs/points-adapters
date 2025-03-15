@@ -60,27 +60,32 @@ Object.defineProperty(globalThis, "Deno", {
 });
 
 const res = await runAdapter(adapter, address);
+if (Object.keys(res.data).length > 0) {
+  const formattedData = Object.entries(res.data).reduce(
+    (acc, [label, data]) => {
+      if (typeof data === "object") {
+        // typeof LabelledDetailedData.
+        Object.entries(data).forEach(([k, v]) => {
+          acc[k] = acc[k] || {};
+          acc[k][label] = v;
+        });
+      } else {
+        // typeof DetailedData.
+        acc[label] = { data };
+      }
 
-if (Object.keys(res.points).length > 0) {
-  console.table(
-    Object.entries(res.points).map(([label, points]) => ({
-      label,
-      points,
-    }))
+      return acc;
+    },
+    {} as Record<string, Record<string, unknown>>
   );
+
+  console.table(formattedData);
 }
 
 console.log("\nTotal Points from Adapter export:");
-if (typeof res.total === "object") {
-  console.table(
-    Object.entries(res.total).map(([label, points]) => ({
-      label,
-      points,
-    }))
-  );
-} else {
-  console.log(res.total);
-}
+typeof res.total === "object"
+  ? console.table(res.total)
+  : console.log(res.total);
 
 if (res.rank) console.log(`User Rank: ${nth(res.rank)}`);
 if (res.claimable) console.log(`Is there an airdrop? ${res.claimable}`);

@@ -30,7 +30,7 @@ export default {
     return (await (await fetch(API_URL.replace("{address}", address))).json())
       .current_user;
   },
-  points: (data: Record<string, string | number>) => ({ Cred: data }),
+  data: (data: Record<string, string | number>) => ({ Cred: data }),
   total: (data: { cred: number }) => ({ Cred: data.cred }),
   rank: (data: { rank: number }) => data.rank,
 } as AdapterExport;

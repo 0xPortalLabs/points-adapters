@@ -14,7 +14,7 @@ export default {
     });
     return (await res.json()).data;
   },
-  points: (data: Record<string, string>) => {
+  data: (data: Record<string, string>) => {
     const { address: _address, ...rest } = data;
     return { Diamonds: convertValuesToNormal(rest) };
   },

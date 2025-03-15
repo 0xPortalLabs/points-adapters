@@ -1,14 +1,14 @@
 import { convertValuesToInt, convertValuesToNormal } from "./object.ts";
 
 type LabelledPoints = { [label: string]: number };
-type LabelledDetailedData = { [label: string]: DetailedData };
 type DetailedData = { [key: string]: string | number };
+type LabelledDetailedData = { [label: string]: DetailedData };
 type DeprecatedLabels = { [label: string]: number };
 // An adapter exporting a points function (address: string) -> number
 // or exporting function (address: string): {label1: number, label2: number, ...}
 type AdapterExport<T = object> = {
   fetch: (address: string) => Promise<T>;
-  points: (data: T) => DetailedData | LabelledDetailedData;
+  data: (data: T) => DetailedData | LabelledDetailedData;
   total: (data: T) => number | LabelledPoints;
   claimable?: (data: T) => boolean;
   rank?: (data: T) => number;
@@ -17,7 +17,7 @@ type AdapterExport<T = object> = {
 
 type AdapterResult<T = object> = {
   __data: T;
-  points: DetailedData | LabelledDetailedData;
+  data: DetailedData | LabelledDetailedData;
   total: number | LabelledPoints;
   claimable?: boolean;
   rank?: number;
@@ -29,7 +29,7 @@ const runAdapter = async (adapter: AdapterExport, address: string) => {
 
   const ret: AdapterResult = {
     __data: data,
-    points: adapter.points(data),
+    data: adapter.data(data),
     total: adapter.total(data),
   };
 
@@ -37,7 +37,7 @@ const runAdapter = async (adapter: AdapterExport, address: string) => {
   if (adapter.rank) ret.rank = adapter.rank(data);
   if (adapter.deprecated) ret.deprecated = adapter.deprecated(data);
 
-  ret.points = convertValuesToNormal(ret.points);
+  ret.data = convertValuesToNormal(ret.data);
   ret.total =
     typeof ret.total !== "object" || !ret.total
       ? parseFloat(String(ret.total)) || 0

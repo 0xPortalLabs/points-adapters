@@ -21,7 +21,7 @@ export default {
     return (await (await fetch(API_URL.replace("{address}", address))).json())
       .data;
   },
-  points: (data: Record<string, string>) => ({
+  data: (data: Record<string, string>) => ({
     Gacha: {
       amount_in_ether: parseFloat(data.amount_in_ether),
       rewards_in_ether: parseFloat(data.rewards_in_ether),

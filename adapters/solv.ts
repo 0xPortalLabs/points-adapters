@@ -65,7 +65,7 @@ export default {
     ).json();
     return res.data.phase2PointSysAccountInfo;
   },
-  points: (data: Record<string, number | string>) => {
+  data: (data: Record<string, number | string>) => {
     return Object.fromEntries(
       Object.entries(data)
         .filter(([_, v]) => !Number.isNaN(parseFloat(String(v))))

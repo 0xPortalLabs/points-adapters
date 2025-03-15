@@ -18,6 +18,6 @@ export default {
   fetch: async (address: string) => {
     return (await fetch(API_URL.replace("{address}", address))).json();
   },
-  points: (data: Record<string, string>) => convertValuesToNormal(data),
+  data: (data: Record<string, string>) => convertValuesToNormal(data),
   total: (data: Record<string, string>) => parseFloat(data.total),
 } as AdapterExport;

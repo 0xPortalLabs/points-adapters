@@ -58,7 +58,7 @@ export default {
     address = getAddress(address);
     return (await fetch(API_URL.replace("{address}", address))).json();
   },
-  points: (data: { totalByType: Record<string, string> }) =>
+  data: (data: { totalByType: Record<string, string> }) =>
     convertValuesToNormal(
       Object.fromEntries(
         Object.entries(data.totalByType).map(([key, value]) => [

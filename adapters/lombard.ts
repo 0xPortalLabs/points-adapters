@@ -14,7 +14,7 @@ export default {
     return (await (await fetch(API_URL.replace("{address}", address))).json())
       .result.rows;
   },
-  points: (data: { points_json: string }[]) => {
+  data: (data: { points_json: string }[]) => {
     if (data.length > 0) {
       const parsed = JSON.parse(data[0].points_json);
       return Object.fromEntries(

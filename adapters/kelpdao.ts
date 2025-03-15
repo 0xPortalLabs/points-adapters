@@ -12,7 +12,7 @@ export default {
       ).json()
     ).value;
   },
-  points: (data: Record<string, string>) => ({
+  data: (data: Record<string, string>) => ({
     "Kelp Miles": convertValuesToInt(data),
   }),
   total: (data: Record<string, string>) => ({

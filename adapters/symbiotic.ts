@@ -61,7 +61,7 @@ export default {
   fetch: async (address: string) => {
     return (await fetch(API_URL.replace("{address}", address))).json();
   },
-  points: (data: { points: PointsData[] }) => {
+  data: (data: { points: PointsData[] }) => {
     return Object.fromEntries(
       data.points.map((x) => [
         `${x.meta.name}-${x.pointsType}-points`,

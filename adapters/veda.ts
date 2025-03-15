@@ -25,7 +25,7 @@ export default {
     return (await (await fetch(API_URL.replace("{address}", address))).json())
       .Response;
   },
-  points: (
+  data: (
     data: Record<
       string,
       { vaults: Record<string, { name: string; totalPoints: number }> }

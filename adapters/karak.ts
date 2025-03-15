@@ -31,7 +31,7 @@ export default {
       await (await fetch(API_URL.replace("{address}", address))).json()
     )[0]?.result?.data;
   },
-  points: (data: { xpByPhase?: Record<string, number> }) => {
+  data: (data: { xpByPhase?: Record<string, number> }) => {
     const xp = data?.xpByPhase ? convertValuesToNormal(data.xpByPhase) : {};
     return { XP: xp };
   },
