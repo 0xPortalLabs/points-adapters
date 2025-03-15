@@ -21,9 +21,13 @@ export default {
     return (await (await fetch(API_URL.replace("{address}", address))).json())
       .data;
   },
-  points: (data: Record<string, string>) => ({
-    amount_in_ether: parseFloat(data.amount_in_ether),
-    rewards_in_ether: parseFloat(data.rewards_in_ether),
+  data: (data: Record<string, string>) => ({
+    Gacha: {
+      amount_in_ether: parseFloat(data.amount_in_ether),
+      rewards_in_ether: parseFloat(data.rewards_in_ether),
+    },
   }),
-  total: (data: Record<string, string>) => parseFloat(data.rewards_in_ether),
+  total: (data: Record<string, string>) => ({
+    Gacha: parseFloat(data.rewards_in_ether),
+  }),
 } as AdapterExport;

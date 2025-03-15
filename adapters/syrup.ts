@@ -34,11 +34,11 @@ export default {
     ).json();
     return res.data.accountById;
   },
-  points: (data: { dripsEarned: number; lendingApy: string }) => {
-    return {
+  data: (data: { dripsEarned: number; lendingApy: string }) => ({
+    Drips: {
       dripsEarned: data.dripsEarned,
       lendingApy: data.lendingApy,
-    };
-  },
-  total: (data: { dripsEarned: number }) => data.dripsEarned,
+    },
+  }),
+  total: (data: { dripsEarned: number }) => ({ Drips: data.dripsEarned }),
 } as AdapterExport;

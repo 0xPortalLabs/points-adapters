@@ -12,7 +12,13 @@ export default {
       ).json()
     ).value;
   },
-  points: (data: Record<string, string>) => convertValuesToInt(data),
-  total: (data: Record<string, string>) =>
-    Object.values(convertValuesToInt(data)).reduce((x, y) => x + y, 0),
+  data: (data: Record<string, string>) => ({
+    "Kelp Miles": convertValuesToInt(data),
+  }),
+  total: (data: Record<string, string>) => ({
+    "Kelp Miles": Object.values(convertValuesToInt(data)).reduce(
+      (x, y) => x + y,
+      0
+    ),
+  }),
 } as AdapterExport;

@@ -21,7 +21,7 @@ export default {
   fetch: async (address: string) => {
     return (await fetch(API_URL.replace("{address}", address), {})).json();
   },
-  points: (
+  data: (
     data: { rewards_total?: Array<{ id: string; amount: string }> } & Record<
       string,
       number | string
@@ -29,10 +29,13 @@ export default {
   ) => {
     const { address: _x, rewards_total, ...rest } = data;
     const rewards =
-      rewards_total?.reduce((acc, reward) => {
-        acc[reward.id] = parseFloat(reward.amount);
-        return acc;
-      }, {} as Record<string, number>) || {};
+      rewards_total?.reduce(
+        (acc, reward) => {
+          acc[reward.id] = parseFloat(reward.amount);
+          return acc;
+        },
+        {} as Record<string, number>
+      ) || {};
 
     return convertValuesToNormal({ ...rest, ...rewards });
   },

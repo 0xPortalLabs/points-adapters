@@ -21,7 +21,7 @@ export default {
   fetch: async (address: string) => {
     return await (await fetch(API_URL.replace("{address}", address))).json();
   },
-  points: (data: Record<string, number>) => ({
+  data: (data: Record<string, number>) => ({
     sonic_points: data.sonic_points,
     loyalty_multiplier: data.loyalty_multiplier,
     ecosystem_points: data.ecosystem_points,

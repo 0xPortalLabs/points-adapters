@@ -9,7 +9,7 @@ export default {
   fetch: async (address: string) => {
     return await (await fetch(API_URL.replace("{address}", address))).json();
   },
-  points: (data: Record<string, unknown>) => {
+  data: (data: Record<string, unknown>) => {
     const res: Record<string, number> = {};
 
     // Parse regular points.

@@ -67,7 +67,7 @@ export default {
     });
     return (await res.json())?.data;
   },
-  points: (data: AstherusData) => {
+  data: (data: AstherusData) => {
     const { auInfo, currentEpochRhInfo } = data;
     return convertValuesToNormal({
       auInfo_share: auInfo.share,

@@ -14,9 +14,11 @@ export default {
     });
     return (await res.json()).data;
   },
-  points: (data: Record<string, string>) => {
+  data: (data: Record<string, string>) => {
     const { address: _address, ...rest } = data;
-    return convertValuesToNormal(rest);
+    return { Diamonds: convertValuesToNormal(rest) };
   },
-  total: (data: Record<string, string>) => parseFloat(data.totalPoint) || 0,
+  total: (data: Record<string, string>) => ({
+    Diamonds: parseFloat(data.totalPoint) || 0,
+  }),
 } as AdapterExport;

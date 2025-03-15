@@ -25,7 +25,7 @@ export default {
     return (await (await fetch(API_URL.replace("{address}", address))).json())
       .data;
   },
-  points: (data: Record<string, string | number> | null) => {
+  data: (data: Record<string, string | number> | null) => {
     return data
       ? Object.fromEntries(
           Object.entries(data).filter(([key]) => key !== "walletAddress")

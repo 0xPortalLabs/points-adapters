@@ -37,7 +37,7 @@ export default {
       })
     );
   },
-  points: (
+  data: (
     data: { chain: string; data: Record<string, string | number> }[]
   ): Record<string, string | number> => {
     return Object.fromEntries(

@@ -49,7 +49,7 @@ export default {
   fetch: async (address: string) => {
     return await (await fetch(API_URL.replace("{address}", address))).json();
   },
-  points: (data: Record<string, number>) => ({
+  data: (data: Record<string, number>) => ({
     sonic_points: data.sonic_points,
     loyalty_multiplier: data.loyalty_multiplier,
     ecosystem_points: data.ecosystem_points,
@@ -62,7 +62,7 @@ export default {
 } as AdapterExport;
 ```
 
-##### Breakdown
+#### Breakdown
 
 ```ts
 const API_URL = await maybeWrapCORSProxy(
@@ -80,11 +80,11 @@ All adapters should target the browser and this includes using [Browser APIs](ht
 // [...]
 ```
 
-The first export is `fetch`. Just like the browser [fetch](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch), you provide some data and then you get some data back. This data does not need to be normalized but it is passed to all other "normalizing" method (`points`, `total`, `claimable`, etc.).
+The first export is `fetch`. Just like the browser [fetch](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch), you provide some data and then you get some data back. This data does not need to be normalized but it is passed to all other "normalizing" method (`data`, `total`, `claimable`, etc.).
 
 ```ts
 // [...]
-  points: (data: Record<string, number>) => ({
+  data: (data: Record<string, number>) => ({
     sonic_points: data.sonic_points,
     loyalty_multiplier: data.loyalty_multiplier,
     ecosystem_points: data.ecosystem_points,
@@ -95,7 +95,7 @@ The first export is `fetch`. Just like the browser [fetch](https://developer.moz
 // [...]
 ```
 
-The second export is `points` which returns a `Record<string, string | number>` of labelled points and data. This is displayed on "detailed" info on a protocol.
+The second export is `data` which returns a `Record<string, string | number>` of labelled points and data. This is displayed on "detailed" info on a protocol.
 
 ```ts
 // [...]
@@ -110,3 +110,41 @@ The third export is `total` which gives us the aggregate points for a wallet. Th
 ```
 
 The fourth export is `rank` which gives the user rank for the protocol's points program. This is displayed on the "leaderboard" info on a protocol.
+
+#### Points Terminology
+
+_Want to use a different terminology than points?_
+
+Take a look at the adapter for [Dolomite](dolomite.io) which uses the term "Minerals" instead of points.
+
+```ts
+export default {
+  // ...
+  data: (data: { amount: number | null; rank: number | null }) => ({
+    Minerals: {
+      amount: data.amount ?? 0,
+      rank: data.rank ?? 0,
+    },
+  }),
+  total: (data: { amount?: number }) => ({ Minerals: data.amount ?? 0 }),
+  // ...
+} as AdapterExport;
+```
+
+Just simply wrap the `data` and `total` data with the label you want to use. It is case sensitive. This will be reflected on the frontend.
+
+#### Deprecated Points
+
+Using the example of the [dolomite adapter](./adapters/dolomite.ts), Minerals expired on Jan 10th according to their [docs](https://docs.dolomite.io/minerals). To reflect this on the adapter add an export called `deprecated`.
+
+```ts
+export default {
+  // ...
+  deprecated: () => ({
+    Minerals: 1736467200, // Jan 10th 00:00 UTC
+  });
+  // ...
+}
+```
+
+The function returns a record of `label`: `timestamp` which is in [UNIX time format](https://en.wikipedia.org/wiki/Unix_time). The labels are the same labels used in the adapter, if no labels are used by your other functions then use the label `Points`, which indicates that the points program has completely been deprecated.

@@ -1,23 +1,27 @@
 import { convertValuesToInt, convertValuesToNormal } from "./object.ts";
 
 type LabelledPoints = { [label: string]: number };
-type LabelledData = { [label: string]: string | number };
+type DetailedData = { [key: string]: string | number };
+type LabelledDetailedData = { [label: string]: DetailedData };
+type DeprecatedLabels = { [label: string]: number };
 // An adapter exporting a points function (address: string) -> number
 // or exporting function (address: string): {label1: number, label2: number, ...}
 type AdapterExport<T = object> = {
   fetch: (address: string) => Promise<T>;
-  points: (data: T) => LabelledData;
+  data: (data: T) => DetailedData | LabelledDetailedData;
   total: (data: T) => number | LabelledPoints;
   claimable?: (data: T) => boolean;
   rank?: (data: T) => number;
+  deprecated?: (data: T) => DeprecatedLabels;
 };
 
 type AdapterResult<T = object> = {
   __data: T;
-  points: LabelledData;
+  data: DetailedData | LabelledDetailedData;
   total: number | LabelledPoints;
   claimable?: boolean;
   rank?: number;
+  deprecated?: DeprecatedLabels;
 };
 
 const runAdapter = async (adapter: AdapterExport, address: string) => {
@@ -25,20 +29,22 @@ const runAdapter = async (adapter: AdapterExport, address: string) => {
 
   const ret: AdapterResult = {
     __data: data,
-    points: adapter.points(data),
+    data: adapter.data(data),
     total: adapter.total(data),
   };
 
   if (adapter.claimable) ret.claimable = adapter.claimable(data);
   if (adapter.rank) ret.rank = adapter.rank(data);
+  if (adapter.deprecated) ret.deprecated = adapter.deprecated(data);
 
-  ret.points = convertValuesToNormal(ret.points);
+  ret.data = convertValuesToNormal(ret.data);
   ret.total =
     typeof ret.total !== "object" || !ret.total
       ? parseFloat(String(ret.total)) || 0
       : convertValuesToInt(ret.total);
   ret.claimable = Boolean(ret.claimable);
   ret.rank = Number(ret.rank) || 0;
+  ret.deprecated = ret.deprecated ? convertValuesToInt(ret.deprecated) : {};
 
   return ret;
 };
@@ -78,8 +84,10 @@ console.log(x); */
 export {
   type AdapterExport,
   type AdapterResult,
-  type LabelledData,
+  type DetailedData,
+  type LabelledDetailedData,
   type LabelledPoints,
+  type DeprecatedLabels,
   runAdapter,
   runAllAdapters,
 };

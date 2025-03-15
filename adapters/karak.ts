@@ -31,7 +31,9 @@ export default {
       await (await fetch(API_URL.replace("{address}", address))).json()
     )[0]?.result?.data;
   },
-  points: (data: { xpByPhase?: Record<string, number> }) =>
-    data?.xpByPhase ? convertValuesToNormal(data.xpByPhase) : {},
-  total: (data: { xp: number }) => data?.xp,
+  data: (data: { xpByPhase?: Record<string, number> }) => {
+    const xp = data?.xpByPhase ? convertValuesToNormal(data.xpByPhase) : {};
+    return { XP: xp };
+  },
+  total: (data: { xp: number }) => ({ XP: data?.xp }),
 } as AdapterExport;

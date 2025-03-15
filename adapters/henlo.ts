@@ -25,7 +25,7 @@ export default {
   fetch: async (address: string) => {
     return await (await fetch(API_URL.replace("{address}", address))).json();
   },
-  points: (data: { data: Record<string, number | string>[] }) => {
+  data: (data: { data: Record<string, number | string>[] }) => {
     return Object.fromEntries(data.data.map((x) => [x.community, x.points]));
   },
   total: (data: { totalPoints: number }) => data.totalPoints,

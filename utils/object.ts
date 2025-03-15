@@ -9,8 +9,8 @@ const convertValuesToInt = (
   );
 };
 
-const convertValuesToNormal = (
-  obj: Record<string, string | number | undefined>
+const convertValuesToNormal = <T extends string | number | Record<string, T>>(
+  obj: Record<string, T | Record<string, T>>
 ): Record<string, string | number> => {
   return Object.fromEntries(
     Object.entries(obj)
@@ -20,8 +20,10 @@ const convertValuesToNormal = (
         typeof v === "string" && !isNaN(Number(v))
           ? Number(v)
           : typeof v === "number"
-          ? v
-          : v,
+            ? v
+            : v && typeof v === "object" && !Array.isArray(v)
+              ? convertValuesToNormal(v)
+              : v,
       ])
   ) as Record<string, string | number>;
 };
