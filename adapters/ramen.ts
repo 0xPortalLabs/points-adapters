@@ -28,6 +28,6 @@ export default {
     },
   }),
   total: (data: Record<string, string>) => ({
-    Gatcha: parseFloat(data.rewards_in_ether),
+    Gacha: parseFloat(data.rewards_in_ether),
   }),
 } as AdapterExport;
