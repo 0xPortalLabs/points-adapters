@@ -90,6 +90,44 @@ typeof res.total === "object"
 if (res.rank) console.log(`User Rank: ${nth(res.rank)}`);
 if (res.claimable) console.log(`Is there an airdrop? ${res.claimable}`);
 
+if (res.deprecated && Object.keys(res.deprecated).length > 0) {
+  const labels = Object.keys(res.data);
+
+  const invalidKeys = Object.keys(res.deprecated).filter(
+    (key) => !labels.includes(key) && key != "Points"
+  );
+  if (invalidKeys.length > 0) {
+    console.error(
+      `\nInvalid deprecated keys found: ${invalidKeys.join(", ")}` +
+        "\nDeprecated keys must match exported data keys or use the default key `Points`."
+    );
+  }
+
+  const isValidDeprecatedDate = (ts: number) =>
+    typeof ts === "number" && ts > 0 && new Date(ts * 1000) < new Date();
+
+  const invalidDates = Object.entries(res.deprecated).filter(
+    ([_, timestamp]) => !isValidDeprecatedDate(timestamp)
+  );
+  if (invalidDates.length > 0) {
+    console.error(
+      `\nInvalid deprecated dates found for keys: ${invalidDates
+        .map(([key]) => key)
+        .join(", ")}. Dates must be valid UNIX timestamps in the past.`
+    );
+  }
+
+  console.log("\nDeprecated Points:");
+  console.table(
+    Object.fromEntries(
+      Object.entries(res.deprecated).map(([key, timestamp]) => [
+        key,
+        new Date(timestamp * 1000).toUTCString(),
+      ])
+    )
+  );
+}
+
 console.log("\nDoes the adapter work in the browser?");
 console.log("Is this a good CORS URL?");
 console.table(
