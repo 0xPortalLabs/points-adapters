@@ -1,33 +1,10 @@
 import type { AdapterExport } from "../utils/adapter.ts";
-import { maybeWrapCORSProxy } from "../utils/cors.ts";
 
-const API_URL = await maybeWrapCORSProxy(
-  "https://app.henlo.com/api/user/points?addresses={address}"
-);
-
-/*
-{
-  data: [
-    {
-      [...]
-      points: 420.69,
-      claimed: true,
-      community: "Base allocation",
-      [...]
-    },
-    [...]
-  ],
-  claimed: true,
-  totalPoints: 1234,
-}
-*/
+// Points program has now fully ended and API is no longer available.
 export default {
-  fetch: async (address: string) => {
-    return await (await fetch(API_URL.replace("{address}", address))).json();
-  },
-  data: (data: { data: Record<string, number | string>[] }) => {
-    return Object.fromEntries(data.data.map((x) => [x.community, x.points]));
-  },
-  total: (data: { totalPoints: number }) => data.totalPoints,
-  claimable: (data: { claimed: boolean }) => !data.claimed,
+  fetch: async () => await Promise.resolve({}),
+  data: () => ({}),
+  total: () => 0,
+  claimable: () => false,
+  deprecated: () => ({ Points: 1709510400 }), // March 3rd 2024 00:00 UTC
 } as AdapterExport;
