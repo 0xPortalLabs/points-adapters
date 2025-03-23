@@ -2,7 +2,7 @@ import type { AdapterExport } from "../utils/adapter.ts";
 import { maybeWrapCORSProxy } from "../utils/cors.ts";
 
 const API_URL = await maybeWrapCORSProxy(
-  "https://gfi-rewards.ridgetech.biz/reward_summary?wallet_addr={address}&validate_addresses=true"
+  "https://rewards-api-gravityfinance.com/reward_summary?wallet_addr={address}&validate_addresses=true"
 );
 
 /*
