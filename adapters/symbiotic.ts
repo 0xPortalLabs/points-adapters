@@ -61,17 +61,18 @@ export default {
   fetch: async (address: string) => {
     return (await fetch(API_URL.replace("{address}", address))).json();
   },
-  data: (data: { points: PointsData[] }) => {
-    return Object.fromEntries(
-      data.points.map((x) => [
-        `${x.meta.name}-${x.pointsType}-points`,
-        getPoints(x),
-      ])
+  data: (data: { points: PointsData[]; totalDepositUsd: number }) => {
+    const pointsData = Object.fromEntries(
+      data.points.map((x) => [`${x.meta.name} Points`, getPoints(x)])
     );
+    return {
+      Symbiotic: {
+        ...pointsData,
+        totalDepositUsd: data.totalDepositUsd,
+      },
+    };
   },
-  total: (data: { points: PointsData[] }) => {
-    return data.points.reduce((total, x) => {
-      return total + getPoints(x);
-    }, 0);
-  },
+  total: (data: { points: PointsData[] }) => ({
+    Symbiotic: data.points.reduce((total, x) => total + getPoints(x), 0),
+  }),
 } as AdapterExport;
