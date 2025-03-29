@@ -66,13 +66,13 @@ export default {
       data.points.map((x) => [`${x.meta.name} Points`, getPoints(x)])
     );
     return {
-      Symbiotic: {
+      "Symbiotic Points": {
         ...pointsData,
         totalDepositUsd: data.totalDepositUsd,
       },
     };
   },
   total: (data: { points: PointsData[] }) => ({
-    Symbiotic: data.points.reduce((total, x) => total + getPoints(x), 0),
+    "Symbiotic Points": data.points.reduce((total, x) => total + getPoints(x), 0),
   }),
 } as AdapterExport;
