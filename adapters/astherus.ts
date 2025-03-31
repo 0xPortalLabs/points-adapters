@@ -1,10 +1,9 @@
 import type { AdapterExport } from "../utils/adapter.ts";
 
 import { convertValuesToNormal } from "../utils/object.ts";
-import { maybeWrapCORSProxy } from "../utils/cors.ts";
 
 const API_URL =
-  "https://www.astherus.finance/bapi/futures/v1/public/future/ae/point";
+  "https://www.asterdex.com/bapi/futures/v1/public/future/ae/point";
 
 interface AstherusData {
   auInfo: {
