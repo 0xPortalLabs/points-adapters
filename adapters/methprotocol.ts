@@ -22,8 +22,11 @@ const API_URL = "https://cmeth-api-v2.mantle.xyz/points/{address}";
    */
 export default {
   fetch: async (address: string) => {
-    return (await (await fetch(API_URL.replace("{address}", address))).json())
-      .data;
+    return (
+      await (
+        await fetch(API_URL.replace("{address}", address.toLowerCase()))
+      ).json()
+    ).data;
   },
   data: (data: Record<string, string | number> | null) => {
     return data
