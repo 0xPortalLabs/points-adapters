@@ -27,10 +27,10 @@ export default {
   }) => {
     return {
       Minerals: {
-        amount: milestones.amount ?? 0,
-        rank: milestones.rank ?? 0,
-        airdrop: airdrop?.amount ?? 0,
-        level: airdrop?.level_snapshot ?? 0,
+        Amount: milestones.amount ?? 0,
+        Rank: milestones.rank ?? 0,
+        Airdrop: airdrop?.amount ?? 0,
+        Level: airdrop?.level_snapshot ?? 0,
       },
     };
   },

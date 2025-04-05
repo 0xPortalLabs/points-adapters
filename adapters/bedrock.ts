@@ -1,6 +1,9 @@
 import type { AdapterExport } from "../utils/adapter.ts";
 import { maybeWrapCORSProxy } from "../utils/cors.ts";
-import { convertValuesToNormal } from "../utils/object.ts";
+import {
+  convertKeysToStartCase,
+  convertValuesToNormal,
+} from "../utils/object.ts";
 
 const API_URL = await maybeWrapCORSProxy(
   "https://app.bedrock.technology/api/v2/bedrock/third-protocol/points"
@@ -16,7 +19,7 @@ export default {
   },
   data: (data: Record<string, string>) => {
     const { address: _address, ...rest } = data;
-    return { Diamonds: convertValuesToNormal(rest) };
+    return { Diamonds: convertKeysToStartCase(convertValuesToNormal(rest)) };
   },
   total: (data: Record<string, string>) => ({
     Diamonds: parseFloat(data.totalPoint) || 0,

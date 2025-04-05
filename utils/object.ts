@@ -1,3 +1,5 @@
+import { startCase } from "lodash-es";
+
 const convertValuesToInt = (
   obj: Record<string, string | number>
 ): Record<string, number> => {
@@ -28,4 +30,17 @@ const convertValuesToNormal = <T extends string | number | Record<string, T>>(
   ) as Record<string, string | number>;
 };
 
-export { convertValuesToNormal, convertValuesToInt };
+const convertKeysToStartCase = <T>(
+  obj: Record<string, T>
+): Record<string, T> => {
+  return Object.fromEntries(
+    Object.entries(obj).map(([k, v]) => [
+      startCase(k),
+      v && typeof v === "object" && !Array.isArray(v)
+        ? convertKeysToStartCase(v)
+        : v,
+    ])
+  );
+};
+
+export { convertValuesToNormal, convertValuesToInt, convertKeysToStartCase };

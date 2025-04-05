@@ -56,8 +56,8 @@ export default {
   }: {
     points: { userPoints: number; totalPoints: number };
   }) => ({
-    userPoints: points.userPoints,
-    totalPoints: points.totalPoints,
+    "User Points": points.userPoints,
+    "Total (Global) Points": points.totalPoints,
   }),
   total: ({ points }: { points: { userPoints: number } }) => points.userPoints,
   rank: ({ position }: { position: number }) => position,

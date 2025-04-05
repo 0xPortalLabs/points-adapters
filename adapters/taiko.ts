@@ -1,4 +1,5 @@
 import type { AdapterExport } from "../utils/adapter.ts";
+import { convertKeysToStartCase } from "../utils/object.ts";
 import { maybeWrapCORSProxy } from "../utils/cors.ts";
 
 const API_URL = await maybeWrapCORSProxy(
@@ -59,14 +60,14 @@ export default {
         )
       : {};
 
-    return {
+    return convertKeysToStartCase({
       multiplier,
       totalScore,
       score,
       total,
       rank,
       ...events,
-    };
+    });
   },
   total: ({ totalScore }: Record<string, number>) => totalScore,
   rank: ({ rank }: Record<string, number>) => rank,

@@ -27,9 +27,17 @@ export default {
   },
   data: (data: Record<string, string | number> | null) => {
     return data
-      ? Object.fromEntries(
-          Object.entries(data).filter(([key]) => key !== "walletAddress")
-        )
+      ? {
+          "Total Points": data.totalPoints,
+          "Token Points": data.tokenPoints,
+          "Referral Points": data.referralPoints,
+          Rank: data.rank,
+          "Referral Rank": data.referralRank,
+          Date: data.date,
+          "L2 Points": data.l2Points,
+          "mETH Amount": data.methAmount,
+          "cmETH Amount": data.cmethAmount,
+        }
       : {};
   },
   total: (data: { totalPoints?: number } | null) => data?.totalPoints ?? 0,

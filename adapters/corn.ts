@@ -16,10 +16,10 @@ export default {
   },
   data: (data: Record<string, string>) => ({
     Kernels: {
-      balance: parseFloat(data.balance),
-      kernelsPerSec: parseFloat(data.kernelsPerSec),
-      kernelsPerBlock: parseFloat(data.kernelsPerBlock),
-      turbo: parseFloat(data.turbo),
+      Balance: parseFloat(data.balance),
+      "Kernels Per Sec": parseFloat(data.kernelsPerSec),
+      "Kernels Per Block": parseFloat(data.kernelsPerBlock),
+      Turbo: parseFloat(data.turbo),
     },
   }),
   total: (data: Record<string, string>) => ({

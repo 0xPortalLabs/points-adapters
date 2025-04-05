@@ -1,6 +1,9 @@
 import type { AdapterExport } from "../utils/adapter.ts";
 
-import { convertValuesToInt } from "../utils/object.ts";
+import {
+  convertKeysToStartCase,
+  convertValuesToNormal,
+} from "../utils/object.ts";
 
 const API_URL = "https://common.kelpdao.xyz/km-el-points/user/{address}";
 
@@ -13,11 +16,11 @@ export default {
     ).value;
   },
   data: (data: Record<string, string>) => ({
-    "Kelp Miles": convertValuesToInt(data),
+    "Kelp Miles": convertKeysToStartCase(convertValuesToNormal(data)),
   }),
   total: (data: Record<string, string>) => ({
-    "Kelp Miles": Object.values(convertValuesToInt(data)).reduce(
-      (x, y) => x + y,
+    "Kelp Miles": Object.values(convertValuesToNormal(data)).reduce(
+      (x, y) => Number(x) + Number(y),
       0
     ),
   }),

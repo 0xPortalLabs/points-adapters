@@ -1,6 +1,7 @@
 import type { AdapterExport } from "../utils/adapter.ts";
 import { maybeWrapCORSProxy } from "../utils/cors.ts";
 
+import { startCase } from "lodash-es";
 import { getAddress } from "viem";
 
 // NOTE: leaderboard
@@ -44,7 +45,7 @@ export default {
       data.flatMap(({ chain, data }) =>
         Object.entries(data)
           .filter(([key]) => key !== "dummy" && key !== "address")
-          .map(([key, value]) => [`${chain}.${key}`, value])
+          .map(([key, value]) => [`${chain}: ${startCase(key)}`, value])
       )
     );
   },

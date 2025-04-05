@@ -68,11 +68,14 @@ export default {
     return {
       "Symbiotic Points": {
         ...pointsData,
-        totalDepositUsd: data.totalDepositUsd,
+        "Total Deposit (USD)": data.totalDepositUsd,
       },
     };
   },
   total: (data: { points: PointsData[] }) => ({
-    "Symbiotic Points": data.points.reduce((total, x) => total + getPoints(x), 0),
+    "Symbiotic Points": data.points.reduce(
+      (total, x) => total + getPoints(x),
+      0
+    ),
   }),
 } as AdapterExport;

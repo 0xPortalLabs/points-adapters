@@ -1,6 +1,9 @@
 import type { AdapterExport } from "../utils/adapter.ts";
 
-import { convertValuesToNormal } from "../utils/object.ts";
+import {
+  convertKeysToStartCase,
+  convertValuesToNormal,
+} from "../utils/object.ts";
 import { maybeWrapCORSProxy } from "../utils/cors.ts";
 
 const API_URL = await maybeWrapCORSProxy(
@@ -37,7 +40,9 @@ export default {
         {} as Record<string, number>
       ) || {};
 
-    return convertValuesToNormal({ ...rest, ...rewards });
+    return convertKeysToStartCase(
+      convertValuesToNormal({ ...rest, ...rewards })
+    );
   },
   total: (data: { rewards_total?: Array<{ id: string; amount: string }> }) => {
     const x = data?.rewards_total?.find((r) => r.id === "points");

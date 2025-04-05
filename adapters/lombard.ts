@@ -1,5 +1,7 @@
 import type { AdapterExport } from "../utils/adapter.ts";
 
+import { startCase } from "lodash-es";
+
 const API_URL =
   "https://bff.prod.lombard.finance/sentio-api/lombard-points/{address}";
 
@@ -20,7 +22,7 @@ export default {
       return Object.fromEntries(
         Object.entries(parsed).flatMap(([cat, x]) =>
           Object.entries(x as Record<string, number>).map(([k, v]) => {
-            return [`${cat}#${k}`, v];
+            return [`${startCase(cat)}: ${startCase(k)}`, v];
           })
         )
       );
