@@ -4,6 +4,7 @@
     "jsr:@std/fs@^1.0.9": "1.0.9",
     "jsr:@std/path@*": "1.0.8",
     "jsr:@std/path@^1.0.8": "1.0.8",
+    "npm:lodash-es@^4.17.21": "4.17.21",
     "npm:viem@^2.23.5": "2.23.5_ws@8.18.0"
   },
   "jsr": {
@@ -60,6 +61,9 @@
         "ws"
       ]
     },
+    "lodash-es@4.17.21": {
+      "integrity": "sha512-mKnC+QJ9pWVzv+C4/U3rRsHapFfHvQFoFB92e52xeyGMcX6/OlIl78je1u8vePzYZSkkogMPJ2yjxxsb89cxyw=="
+    },
     "ox@0.6.7": {
       "integrity": "sha512-17Gk/eFsFRAZ80p5eKqv89a57uXjd3NgIf1CaXojATPBuujVc/fQSVhBeAU9JCRB+k7J50WQAyWTxK19T9GgbA==",
       "dependencies": [
@@ -96,6 +100,7 @@
     ],
     "packageJson": {
       "dependencies": [
+        "npm:lodash-es@^4.17.21",
         "npm:viem@^2.23.5"
       ]
     }

@@ -1,5 +1,8 @@
 import type { AdapterExport } from "../utils/adapter.ts";
-import { convertValuesToNormal } from "../utils/object.ts";
+import {
+  convertKeysToStartCase,
+  convertValuesToNormal,
+} from "../utils/object.ts";
 
 import { getAddress } from "viem";
 
@@ -59,12 +62,14 @@ export default {
     return (await fetch(API_URL.replace("{address}", address))).json();
   },
   data: (data: { totalByType: Record<string, string> }) =>
-    convertValuesToNormal(
-      Object.fromEntries(
-        Object.entries(data.totalByType).map(([key, value]) => [
-          key,
-          Number(BigInt(value) / BigInt(1e36)),
-        ])
+    convertKeysToStartCase(
+      convertValuesToNormal(
+        Object.fromEntries(
+          Object.entries(data.totalByType).map(([key, value]) => [
+            key,
+            Number(BigInt(value) / BigInt(1e36)),
+          ])
+        )
       )
     ),
   total: (data: { total: string }) => Number(BigInt(data.total) / BigInt(1e36)),

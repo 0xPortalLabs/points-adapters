@@ -1,6 +1,8 @@
 import type { AdapterExport } from "../utils/adapter.ts";
 import { maybeWrapCORSProxy } from "../utils/cors.ts";
 
+import { startCase } from "lodash-es";
+
 const API_URL = await maybeWrapCORSProxy(
   "https://app.ether.fi/api/portfolio/v3/{address}"
 );
@@ -14,10 +16,11 @@ export default {
 
     // Parse regular points.
     const parse = (obj: object, prefix = "") => {
-      for (const [k, v] of Object.entries(obj)) {
+      for (let [k, v] of Object.entries(obj)) {
         if (!isNaN(Number(k))) continue; // Array key
 
-        const fullKey = prefix ? `${prefix}.${k}` : k;
+        k = startCase(k);
+        const fullKey = prefix ? `${startCase(prefix)}: ${k}` : k;
 
         if (typeof v === "number") res[fullKey] = v;
         else if (typeof v === "object" && v !== null) parse(v, fullKey);
@@ -30,7 +33,7 @@ export default {
     if (Array.isArray(data.badges)) {
       for (const badge of data.badges) {
         if (typeof badge.Points === "number") {
-          res[`badges.${badge.Name}`] = badge.Points;
+          res[`Badges: ${badge.Name}`] = badge.Points;
         }
       }
     }
@@ -63,6 +66,10 @@ export default {
     };
 
     traverse(data);
-    return { current, previous, historical };
+    return {
+      "Current Season Points": current,
+      "Previous Season Points": previous,
+      "Previous Historical Points": historical,
+    };
   },
 } as AdapterExport;

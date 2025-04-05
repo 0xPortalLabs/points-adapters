@@ -23,8 +23,8 @@ export default {
   },
   data: (data: Record<string, string>) => ({
     Gacha: {
-      amount_in_ether: parseFloat(data.amount_in_ether),
-      rewards_in_ether: parseFloat(data.rewards_in_ether),
+      Amount: parseFloat(data.amount_in_ether),
+      Rewards: parseFloat(data.rewards_in_ether),
     },
   }),
   total: (data: Record<string, string>) => ({
