@@ -1,5 +1,8 @@
 import type { AdapterExport } from "../utils/adapter.ts";
-import { convertValuesToNormal } from "../utils/object.ts";
+import {
+  convertKeysToStartCase,
+  convertValuesToNormal,
+} from "../utils/object.ts";
 
 import { getAddress } from "viem";
 
@@ -33,7 +36,7 @@ export default {
   },
   data: (data: { xpByPhase?: Record<string, number> }) => {
     const xp = data?.xpByPhase ? convertValuesToNormal(data.xpByPhase) : {};
-    return { XP: xp };
+    return { XP: convertKeysToStartCase(xp) };
   },
   total: (data: { xp: number }) => ({ XP: data?.xp }),
 } as AdapterExport;

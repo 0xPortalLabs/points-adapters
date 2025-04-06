@@ -68,29 +68,28 @@ export default {
   },
   data: (data: AstherusData) => {
     const { auInfo, currentEpochRhInfo } = data;
-    return convertValuesToNormal({
-      auInfo_share: auInfo.share,
-      auInfo_rank: auInfo.rank,
-      auInfo_totalAu: auInfo.totalAu,
-      auInfo_auPerHour: auInfo.auPerHour,
-      auInfo_auSources_user: auInfo.auSources.user,
-      auInfo_auSources_invitees: auInfo.auSources.invitees,
-      auInfo_auSources_inviteesOfInvitees: auInfo.auSources.inviteesOfInvitees,
-      auInfo_teamBoost: auInfo.teamBoost,
-      auInfo_teamTotalAu: auInfo.teamTotalAu,
-      currentEpochRhInfo_epochId: currentEpochRhInfo.epochId,
-      currentEpochRhInfo_share: currentEpochRhInfo.share,
-      currentEpochRhInfo_rank: currentEpochRhInfo.rank,
-      currentEpochRhInfo_totalRh: currentEpochRhInfo.totalRh,
-      currentEpochRhInfo_userCurrentEpochRh:
-        currentEpochRhInfo.userCurrentEpochRh,
-      currentEpochRhInfo_rhSources_user: currentEpochRhInfo.rhSources.user,
-      currentEpochRhInfo_rhSources_invitees:
+    return {
+      "Au Share": auInfo.share,
+      "Au Rank": auInfo.rank,
+      "Au Total": auInfo.totalAu,
+      "Au Per Hour": auInfo.auPerHour,
+      "Au Sources User": auInfo.auSources.user,
+      "Au Sources Invitees": auInfo.auSources.invitees,
+      "Au Sources Invitees of Invitees": auInfo.auSources.inviteesOfInvitees,
+      "Au Team Boost": auInfo.teamBoost,
+      "Au Team Total": auInfo.teamTotalAu,
+      "Current Epoch Rh Id": currentEpochRhInfo.epochId,
+      "Current Epoch Rh Share": currentEpochRhInfo.share,
+      "Current Epoch Rh Rank": currentEpochRhInfo.rank,
+      "Current Epoch Rh Total": currentEpochRhInfo.totalRh,
+      "Current Epoch Rh User": currentEpochRhInfo.userCurrentEpochRh,
+      "Current Epoch Rh Sources User": currentEpochRhInfo.rhSources.user,
+      "Current Epoch Rh Sources Invitees":
         currentEpochRhInfo.rhSources.invitees,
-      currentEpochRhInfo_rhSources_inviteesOfInvitees:
+      "Current Epoch Rh Sources Invitees of Invitees":
         currentEpochRhInfo.rhSources.inviteesOfInvitees,
-      currentEpochRhInfo_teamBoost: currentEpochRhInfo.teamBoost,
-    });
+      "Current Epoch Rh Team Boost": currentEpochRhInfo.teamBoost,
+    };
   },
   total: (data: AstherusData) => data.auInfo.totalAu,
   rank: (data: AstherusData) => parseInt(String(data.currentEpochRhInfo.rank)),

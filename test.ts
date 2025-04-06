@@ -3,11 +3,13 @@
 // @ts-ignore emulate a browser env.
 globalThis.document = {};
 const { isGoodCORS } = await import("./utils/cors.ts");
-
 import { type AdapterExport } from "./utils/adapter.ts";
 import { runAdapter } from "./utils/adapter.ts";
 
 import * as path from "@std/path";
+
+import { checksumAddress } from "viem";
+import { isEqual } from "lodash-es";
 
 const isValidAddress = (address: string) => /^0x[a-fA-F0-9]{40}$/.test(address);
 
@@ -37,6 +39,9 @@ const address = Deno.args[1];
 if (!isValidAddress(address))
   showErrorAndExit(`${address} is not a valid EVM address format 0xabcdef..`);
 
+const skipAddressCheck =
+  Deno.args.includes("--skip-address-check") || Deno.args.includes("-sac");
+
 // Monkey path `fetch()` so we can check if adapter API url is CORS friendly.
 const CORSstatus: Record<string, Promise<boolean> | boolean> = {};
 const _fetch = globalThis.fetch;
@@ -63,7 +68,7 @@ const res = await runAdapter(adapter, address);
 if (Object.keys(res.data).length > 0) {
   const formattedData = Object.entries(res.data).reduce(
     (acc, [label, data]) => {
-      if (typeof data === "object") {
+      if (data && typeof data === "object") {
         // typeof LabelledDetailedData.
         Object.entries(data).forEach(([k, v]) => {
           acc[k] = acc[k] || {};
@@ -126,6 +131,116 @@ if (res.deprecated && Object.keys(res.deprecated).length > 0) {
       ])
     )
   );
+}
+
+if (!skipAddressCheck) {
+  const addressNoPrefix = address.substring(2);
+  const addressFormats = {
+    lowercase: "0x" + addressNoPrefix.toLowerCase(),
+    uppercase: "0x" + addressNoPrefix.toUpperCase(),
+    mixed:
+      "0x" +
+      addressNoPrefix
+        .split("")
+        .map((c, i) => (i % 2 === 0 ? c.toLowerCase() : c.toUpperCase()))
+        .join(""),
+    checksum: checksumAddress(`0x${addressNoPrefix}`),
+  };
+
+  console.log("\nTesting with different address formats");
+
+  const results = await Promise.all([
+    runAdapter(adapter, addressFormats.lowercase),
+    runAdapter(adapter, addressFormats.uppercase),
+    runAdapter(adapter, addressFormats.mixed),
+    runAdapter(adapter, addressFormats.checksum),
+  ]).then(([lowercase, uppercase, mixed, checksum]) => ({
+    lowercase,
+    uppercase,
+    mixed,
+    checksum,
+  }));
+
+  const compareResults = <T>(
+    comparison: string,
+    o1: Record<string, T>,
+    o2: Record<string, T>
+  ) => {
+    const { __data, ...x } = o1;
+    const { __data: _, ...y } = o2;
+
+    const equal = isEqual(x, y);
+    if (!equal) {
+      console.log("\nDifferences found:");
+      Object.keys({ ...x, ...y }).forEach((key) => {
+        if (!isEqual(x[key], y[key])) {
+          console.log(`\nField: ${key}`);
+          if (
+            key === "data" &&
+            typeof x[key] === "object" &&
+            typeof y[key] === "object"
+          ) {
+            const allKeys = new Set([
+              ...Object.keys(x[key] || {}),
+              ...Object.keys(y[key] || {}),
+            ]);
+
+            allKeys.forEach((k) => {
+              const dataX = (x[key] as Record<string, unknown>)[k];
+              const dataY = (y[key] as Record<string, unknown>)[k];
+
+              if (!isEqual(dataX, dataY)) {
+                console.log(`Key: ${k}`);
+                console.log(`Original:`, dataX);
+                console.log(`${comparison}:`, dataY);
+              }
+            });
+          } else {
+            console.log("Original:", x[key]);
+            console.log(`${comparison}:`, y[key]);
+          }
+        }
+      });
+    }
+    return equal;
+  };
+
+  const isLowercaseEqual = compareResults("Lowercase", res, results.lowercase);
+  const isUppercaseEqual = compareResults("Uppercase", res, results.uppercase);
+  const isMixedEqual = compareResults("Mixed", res, results.mixed);
+  const isChecksumEqual = compareResults("Checksum", res, results.checksum);
+
+  console.log("\nFormat comparison results:");
+  console.table({
+    Lowercase: {
+      format: addressFormats.lowercase,
+      equal: isLowercaseEqual,
+    },
+    Uppercase: {
+      format: addressFormats.uppercase,
+      equal: isUppercaseEqual,
+    },
+    Mixed: {
+      format: addressFormats.mixed,
+      equal: isMixedEqual,
+    },
+    Checksum: {
+      format: addressFormats.checksum,
+      equal: isChecksumEqual,
+    },
+  });
+
+  const allEqual =
+    isLowercaseEqual && isUppercaseEqual && isMixedEqual && isChecksumEqual;
+
+  if (!allEqual) {
+    console.error(
+      `
+Adapter returns different results for different address formats!
+Make sure to normalize addresses in your adapter's fetch function.
+`
+    );
+  }
 }
 
 console.log("\nDoes the adapter work in the browser?");

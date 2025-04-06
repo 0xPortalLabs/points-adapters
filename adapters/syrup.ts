@@ -36,8 +36,8 @@ export default {
   },
   data: (data: { dripsEarned: number; lendingApy: string }) => ({
     Drips: {
-      dripsEarned: data.dripsEarned,
-      lendingApy: data.lendingApy,
+      "Drips Earned": data.dripsEarned,
+      "Lending APY": data.lendingApy,
     },
   }),
   total: (data: { dripsEarned: number }) => ({ Drips: data.dripsEarned }),

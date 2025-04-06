@@ -1,4 +1,5 @@
 import type { AdapterExport } from "../utils/adapter.ts";
+import { convertKeysToStartCase } from "../utils/object.ts";
 import { maybeWrapCORSProxy } from "../utils/cors.ts";
 
 const API_URL = await maybeWrapCORSProxy("https://sft-api.com/graphql");
@@ -66,10 +67,12 @@ export default {
     return res.data.phase2PointSysAccountInfo;
   },
   data: (data: Record<string, number | string>) => {
-    return Object.fromEntries(
-      Object.entries(data)
-        .filter(([_, v]) => !Number.isNaN(parseFloat(String(v))))
-        .map(([k, v]) => [k, Number(v)])
+    return convertKeysToStartCase(
+      Object.fromEntries(
+        Object.entries(data)
+          .filter(([_, v]) => !Number.isNaN(parseFloat(String(v))))
+          .map(([k, v]) => [k, Number(v)])
+      )
     );
   },
   total: (data: Record<string, string>) => parseFloat(data.totalPointsEarned),

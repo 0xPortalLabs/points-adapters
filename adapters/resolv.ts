@@ -1,4 +1,5 @@
 import type { AdapterExport } from "../utils/adapter.ts";
+import { convertKeysToStartCase } from "../utils/object.ts";
 import { maybeWrapCORSProxy } from "../utils/cors.ts";
 
 // NOTE: API for leaderboard
@@ -55,7 +56,7 @@ export default {
     return { data, rankData };
   },
   data: ({ data }: { data: { dailyActivities: Record<string, number> } }) =>
-    data.dailyActivities,
+    convertKeysToStartCase(data.dailyActivities),
   total: ({ data }: { data: { totalPoints: number } }) => data.totalPoints,
   rank: ({
     rankData,

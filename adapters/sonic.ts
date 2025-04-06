@@ -22,12 +22,15 @@ export default {
     return await (await fetch(API_URL.replace("{address}", address))).json();
   },
   data: (data: Record<string, number>) => ({
-    sonic_points: data.sonic_points,
-    loyalty_multiplier: data.loyalty_multiplier,
-    ecosystem_points: data.ecosystem_points,
-    passive_liquidity_points: data.passive_liquidity_points,
-    activity_points: data.activity_points,
-    rank: data.rank,
+    "User Activity Last Detected": new Date(
+      data.user_activity_last_detected
+    ).toString(),
+    "Sonic Points": data.sonic_points,
+    "Loyalty Multiplier": data.loyalty_multiplier,
+    "Ecosystem Points": data.ecosystem_points,
+    "Passive Liquidity Points": data.passive_liquidity_points,
+    "Activity Points": data.activity_points,
+    Rank: data.rank,
   }),
   total: (data: Record<string, number>) => data.sonic_points,
   rank: (data: { rank: number }) => data.rank,
