@@ -16,12 +16,11 @@ export default {
     ).value;
   },
   data: (data: Record<string, string>) => ({
-    "Kelp Miles": convertKeysToStartCase(convertValuesToNormal(data)),
+    "Kernel Points": convertKeysToStartCase(convertValuesToNormal(data)),
   }),
-  total: (data: Record<string, string>) => ({
-    "Kelp Miles": Object.values(convertValuesToNormal(data)).reduce(
-      (x, y) => Number(x) + Number(y),
-      0
-    ),
+  total: ({ kelpMiles }: { kelpMiles: string }) => ({
+    "Kernel Points": parseFloat(kelpMiles) / 1000,
   }),
+  claimable: ({ kelpMiles }: { kelpMiles: string }) =>
+    parseFloat(kelpMiles) > 0,
 } as AdapterExport;
