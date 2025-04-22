@@ -11,14 +11,13 @@ An adapter is just a piece code that takes in an address and returns the number 
 ### Requirements
 
 - [Deno](https://deno.land/)
-- Discord bot token from [Discord Developer Portal](https://discord.com/developers/applications)
 
 ### Installation
 
 1. Clone the repository:
 
 ```sh
-git clone https://github.com/blazewashere/points-adapters.git
+git clone https://github.com/0xPortalLabs/points-adapters.git
 ```
 
 2. Install dependencies:
@@ -50,12 +49,15 @@ export default {
     return await (await fetch(API_URL.replace("{address}", address))).json();
   },
   data: (data: Record<string, number>) => ({
-    sonic_points: data.sonic_points,
-    loyalty_multiplier: data.loyalty_multiplier,
-    ecosystem_points: data.ecosystem_points,
-    passive_liquidity_points: data.passive_liquidity_points,
-    activity_points: data.activity_points,
-    rank: data.rank,
+    "User Activity Last Detected": new Date(
+      data.user_activity_last_detected
+    ).toString(),
+    "Sonic Points": data.sonic_points,
+    "Loyalty Multiplier": data.loyalty_multiplier,
+    "Ecosystem Points": data.ecosystem_points,
+    "Passive Liquidity Points": data.passive_liquidity_points,
+    "Activity Points": data.activity_points,
+    Rank: data.rank,
   }),
   total: (data: Record<string, number>) => data.sonic_points,
   rank: (data: { rank: number }) => data.rank,
@@ -85,12 +87,15 @@ The first export is `fetch`. Just like the browser [fetch](https://developer.moz
 ```ts
 // [...]
   data: (data: Record<string, number>) => ({
-    sonic_points: data.sonic_points,
-    loyalty_multiplier: data.loyalty_multiplier,
-    ecosystem_points: data.ecosystem_points,
-    passive_liquidity_points: data.passive_liquidity_points,
-    activity_points: data.activity_points,
-    rank: data.rank,
+    "User Activity Last Detected": new Date(
+      data.user_activity_last_detected
+    ).toString(),
+    "Sonic Points": data.sonic_points,
+    "Loyalty Multiplier": data.loyalty_multiplier,
+    "Ecosystem Points": data.ecosystem_points,
+    "Passive Liquidity Points": data.passive_liquidity_points,
+    "Activity Points": data.activity_points,
+    Rank: data.rank,
   }),
 // [...]
 ```
@@ -120,13 +125,25 @@ Take a look at the adapter for [Dolomite](dolomite.io) which uses the term "Mine
 ```ts
 export default {
   // ...
-  data: (data: { amount: number | null; rank: number | null }) => ({
-    Minerals: {
-      amount: data.amount ?? 0,
-      rank: data.rank ?? 0,
-    },
+  data: ({
+    milestones,
+    airdrop,
+  }: {
+    milestones: { amount: number | null; rank: number | null };
+    airdrop?: { amount: string; level_snapshot: number };
+  }) => {
+    return {
+      Minerals: {
+        Amount: milestones.amount ?? 0,
+        Rank: milestones.rank ?? 0,
+        Airdrop: airdrop?.amount ?? 0,
+        Level: airdrop?.level_snapshot ?? 0,
+      },
+    };
+  },
+  total: ({ milestones }: { milestones: { amount?: number } }) => ({
+    Minerals: milestones.amount ?? 0,
   }),
-  total: (data: { amount?: number }) => ({ Minerals: data.amount ?? 0 }),
   // ...
 } as AdapterExport;
 ```
