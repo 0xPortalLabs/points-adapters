@@ -2,9 +2,9 @@ const maybeReadEnv = (name: string, fallback: string) =>
   typeof Deno !== "undefined" && Deno.env.has(name)
     ? Deno.env.get(name)
     : typeof import.meta.env !== "undefined" &&
-      Object.hasOwn(import.meta.env, "VITE_" + name)
-    ? import.meta.env["VITE_" + name]
-    : fallback;
+        Object.hasOwn(import.meta.env, "VITE_" + name)
+      ? import.meta.env["VITE_" + name]
+      : fallback;
 
 const CORS_PROXY_URL = maybeReadEnv(
   "CORS_PROXY_URL",
@@ -22,7 +22,10 @@ const isGoodCORS = async (url: string): Promise<boolean> => {
   // Would ideally use HEAD but not all APIs implement this method.
   try {
     const res = await fetch(url, { method: "GET" });
-    return res.headers.get("Access-Control-Allow-Origin") === "*";
+    return (
+      res.headers.get("Access-Control-Allow-Origin") === "*" ||
+      res.headers.get("access-control-allow-origin") === "*"
+    );
   } catch (e) {
     if (e instanceof TypeError) {
       // Ran in browser and CORS denied us..
