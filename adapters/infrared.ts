@@ -6,7 +6,7 @@ import {
 } from "../utils/object.ts";
 import { maybeWrapCORSProxy } from "../utils/cors.ts";
 
-const API_URL = maybeWrapCORSProxy(
+const API_URL = await maybeWrapCORSProxy(
   "https://infrared.finance/api/points/user/{address}?chainId=80094"
 );
 
