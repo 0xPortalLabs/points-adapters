@@ -4,9 +4,11 @@ import {
   convertKeysToStartCase,
   convertValuesToNormal,
 } from "../utils/object.ts";
+import { maybeWrapCORSProxy } from "../utils/cors.ts";
 
-const API_URL =
-  "https://infrared.finance/api/points/user/{address}?chainId=80094";
+const API_URL = maybeWrapCORSProxy(
+  "https://infrared.finance/api/points/user/{address}?chainId=80094"
+);
 
 /**
  * {
