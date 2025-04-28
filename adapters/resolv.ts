@@ -5,10 +5,10 @@ import { maybeWrapCORSProxy } from "../utils/cors.ts";
 // NOTE: API for leaderboard
 // https://api.resolv.im/points/leaderboard?page=1
 const API_URL = await maybeWrapCORSProxy(
-  "https://api.resolv.im/points?address={address}"
+  "https://api.resolv.xyz/points?address={address}"
 );
 const RANK_URL = await maybeWrapCORSProxy(
-  "https://api.resolv.im/points/leaderboard/slice?address={address}"
+  "https://api.resolv.xyz/points/leaderboard/slice?address={address}"
 );
 
 /*
