@@ -2,7 +2,7 @@ import type { AdapterExport } from "../utils/adapter.ts";
 import { maybeWrapCORSProxy } from "../utils/cors.ts";
 
 const API_URL = await maybeWrapCORSProxy(
-  "https://rewards-api-gravityfinance.com/reward_summary?wallet_addr={address}&validate_addresses=true"
+  "https://rewards-api-gravityfinance.com/reward_summary?wallet_addr={address}"
 );
 
 /*
@@ -40,6 +40,9 @@ export default {
     return data?.[address.toLowerCase()] ?? data.error;
   },
   data: (data: {
+    gravitySGems?: {
+      activities: Record<string, string | number>[];
+    };
     gravityStars?: {
       activities: Record<string, string | number>[];
     };
@@ -48,14 +51,30 @@ export default {
       ? Object.fromEntries(
           data.gravityStars.activities.map((x) => [
             x.activityName,
-            x.pointsEarned,
+            x.tokensAwarded,
           ])
         )
       : {};
 
-    return { "Gravity Stars": gravityStars };
+    const gravitySGems = data?.gravitySGems
+      ? Object.fromEntries(
+          data.gravitySGems.activities.map((x) => [
+            x.activityName,
+            x.tokensAwarded,
+          ])
+        )
+      : {};
+
+    return { "Gravity Stars": gravityStars, "Gravity S Gems": gravitySGems };
   },
-  total: (data: { gravityStars?: { totalPoints: number } }) => ({
-    "Gravity Stars": data.gravityStars?.totalPoints ?? 0,
+  total: ({
+    gravityStars,
+    gravitySGems,
+  }: {
+    gravityStars?: { totalTokens: number };
+    gravitySGems?: { totalTokens: number };
+  }) => ({
+    "Gravity Stars": gravityStars?.totalTokens ?? 0,
+    "Gravity S Gems": gravitySGems?.totalTokens ?? 0,
   }),
 } as AdapterExport;
