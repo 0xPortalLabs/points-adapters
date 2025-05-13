@@ -9,6 +9,7 @@ const API_URL = await maybeWrapCORSProxy(
 
 export default {
   fetch: async (address: string) => {
+    address = address.toLowerCase();
     return await (await fetch(API_URL.replace("{address}", address))).json();
   },
   data: (data: Record<string, unknown>) => {
@@ -17,7 +18,7 @@ export default {
       "Previous Season Points": {},
       "Previous Historical Points": {},
     };
-  
+
     // Helper to group keys
     const assignToGroup = (key: string, value: number) => {
       if (key.toLowerCase().includes("current season")) {
@@ -28,7 +29,7 @@ export default {
         grouped["Previous Historical Points"][key] = value;
       }
     };
-  
+
     // Parse regular points.
     const parse = (obj: object, prefix = "") => {
       for (let [k, v] of Object.entries(obj)) {
@@ -39,9 +40,9 @@ export default {
         else if (typeof v === "object" && v !== null) parse(v, fullKey);
       }
     };
-  
+
     parse(data);
-  
+
     // Parse badges.
     if (Array.isArray(data.badges)) {
       for (const badge of data.badges) {
@@ -50,7 +51,7 @@ export default {
         }
       }
     }
-  
+
     return grouped;
   },
   total: (data: Record<string, unknown>) => {
