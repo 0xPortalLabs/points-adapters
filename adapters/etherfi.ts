@@ -9,37 +9,49 @@ const API_URL = await maybeWrapCORSProxy(
 
 export default {
   fetch: async (address: string) => {
-    address = address.toLowerCase();
     return await (await fetch(API_URL.replace("{address}", address))).json();
   },
   data: (data: Record<string, unknown>) => {
-    const res: Record<string, number> = {};
-
+    const grouped: Record<string, Record<string, number>> = {
+      "Current Season Points": {},
+      "Previous Season Points": {},
+      "Previous Historical Points": {},
+    };
+  
+    // Helper to group keys
+    const assignToGroup = (key: string, value: number) => {
+      if (key.toLowerCase().includes("current season")) {
+        grouped["Current Season Points"][key] = value;
+      } else if (key.toLowerCase().includes("previous season")) {
+        grouped["Previous Season Points"][key] = value;
+      } else if (key.toLowerCase().includes("previous historical")) {
+        grouped["Previous Historical Points"][key] = value;
+      }
+    };
+  
     // Parse regular points.
     const parse = (obj: object, prefix = "") => {
       for (let [k, v] of Object.entries(obj)) {
         if (!isNaN(Number(k))) continue; // Array key
-
         k = startCase(k);
         const fullKey = prefix ? `${startCase(prefix)}: ${k}` : k;
-
-        if (typeof v === "number") res[fullKey] = v;
+        if (typeof v === "number") assignToGroup(fullKey, v);
         else if (typeof v === "object" && v !== null) parse(v, fullKey);
       }
     };
-
+  
     parse(data);
-
+  
     // Parse badges.
     if (Array.isArray(data.badges)) {
       for (const badge of data.badges) {
         if (typeof badge.Points === "number") {
-          res[`Badges: ${badge.Name}`] = badge.Points;
+          assignToGroup(`Badges: ${badge.Name}`, badge.Points);
         }
       }
     }
-
-    return res;
+  
+    return grouped;
   },
   total: (data: Record<string, unknown>) => {
     let historical = 0;
