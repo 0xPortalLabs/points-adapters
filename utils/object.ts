@@ -6,7 +6,13 @@ const convertValuesToInt = (
   return Object.fromEntries(
     Object.entries(obj).map(([k, v]) => [
       k,
-      typeof v === "number" ? v : parseFloat(v),
+      typeof v === "number"
+        ? isNaN(v)
+          ? 0
+          : v
+        : v == null
+          ? 0
+          : parseFloat(v),
     ])
   );
 };
