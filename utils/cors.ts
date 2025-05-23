@@ -1,5 +1,3 @@
-import process from "node:process";
-
 const maybeReadEnv = (name: string, fallback: string) =>
   typeof Deno !== "undefined" && Deno.env.has(name)
     ? Deno.env.get(name)
