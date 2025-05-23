@@ -164,4 +164,12 @@ export default {
 }
 ```
 
+#### Changing CORS Proxy
+
+To change the CORS proxy used by the adapters in local development, use the env variable `CORS_PROXY_URL`.
+
+```sh
+$ CORS_PROXY_URL="https://..." deno run ...
+```
+
 The function returns a record of `label`: `timestamp` which is in [UNIX time format](https://en.wikipedia.org/wiki/Unix_time). The labels are the same labels used in the adapter, if no labels are used by your other functions then use the label `Points`, which indicates that the points program has completely been deprecated.
