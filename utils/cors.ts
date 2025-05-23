@@ -1,10 +1,14 @@
+import process from "node:process";
+
 const maybeReadEnv = (name: string, fallback: string) =>
   typeof Deno !== "undefined" && Deno.env.has(name)
     ? Deno.env.get(name)
     : typeof import.meta.env !== "undefined" &&
         Object.hasOwn(import.meta.env, "VITE_" + name)
       ? import.meta.env["VITE_" + name]
-      : fallback;
+      : typeof process !== "undefined" && process.env && process.env[name]
+        ? process.env[name]
+        : fallback;
 
 const CORS_PROXY_URL = maybeReadEnv(
   "CORS_PROXY_URL",
