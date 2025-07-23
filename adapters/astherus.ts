@@ -1,7 +1,5 @@
 import type { AdapterExport } from "../utils/adapter.ts";
 
-import { convertValuesToNormal } from "../utils/object.ts";
-
 const API_URL =
   "https://www.asterdex.com/bapi/futures/v1/public/future/ae/point";
 
@@ -62,7 +60,9 @@ export default {
     const res = await fetch(API_URL.replace("{address}", address), {
       method: "POST",
       body: JSON.stringify({ address }),
-      headers: { "content-type": "application/json" },
+      headers: {
+        "content-type": "application/json",
+      },
     });
     return (await res.json())?.data;
   },
