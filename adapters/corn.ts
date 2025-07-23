@@ -1,28 +1,13 @@
 import type { AdapterExport } from "../utils/adapter.ts";
 
-const API_URL = "https://api.usecorn.com/api/v1/kernels/balance/{address}";
-
-/*
-{
-  balance: "1562957.092",
-  kernelsPerSec: "3.974207",
-  kernelsPerBlock: "0.000000",
-  turbo: "1.000000",
-}
- */
+// Corn Kernels are no longer claimable and have been returned to the network.
+// ref: https://x.com/use_corn/status/1905261595682652301
 export default {
-  fetch: async (address: string) => {
-    return (await fetch(API_URL.replace("{address}", address))).json();
-  },
-  data: (data: Record<string, string>) => ({
-    Kernels: {
-      Balance: parseFloat(data.balance),
-      "Kernels Per Sec": parseFloat(data.kernelsPerSec),
-      "Kernels Per Block": parseFloat(data.kernelsPerBlock),
-      Turbo: parseFloat(data.turbo),
-    },
-  }),
-  total: (data: Record<string, string>) => ({
-    Kernels: parseFloat(data.balance),
+  fetch: async () => await Promise.resolve({}),
+  data: () => ({}),
+  total: () => 0,
+  claimable: () => false,
+  deprecated: () => ({
+    Kernels: 1743120000, // March 28th 2025 00:00 UTC
   }),
 } as AdapterExport;

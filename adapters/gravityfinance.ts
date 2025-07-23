@@ -1,9 +1,9 @@
 import type { AdapterExport } from "../utils/adapter.ts";
 import { maybeWrapCORSProxy } from "../utils/cors.ts";
 
-const API_URL = await maybeWrapCORSProxy(
+/* const API_URL = await maybeWrapCORSProxy(
   "https://rewards-api-gravityfinance.com/reward_summary?wallet_addr={address}"
-);
+); */
 
 /*
 {
@@ -33,11 +33,12 @@ const API_URL = await maybeWrapCORSProxy(
 */
 export default {
   fetch: async (address: string) => {
-    const data = await (
+    /* const data = await (
       await fetch(API_URL.replace("{address}", address))
     ).json();
 
-    return data?.[address.toLowerCase()] ?? data.error;
+    return data?.[address.toLowerCase()] ?? data.error; */
+    return {};
   },
   data: (data: {
     gravitySGems?: {
