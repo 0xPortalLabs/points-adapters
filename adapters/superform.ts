@@ -27,8 +27,7 @@ const API_URL = await maybeWrapCORSProxy(
  */
 export default {
   fetch: async (address: string) => {
-    return (await (await fetch(API_URL.replace("{address}", address))).json())
-      .current_user;
+    return await (await fetch(API_URL.replace("{address}", address))).json();
   },
   data: ({ user }: { user: Record<string, number> }) => ({
     Points: user.points,
