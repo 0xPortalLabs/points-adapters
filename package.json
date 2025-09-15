@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "lodash-es": "^4.17.21",
     "text-case": "^1.2.4",
     "viem": "^2.23.5"
   }
