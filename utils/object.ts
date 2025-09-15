@@ -1,4 +1,4 @@
-import { startCase } from "lodash-es";
+import { titleCase } from "text-case";
 
 const convertValuesToInt = (
   obj: Record<string, string | number>
@@ -41,12 +41,12 @@ const convertKeysToStartCase = <T>(
 ): Record<string, T> => {
   return Object.fromEntries(
     Object.entries(obj).map(([k, v]) => [
-      startCase(k),
+      titleCase(k),
       v && typeof v === "object" && !Array.isArray(v)
-        ? convertKeysToStartCase(v)
+        ? convertKeysToStartCase(v as Record<string, T>)
         : v,
     ])
-  );
+  ) as Record<string, T>;
 };
 
 export { convertValuesToNormal, convertValuesToInt, convertKeysToStartCase };

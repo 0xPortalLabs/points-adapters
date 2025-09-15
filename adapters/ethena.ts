@@ -9,7 +9,7 @@ import {
 import { maybeWrapCORSProxy } from "../utils/cors.ts";
 
 const API_URL = await maybeWrapCORSProxy(
-  "https://app.ethena.fi/api/rewards?address={address}"
+  "https://app.ethena.fi/api/referral/get-referree?address={address}"
 );
 
 // { queryWallet: [{ accumulatedTotalShardsEarned: 11.55 }] };
@@ -23,12 +23,20 @@ export default {
 
     return data.queryWallet[0];
   },
-  data: (data: Record<string, number>) => {
-    const Shards = data
-      ? convertKeysToStartCase(convertValuesToNormal(data))
-      : {};
+  data: (data: Record<string, number | string | null>) => {
+    if (!data) return {};
 
-    return { Shards };
+    const filtered = Object.fromEntries(
+      Object.entries(data).filter(
+        ([_, value]) =>
+          value !== null &&
+          value !== undefined &&
+          typeof value !== "object" &&
+          !Array.isArray(value)
+      )
+    ) as Record<string, number | string>;
+
+    return convertKeysToStartCase(convertValuesToNormal(filtered));
   },
   total: (data: { accumulatedTotalShardsEarned?: number }) => ({
     Shards: data?.accumulatedTotalShardsEarned ?? 0,
