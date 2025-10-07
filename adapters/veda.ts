@@ -22,8 +22,21 @@ const API_URL = await maybeWrapCORSProxy(
 } */
 export default {
   fetch: async (address: string) => {
-    return (await (await fetch(API_URL.replace("{address}", address))).json())
-      .Response;
+    const res = await fetch(API_URL.replace("{address}", address));
+    const text = await res.text();
+    
+    // Handle HTML responses (Cloudflare protection or API changes)
+    if (text.startsWith("<!DOCTYPE") || text.startsWith("<html")) {
+      return { userTotalVedaPointsSum: 0 };
+    }
+    
+    try {
+      const data = JSON.parse(text);
+      return data.Response || data;
+    } catch (err) {
+      console.warn("Failed to parse veda response:", err.message);
+      return { userTotalVedaPointsSum: 0 };
+    }
   },
   data: (
     data: Record<
