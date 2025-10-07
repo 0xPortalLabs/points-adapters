@@ -11,6 +11,9 @@ import * as path from "@std/path";
 import { checksumAddress } from "viem";
 import { isEqual } from "lodash-es";
 
+// Save Deno before it's potentially hidden later
+const _Deno = Deno;
+
 const isValidAddress = (address: string) => /^0x[a-fA-F0-9]{40}$/.test(address);
 
 // ref: https://stackoverflow.com/a/39466341
@@ -65,6 +68,13 @@ Object.defineProperty(globalThis, "Deno", {
 });
 
 const res = await runAdapter(adapter, address);
+
+// Check if adapter returned an error
+if (res.error) {
+  console.error(`\n❌ Adapter failed with error:\n${res.error}\n`);
+  _Deno.exit(1);
+}
+
 if (Object.keys(res.data).length > 0) {
   const formattedData = Object.entries(res.data).reduce(
     (acc, [label, data]) => {

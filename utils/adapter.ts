@@ -16,37 +16,50 @@ type AdapterExport<T = object> = {
 };
 
 type AdapterResult<T = object> = {
-  __data: T;
+  __data?: T;
   data: DetailedData | LabelledDetailedData;
   total: number | LabelledPoints;
   claimable?: boolean;
   rank?: number;
   deprecated?: DeprecatedLabels;
+  error?: string;
 };
 
 const runAdapter = async (adapter: AdapterExport, address: string) => {
-  const data = await adapter.fetch(address);
+  try {
+    const data = await adapter.fetch(address);
 
-  const ret: AdapterResult = {
-    __data: data,
-    data: adapter.data(data),
-    total: adapter.total(data),
-  };
+    const ret: AdapterResult = {
+      __data: data,
+      data: adapter.data(data),
+      total: adapter.total(data),
+    };
 
-  if (adapter.claimable) ret.claimable = adapter.claimable(data);
-  if (adapter.rank) ret.rank = adapter.rank(data);
-  if (adapter.deprecated) ret.deprecated = adapter.deprecated(data);
+    if (adapter.claimable) ret.claimable = adapter.claimable(data);
+    if (adapter.rank) ret.rank = adapter.rank(data);
+    if (adapter.deprecated) ret.deprecated = adapter.deprecated(data);
 
-  ret.data = convertValuesToNormal(ret.data);
-  ret.total =
-    typeof ret.total !== "object" || !ret.total
-      ? parseFloat(String(ret.total)) || 0
-      : convertValuesToInt(ret.total);
-  ret.claimable = Boolean(ret.claimable);
-  ret.rank = Number(ret.rank) || 0;
-  ret.deprecated = ret.deprecated ? convertValuesToInt(ret.deprecated) : {};
+    ret.data = convertValuesToNormal(ret.data);
+    ret.total =
+      typeof ret.total !== "object" || !ret.total
+        ? parseFloat(String(ret.total)) || 0
+        : convertValuesToInt(ret.total);
+    ret.claimable = Boolean(ret.claimable);
+    ret.rank = Number(ret.rank) || 0;
+    ret.deprecated = ret.deprecated ? convertValuesToInt(ret.deprecated) : {};
 
-  return ret;
+    return ret;
+  } catch (error) {
+    // Return error in structured format instead of throwing
+    return {
+      data: {},
+      total: 0,
+      claimable: false,
+      rank: 0,
+      deprecated: {},
+      error: error instanceof Error ? error.message : String(error),
+    };
+  }
 };
 
 const runAllAdapters = async (
