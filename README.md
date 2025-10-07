@@ -34,76 +34,31 @@ deno run -A test.ts adapters/sonic.ts 0x3c2573b002cf51e64ab6d051814648eb3a305363
 
 ### Adapter Health Check
 
-Run health checks on all adapters with multiple test addresses. Perfect for CI/CD pipelines and monitoring.
-
-🚀 **[Quick Start Guide](QUICKSTART.md)** | 📖 **[Full Documentation](HEALTH_CHECK_GUIDE.md)** | 📋 **[Summary](HEALTH_CHECK_SUMMARY.md)**
-
-#### Setup Wizard
-
-Run the setup wizard to get started quickly:
+Test all adapters with configured addresses.
 
 ```sh
-./setup-health-check.sh
+deno run -A check-adapters.ts
 ```
 
-#### Quick Start
+#### Configuration
 
-```sh
-# Test all adapters with default addresses
-./check-adapters.sh
+Edit `config.json`:
 
-# Test with specific addresses
-./check-adapters.sh 0x123... 0x456...
-
-# With verbose output
-./check-adapters.sh 0x123... --verbose
-
-# Test only specific adapters
-./check-adapters.sh 0x123... --only sonic,etherfi
-
-# Exclude specific adapters
-./check-adapters.sh 0x123... --exclude deprecated-adapter
+```json
+{
+  "addresses": [
+    "0x3c2573b002cf51e64ab6d051814648eb3a305363"
+  ],
+  "disabledAdapters": [],
+  "discordWebhookUrl": "https://discord.com/api/webhooks/...",
+  "timeout": 30000
+}
 ```
 
-#### Discord Notifications
-
-Set up Discord webhook notifications for adapter failures:
-
-```sh
-export DISCORD_WEBHOOK_URL="https://discord.com/api/webhooks/..."
-./check-adapters.sh 0x123...
-```
-
-**Test your webhook first:**
-```sh
-deno run -A test-discord-webhook.ts
-# or
-deno run -A test-discord-webhook.ts "https://discord.com/api/webhooks/..."
-```
-
-#### CI/CD Integration
-
-The repository includes a GitHub Actions workflow (`.github/workflows/adapter-health-check.yml`) that:
-- Runs automatically on push to main/master
-- Runs on pull requests
-- Runs daily at 00:00 UTC
-- Can be triggered manually with custom addresses
-- Sends Discord notifications on failures (requires `DISCORD_WEBHOOK_URL` secret)
-
-To set up Discord notifications in GitHub Actions:
-1. Go to your repository Settings → Secrets and Variables → Actions
-2. Add a new secret named `DISCORD_WEBHOOK_URL`
-3. Paste your Discord webhook URL
-
-#### Available Options
-
-- `--verbose, -v` - Show detailed output for all tests
-- `--only <adapters>` - Test only specific adapters (comma-separated)
-- `--exclude <adapters>` - Exclude specific adapters (comma-separated)
-- `--timeout <ms>` - Set timeout per adapter test (default: 30000ms)
-- `--no-webhook` - Disable Discord notifications
-- `--skip-address-check, -sac` - Skip address format validation
-- `--help, -h` - Show help message
+- `addresses` - Array of addresses to test
+- `disabledAdapters` - Array of adapter names to skip
+- `discordWebhookUrl` - Discord webhook URL for failure notifications (optional)
+- `timeout` - Timeout in milliseconds per adapter test
 
 ### Basic Example
 
