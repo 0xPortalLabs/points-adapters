@@ -68,15 +68,32 @@ const testAdapter = async (
 };
 
 const sendDiscordWebhook = async (webhookUrl: string, failures: Array<{ adapter: string; address: string; error?: string }>) => {
-  const fields = failures.slice(0, 25).map(f => ({
-    name: `❌ ${f.adapter}`,
-    value: `Address: \`${f.address.slice(0, 10)}...\`\nError: ${f.error?.slice(0, 100) || 'Unknown'}`,
-    inline: false,
-  }));
+  // Group failures by adapter
+  const failuresByAdapter: Record<string, Array<{ address: string; error?: string }>> = {};
+  
+  for (const failure of failures) {
+    if (!failuresByAdapter[failure.adapter]) {
+      failuresByAdapter[failure.adapter] = [];
+    }
+    failuresByAdapter[failure.adapter].push({
+      address: failure.address,
+      error: failure.error,
+    });
+  }
+
+  // Create fields with aggregated addresses per adapter
+  const fields = Object.entries(failuresByAdapter).slice(0, 25).map(([adapter, fails]) => {
+    const addressList = fails.map(f => `• \`${f.address.slice(0, 10)}...\`: ${f.error?.slice(0, 80) || 'Unknown'}`).join('\n');
+    return {
+      name: `❌ ${adapter} (${fails.length} address${fails.length > 1 ? 'es' : ''})`,
+      value: addressList.slice(0, 1024),
+      inline: false,
+    };
+  });
 
   const embed = {
     title: "🔴 Adapter Health Check Failed",
-    description: `**${failures.length}** adapter test(s) failed`,
+    description: `**${Object.keys(failuresByAdapter).length}** adapter(s) failed across **${failures.length}** test(s)`,
     color: 0xFF0000,
     fields,
     timestamp: new Date().toISOString(),
