@@ -17,27 +17,19 @@ export default {
       .result.rows;
   },
   data: (data: { points_json: string }[]) => {
-    if (data.length > 0) {
-      const parsed = JSON.parse(data[0].points_json);
-      return Object.fromEntries(
-        Object.entries(parsed).flatMap(([cat, x]) =>
-          Object.entries(x as Record<string, number>).map(([k, v]) => {
-            return [`${startCase(cat)}: ${startCase(k)}`, v];
-          })
-        )
-      );
-    }
-
-    return {};
+    const parsed = JSON.parse(data[0].points_json);
+    return Object.fromEntries(
+      Object.entries(parsed).flatMap(([cat, x]) =>
+        Object.entries(x as Record<string, number>).map(([k, v]) => {
+          return [`${startCase(cat)}: ${startCase(k)}`, v];
+        })
+      )
+    );
   },
   total: (data: { points_json: string }[]) => {
-    if (data.length > 0) {
-      const parsed: Record<string, { lpoints: number }> = JSON.parse(
-        data[0].points_json
-      );
-      return Object.values(parsed).reduce((x, y) => x + y.lpoints, 0);
-    }
-
-    return 0;
+    const parsed: Record<string, { lpoints: number }> = JSON.parse(
+      data[0].points_json
+    );
+    return Object.values(parsed).reduce((x, y) => x + y.lpoints, 0);
   },
 } as AdapterExport;

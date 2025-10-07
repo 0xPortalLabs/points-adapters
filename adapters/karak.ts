@@ -30,13 +30,12 @@ const API_URL =
 export default {
   fetch: async (address: string) => {
     address = getAddress(address);
-    return (
-      await (await fetch(API_URL.replace("{address}", address))).json()
-    )[0]?.result?.data;
+    const response = await (await fetch(API_URL.replace("{address}", address))).json();
+    return response[0].result.data;
   },
-  data: (data: { xpByPhase?: Record<string, number> }) => {
-    const xp = data?.xpByPhase ? convertValuesToNormal(data.xpByPhase) : {};
+  data: (data: { xpByPhase: Record<string, number> }) => {
+    const xp = convertValuesToNormal(data.xpByPhase);
     return { XP: convertKeysToStartCase(xp) };
   },
-  total: (data: { xp: number }) => ({ XP: data?.xp }),
+  total: (data: { xp: number }) => ({ XP: data.xp }),
 } as AdapterExport;

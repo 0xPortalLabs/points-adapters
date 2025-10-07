@@ -33,12 +33,13 @@ import { maybeWrapCORSProxy } from "../utils/cors.ts";
 */
 export default {
   fetch: async (address: string) => {
+    // API currently disabled/not working
+    throw new Error("Gravity Finance adapter is currently disabled - API endpoint not available");
     /* const data = await (
       await fetch(API_URL.replace("{address}", address))
     ).json();
 
     return data?.[address.toLowerCase()] ?? data.error; */
-    return {};
   },
   data: (data: {
     gravitySGems?: {

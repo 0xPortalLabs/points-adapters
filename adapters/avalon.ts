@@ -33,21 +33,8 @@ export default {
     address = getAddress(address); // toCheckSum()
     return Promise.all(
       Object.entries(endpoints).map(async ([chain, url]) => {
-        try {
-          const res = await fetch(url + `/userPoints?address=${address}`);
-          const text = await res.text();
-          
-          // Handle non-JSON responses
-          if (!text || text.startsWith("Not found")) {
-            return { chain, data: {} };
-          }
-          
-          return { chain, data: JSON.parse(text) };
-        } catch (err) {
-          // Handle DNS errors or other fetch failures
-          console.warn(`Failed to fetch ${chain}:`, err.message);
-          return { chain, data: {} };
-        }
+        const res = await fetch(url + `/userPoints?address=${address}`);
+        return { chain, data: await res.json() };
       })
     );
   },

@@ -28,21 +28,19 @@ export default {
       ).json()
     ).data;
   },
-  data: (data: Record<string, string | number> | null) => {
-    return data
-      ? {
-          "Total Points": data.totalPoints,
-          "Token Points": data.tokenPoints,
-          "Referral Points": data.referralPoints,
-          Rank: data.rank,
-          "Referral Rank": data.referralRank,
-          Date: data.date,
-          "L2 Points": data.l2Points,
-          "mETH Amount": data.methAmount,
-          "cmETH Amount": data.cmethAmount,
-        }
-      : {};
+  data: (data: Record<string, string | number>) => {
+    return {
+      "Total Points": data.totalPoints,
+      "Token Points": data.tokenPoints,
+      "Referral Points": data.referralPoints,
+      Rank: data.rank,
+      "Referral Rank": data.referralRank,
+      Date: data.date,
+      "L2 Points": data.l2Points,
+      "mETH Amount": data.methAmount,
+      "cmETH Amount": data.cmethAmount,
+    };
   },
-  total: (data: { totalPoints?: number } | null) => data?.totalPoints ?? 0,
-  rank: (data: { rank?: string }) => parseInt(data?.rank || "0"),
+  total: (data: { totalPoints: number }) => data.totalPoints,
+  rank: (data: { rank: string }) => parseInt(data.rank),
 } as AdapterExport;

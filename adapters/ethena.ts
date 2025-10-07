@@ -24,8 +24,6 @@ export default {
     return data.queryWallet[0];
   },
   data: (data: Record<string, number | string | null>) => {
-    if (!data) return {};
-
     const filtered = Object.fromEntries(
       Object.entries(data).filter(
         ([_, value]) =>
@@ -38,7 +36,7 @@ export default {
 
     return convertKeysToStartCase(convertValuesToNormal(filtered));
   },
-  total: (data: { accumulatedTotalShardsEarned?: number }) => ({
-    Shards: data?.accumulatedTotalShardsEarned ?? 0,
+  total: (data: { accumulatedTotalShardsEarned: number }) => ({
+    Shards: data.accumulatedTotalShardsEarned,
   }),
 } as AdapterExport;
