@@ -1,0 +1,63 @@
+{
+  "description": "Example configuration for adapter health check",
+  "defaultAddresses": [
+    "0x3c2573b002cf51e64ab6d051814648eb3a305363",
+    "0x0a66d5927ffc0ee2e38a15f16f8949e697c4f439"
+  ],
+  "options": {
+    "timeout": 30000,
+    "verbose": false,
+    "skipAddressCheck": false,
+    "noWebhook": false
+  },
+  "filters": {
+    "only": [],
+    "exclude": []
+  },
+  "testSuites": {
+    "quick": {
+      "description": "Quick test with core adapters only",
+      "addresses": [
+        "0x3c2573b002cf51e64ab6d051814648eb3a305363"
+      ],
+      "only": [
+        "sonic",
+        "etherfi",
+        "symbiotic"
+      ],
+      "timeout": 15000
+    },
+    "comprehensive": {
+      "description": "Full test with multiple addresses",
+      "addresses": [
+        "0x3c2573b002cf51e64ab6d051814648eb3a305363",
+        "0x0a66d5927ffc0ee2e38a15f16f8949e697c4f439",
+        "0xbd3603df246658369c707c30e041a89feb6ee153"
+      ],
+      "timeout": 60000,
+      "verbose": true
+    },
+    "production": {
+      "description": "Production monitoring test",
+      "addresses": [
+        "0x3c2573b002cf51e64ab6d051814648eb3a305363"
+      ],
+      "exclude": [
+        "deprecated-adapter"
+      ],
+      "timeout": 45000,
+      "noWebhook": false
+    }
+  },
+  "notifications": {
+    "discord": {
+      "enabled": true,
+      "webhookEnvVar": "DISCORD_WEBHOOK_URL",
+      "onFailureOnly": true
+    }
+  },
+  "scheduling": {
+    "cron": "0 */6 * * *",
+    "description": "Run every 6 hours"
+  }
+}
