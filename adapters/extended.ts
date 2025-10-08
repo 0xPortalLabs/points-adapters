@@ -4,12 +4,16 @@ import { maybeWrapCORSProxy } from "../utils/cors.ts";
 // Extended Exchange Points API
 // Website: https://app.extended.exchange/points
 // Documentation: https://docs.extended.exchange/extended-resources/points
+// 
+// API endpoints found in the application bundle:
+// - /api/v1/user/rewards/leaderboard/stats (requires authentication)
+// - /api/v1/user/rewards/earned (requires authentication)
+// - /api/v1/info/leaderboard (public leaderboard)
 //
-// Note: The exact API endpoint needs to be verified by inspecting network requests
-// on https://app.extended.exchange/points or through official API documentation.
-// This adapter uses a likely endpoint structure based on common patterns.
+// Note: These endpoints require authentication. For public access, users need to
+// connect their wallet on the Extended Exchange app.
 const API_URL = await maybeWrapCORSProxy(
-  "https://app.extended.exchange/api/points/{address}"
+  "https://app.extended.exchange/api/v1/user/rewards/leaderboard/stats"
 );
 
 // Expected response structure based on Extended's Points Program:
