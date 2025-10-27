@@ -1,9 +1,0 @@
-{
-  "addresses": [
-    "0x3c2573b002cf51e64ab6d051814648eb3a305363",
-    "0x0a66d5927ffc0ee2e38a15f16f8949e697c4f439"
-  ],
-  "disabledAdapters": [],
-  "discordWebhookUrl": "",
-  "timeout": 30000
-}
