@@ -1,0 +1,8 @@
+{
+  "addresses": [
+    "0x69155e7ca2e688ccdc247f6c4ddf374b3ae77bd6",
+    "0x4cb75146e98562c9d79b31649c6c739e4dcb7cd5"
+  ],
+  "disabledAdapters": [],
+  "timeout_ms": 20000
+}

@@ -32,6 +32,34 @@ deno install
 deno run -A test.ts adapters/sonic.ts 0x3c2573b002cf51e64ab6d051814648eb3a305363
 ```
 
+### Adapter Health Check
+
+Test all adapters with configured addresses.
+
+```sh
+deno run -A check-adapters.ts
+```
+
+#### Configuration
+
+Edit `config.json`:
+
+```json
+{
+  "addresses": [
+    "0x3c2573b002cf51e64ab6d051814648eb3a305363"
+  ],
+  "disabledAdapters": [],
+  "discordWebhookUrl": "https://discord.com/api/webhooks/...",
+  "timeout": 30000
+}
+```
+
+- `addresses` - Array of addresses to test
+- `disabledAdapters` - Array of adapter names to skip
+- `discordWebhookUrl` - Discord webhook URL for failure notifications (optional)
+- `timeout` - Timeout in milliseconds per adapter test
+
 ### Basic Example
 
 An example adapter for [Sonic](https://soniclabs.com) which gives us `total` points and a more detailed `points`.
