@@ -67,5 +67,8 @@ export default {
     );
   },
   data: (data: UserData) => convertValuesToNormal(data?.total),
-  total: (data: UserData) => data?.total?.point,
+  total: (data: UserData) => {
+    if (!data) throw new Error('Invalid data: user not found');
+    return data.total.point;
+  },
 } as AdapterExport;
