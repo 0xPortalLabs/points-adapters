@@ -59,12 +59,20 @@ export default {
   fetch: async (address: string): Promise<UserData | null> => {
     address = getAddress(address);
     
-    const response = await fetch(API_URL);
-    const data = await response.json();
-    
-    return data.items?.find(
-      (user: UserData) => getAddress(user.user) === address
-    ) || null;
+    try {
+      const response = await fetch(API_URL);
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      const data = await response.json();
+      
+      return data.items?.find(
+        (user: UserData) => getAddress(user.user) === address
+      ) || null;
+    } catch (error) {
+      console.error('Failed to fetch Hyperflow leaderboard:', error);
+      return null;
+    }
   },
   data: (data: UserData | null) => convertValuesToNormal(data?.total || {}),
   total: (data: UserData | null) => data?.total?.point || 0,
