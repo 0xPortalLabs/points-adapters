@@ -52,11 +52,11 @@ interface UserData {
 }
 
 const API_URL = await maybeWrapCORSProxy(
-  "https://api.hyperflow.fun/v1/point/leaderboard?from=1751367600"
+  "https://api.hyperflow.fun/v1/point/leaderboard"
 );
 
 export default {
-  fetch: async (address: string): Promise<UserData | null> => {
+  fetch: async (address: string): Promise<UserData> => {
     address = getAddress(address);
     
     const response = await fetch(API_URL);
@@ -66,7 +66,7 @@ export default {
       (user: UserData) => getAddress(user.user) === address
     );
   },
-  data: (data: UserData) => convertValuesToNormal(data?.total),
+  data: (data: UserData) => convertValuesToNormal(data.total),
   total: (data: UserData) => {
     if (!data) throw new Error('Invalid data: user not found');
     return data.total.point;
