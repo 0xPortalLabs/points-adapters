@@ -1,10 +1,9 @@
 import type { AdapterExport } from "../utils/adapter.ts";
-import { getAddress } from "viem";
-import {
-  convertValuesToNormal,
-} from "../utils/object.ts";
-import { maybeWrapCORSProxy } from "../utils/cors.ts";
 
+import { getAddress } from "viem";
+
+import { convertValuesToNormal } from "../utils/object.ts";
+import { maybeWrapCORSProxy } from "../utils/cors.ts";
 
 // Working wallet: 0x5Db201AE15f9702f0a0Ff9F00b8c1c18355373d0
 
@@ -48,6 +47,7 @@ interface UserData {
     volumeUsd: number;
     txs: number;
     point: number;
+    pointPartnerBonuses: Record<string, number>;
   };
 }
 
@@ -56,22 +56,35 @@ const API_URL = await maybeWrapCORSProxy(
 );
 
 export default {
-  fetch: async (address: string): Promise<UserData | null> => {
+  fetch: async (address: string): Promise<UserData> => {
     address = getAddress(address);
-    
+
     const response = await fetch(API_URL);
     const data = await response.json();
-    
+
     return data.items.find(
       (user: UserData) => getAddress(user.user) === address
     );
   },
   data: (data: UserData) => {
     if (!data) return {};
-    return convertValuesToNormal(data.total);
+
+    const { pointPartnerBonuses, ...rest } = data.total;
+    const flattened = {
+      ...rest,
+      ...(pointPartnerBonuses &&
+        Object.fromEntries(
+          Object.entries(pointPartnerBonuses).map(([k, v]) => [
+            `Point Partner Bonuses: ${k}`,
+            v,
+          ])
+        )),
+    };
+
+    return { FlowXP: convertValuesToNormal(flattened) };
   },
   total: (data: UserData) => {
-    if (!data) return 0;
-    return data.total.point;
+    const points = data ? data.total.point : 0;
+    return { FlowXP: points };
   },
 } as AdapterExport;
