@@ -30,4 +30,7 @@ export default {
   }),
   total: (data: { points: number }) => ({ kPoints: data.points }),
   rank: (data: { rank?: number }) => data.rank || 0,
+    deprecated: ()=>({
+    points: 1760572800, // October 16th 2025 GMT
+  }),
 } as AdapterExport;
