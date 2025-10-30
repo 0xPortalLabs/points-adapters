@@ -56,19 +56,22 @@ const API_URL = await maybeWrapCORSProxy(
 );
 
 export default {
-  fetch: async (address: string): Promise<UserData> => {
+  fetch: async (address: string): Promise<UserData | null> => {
     address = getAddress(address);
     
     const response = await fetch(API_URL);
     const data = await response.json();
     
-    return data.items?.find(
+    return data.items.find(
       (user: UserData) => getAddress(user.user) === address
     );
   },
-  data: (data: UserData) => convertValuesToNormal(data.total),
+  data: (data: UserData) => {
+    if (!data) return {};
+    return convertValuesToNormal(data.total);
+  },
   total: (data: UserData) => {
-    if (!data) throw new Error('Invalid data: user not found');
+    if (!data) return 0;
     return data.total.point;
   },
 } as AdapterExport;
