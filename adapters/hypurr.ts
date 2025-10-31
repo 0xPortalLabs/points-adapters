@@ -24,9 +24,13 @@ const API_URL = await maybeWrapCORSProxy(
 
 export default {
   fetch: async (address: string) => {
-    const res = await fetch(API_URL.replace("{address}", address));
-    const data = await res.json();
-    return data;
+    const res = await fetch(API_URL.replace("{address}", address), {
+      headers: {
+        Authorization:
+          "Bearer dd0f4f26be36808799f3d1ac5c87c850b58e8f03b964878f9680825132c29c06",
+      },
+    });
+    return await res.json();
   },
   data: (data: ApiResponse) => {
     if (!data || !data.results || data.results.length === 0) return {};
@@ -34,7 +38,10 @@ export default {
     const { tiers, ...rest } = data.results[0];
 
     const flattened = {
-      ...rest,
+      ...(rest &&
+        Object.fromEntries(
+          Object.entries(rest).filter(([k, v]) => v !== null && v !== undefined)
+        )),
       ...(tiers &&
         Object.fromEntries(
           Object.entries(tiers).map(([k, v]) => [`Tiers: ${k}`, v])
