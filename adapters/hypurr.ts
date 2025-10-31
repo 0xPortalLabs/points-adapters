@@ -1,3 +1,4 @@
+import { getAddress } from "viem";
 import { AdapterExport } from "../utils/adapter.ts";
 import { maybeWrapCORSProxy } from "../utils/cors.ts";
 import { convertKeysToStartCase } from "../utils/object.ts";
@@ -24,7 +25,7 @@ const API_URL = await maybeWrapCORSProxy(
 
 export default {
   fetch: async (address: string) => {
-    const res = await fetch(API_URL.replace("{address}", address), {
+    const res = await fetch(API_URL.replace("{address}", getAddress(address)), {
       headers: {
         Authorization:
           "Bearer dd0f4f26be36808799f3d1ac5c87c850b58e8f03b964878f9680825132c29c06",
@@ -40,7 +41,9 @@ export default {
     const flattened = {
       ...(rest &&
         Object.fromEntries(
-          Object.entries(rest).filter(([k, v]) => v !== null && v !== undefined)
+          Object.entries(rest).filter(
+            ([k, v]) => v !== null && v !== undefined && k !== "address"
+          )
         )),
       ...(tiers &&
         Object.fromEntries(
@@ -51,11 +54,11 @@ export default {
     return convertKeysToStartCase(flattened);
   },
   total: (data: ApiResponse) => {
-    if (!data || !data.results) return 0;
+    if (!data || !data.results || data.results.length === 0) return 0;
     return data.results[0].total_amount;
   },
   rank: (data: ApiResponse) => {
-    if (!data || !data.results) return 0;
+    if (!data || !data.results || data.results.length === 0) return 0;
     return data.results[0].rank;
   },
 } as AdapterExport;
