@@ -1,6 +1,5 @@
 import type { AdapterExport } from "../utils/adapter.ts";
 import { convertKeysToStartCase } from "../utils/object.ts";
-import { maybeWrapCORSProxy } from "../utils/cors.ts";
 
 // NOTE: API for leaderboard
 // https://api.resolv.im/points/leaderboard?page=1
@@ -22,7 +21,7 @@ const RANK_URL =
     holdUsrEth: 0,
     holdUsrBase: 0,
     holdStUsrEth: 0,
-    holdRlpEth: 0,
+    holdRlpEth: 0
     [...]
   }
 };
