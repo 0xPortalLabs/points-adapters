@@ -10,7 +10,6 @@ const API_URL = await maybeWrapCORSProxy(
 
 export default {
   fetch: async (address: string) => {
-    address = getAddress(address);
     const normalizedAddress = getAddress(address).toLowerCase();
     const res = await fetch(API_URL.replace("{address}", normalizedAddress));
     return res.json();
