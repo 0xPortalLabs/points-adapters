@@ -17,7 +17,7 @@ export default {
   data: ({
     TotalPointsSummary,
   }: {
-    TotalPointsSummary: Record<string, number>;
+    TotalPointsSummary: Record<string, Record<string, number>>;
   }) => {
     const groups: Record<string, Record<string, number>> = {
       "All Time Points": {},
