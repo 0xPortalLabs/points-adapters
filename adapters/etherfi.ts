@@ -1,5 +1,6 @@
 import type { AdapterExport } from "../utils/adapter.ts";
 import { maybeWrapCORSProxy } from "../utils/cors.ts";
+import { getAddress } from "viem";
 
 import { startCase } from "lodash-es";
 
@@ -9,8 +10,10 @@ const API_URL = await maybeWrapCORSProxy(
 
 export default {
   fetch: async (address: string) => {
-    address = address.toLowerCase();
-    return await (await fetch(API_URL.replace("{address}", address))).json();
+    address = getAddress(address);
+    const normalizedAddress = getAddress(address).toLowerCase();
+    const res = await fetch(API_URL.replace("{address}", normalizedAddress));
+    return res.json();
   },
   data: ({
     TotalPointsSummary,
@@ -50,6 +53,21 @@ export default {
 
     return groups;
   },
-  total: ({ TotalEffectiveBalance }: { TotalEffectiveBalance: number }) =>
-    TotalEffectiveBalance,
+  total: ({
+    TotalPointsSummary,
+  }: {
+    TotalPointsSummary: Record<string, Record<string, number>>;
+  }) => {
+    let totalCurrentPoints = 0;
+
+    if (TotalPointsSummary && typeof TotalPointsSummary === "object") {
+      for (const [c, points] of Object.entries(TotalPointsSummary)) {
+        if (points && typeof points === "object" && points.CurrentPoints) {
+          totalCurrentPoints += points.CurrentPoints;
+        }
+      }
+    }
+
+    return totalCurrentPoints || 0;
+  },
 } as AdapterExport;
