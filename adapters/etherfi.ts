@@ -60,7 +60,7 @@ export default {
     let totalCurrentPoints = 0;
 
     if (TotalPointsSummary && typeof TotalPointsSummary === "object") {
-      for (const [c, points] of Object.entries(TotalPointsSummary)) {
+      for (const points of Object.values(TotalPointsSummary)) {
         if (points && typeof points === "object" && points.CurrentPoints) {
           totalCurrentPoints += points.CurrentPoints;
         }
