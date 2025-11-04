@@ -24,7 +24,7 @@ export default {
       }
     });
 
-    return totalPoints;
+    return { totalPoints };
   },
   total: (data) => {
     if (!data || !Array.isArray(data)) return 0;
