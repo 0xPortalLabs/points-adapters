@@ -67,6 +67,6 @@ export default {
       }
     }
 
-    return totalCurrentPoints || 0;
+    return totalCurrentPoints;
   },
 } as AdapterExport;
