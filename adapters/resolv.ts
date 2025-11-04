@@ -1,11 +1,16 @@
 import type { AdapterExport } from "../utils/adapter.ts";
+
 import { convertKeysToStartCase } from "../utils/object.ts";
+import { maybeWrapCORSProxy } from "../utils/cors.ts";
 
 // NOTE: API for leaderboard
 // https://api.resolv.im/points/leaderboard?page=1
-const API_URL = "https://web-api.resolv.xyz/points?address={address}";
-const RANK_URL =
-  "https://web-api.resolv.xyz/points/leaderboard/slice?address={address}";
+const API_URL = await maybeWrapCORSProxy(
+  "https://web-api.resolv.xyz/points?address={address}"
+);
+const RANK_URL = await maybeWrapCORSProxy(
+  "https://web-api.resolv.xyz/points/leaderboard/slice?address={address}"
+);
 
 /*
 {
