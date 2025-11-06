@@ -29,4 +29,7 @@ export default {
     convertKeysToStartCase(convertValuesToNormal(data)),
   total: ({ points }: { points: number }) => points,
   rank: ({ rank }: { rank: number }) => rank,
+  deprecated: () => ({
+    points: 1762359104, // Wednesday 5th November 2025 16:11 GMT
+  }),
 } as AdapterExport;
