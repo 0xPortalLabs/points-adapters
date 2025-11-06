@@ -7,15 +7,7 @@ const API_URL = await maybeWrapCORSProxy(
 );
 
 function getTotalPoints(data: Record<string, number>[]) {
-  let totalPoints = 0;
-
-  data.forEach((entry) => {
-    if (entry.pointsEarned) {
-      totalPoints += entry.pointsEarned;
-    }
-  });
-
-  return totalPoints;
+  return data.reduce((total, entry) => total + (entry.pointsEarned || 0), 0);
 }
 
 export default {
@@ -29,7 +21,7 @@ export default {
     if (!data || !Array.isArray(data)) return {};
     let epochObj: Record<string, number> = {};
     data.forEach((entry) => {
-      if (entry.epochNumber) {
+      if (entry.epochNumber && entry.pointsEarned) {
         const epochKey = `Epoch #${entry.epochNumber}`;
         epochObj[epochKey] = entry.pointsEarned;
       }
