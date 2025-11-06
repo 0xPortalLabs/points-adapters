@@ -6,6 +6,18 @@ const API_URL = await maybeWrapCORSProxy(
   "https://www.usefelix.xyz/api/points/{address}"
 );
 
+function getTotalPoints(data: Record<string, number>[]) {
+  let totalPoints = 0;
+
+  data.forEach((entry) => {
+    if (entry.pointsEarned) {
+      totalPoints += entry.pointsEarned;
+    }
+  });
+
+  return totalPoints;
+}
+
 export default {
   fetch: async (address) => {
     const response = await fetch(
@@ -15,24 +27,17 @@ export default {
   },
   data: (data) => {
     if (!data || !Array.isArray(data)) return {};
-
-    let totalPoints = 0;
-
+    let epochObj: Record<string, number> = {};
     data.forEach((entry) => {
-      if (entry.pointsEarned) {
-        totalPoints += entry.pointsEarned;
+      if (entry.epochNumber) {
+        const epochKey = `Epoch #${entry.epochNumber}`;
+        epochObj[epochKey] = entry.pointsEarned;
       }
     });
-
-    return { totalPoints };
+    return epochObj;
   },
   total: (data) => {
     if (!data || !Array.isArray(data)) return 0;
-
-    const totalPoints = data.reduce(
-      (sum, entry) => sum + (entry.pointsEarned || 0),
-      0
-    );
-    return totalPoints;
+    return getTotalPoints(data);
   },
 } as AdapterExport;
