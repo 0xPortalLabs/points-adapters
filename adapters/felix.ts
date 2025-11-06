@@ -6,10 +6,6 @@ const API_URL = await maybeWrapCORSProxy(
   "https://www.usefelix.xyz/api/points/{address}"
 );
 
-function getTotalPoints(data: Record<string, number>[]) {
-  return data.reduce((total, entry) => total + (entry.pointsEarned || 0), 0);
-}
-
 export default {
   fetch: async (address) => {
     const response = await fetch(
@@ -30,6 +26,6 @@ export default {
   },
   total: (data) => {
     if (!data || !Array.isArray(data)) return 0;
-    return getTotalPoints(data);
+    return data.reduce((total, entry) => total + (entry.pointsEarned || 0), 0);
   },
 } as AdapterExport;
