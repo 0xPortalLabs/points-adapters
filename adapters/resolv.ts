@@ -5,12 +5,9 @@ import { maybeWrapCORSProxy } from "../utils/cors.ts";
 
 // NOTE: API for leaderboard
 // https://api.resolv.im/points/leaderboard?page=1
-const API_URL = await maybeWrapCORSProxy(
-  "https://web-api.resolv.xyz/points?address={address}"
-);
-const RANK_URL = await maybeWrapCORSProxy(
-  "https://web-api.resolv.xyz/points/leaderboard/slice?address={address}"
-);
+const API_URL = "https://web-api.resolv.xyz/points?address={address}";
+const RANK_URL =
+  "https://web-api.resolv.xyz/points/leaderboard/slice?address={address}";
 
 /*
 {
@@ -53,7 +50,6 @@ export default {
       (await fetch(API_URL.replace("{address}", address))).json(),
       (await fetch(RANK_URL.replace("{address}", address))).json(),
     ]);
-
     return { data, rankData };
   },
   data: ({ data }: { data: { dailyActivities: Record<string, number> } }) =>
