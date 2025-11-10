@@ -49,28 +49,31 @@ export default {
     address = checksumAddress(address as `0x${string}`);
     const res = await fetch(API_URL.replace("{address}", address));
 
-    if (res.status === 404) return { accounts: [], rank: 0 };
+    if (res.status === 404)
+      return { accounts: [], leaderboardPositionS0: { rank: 0 } };
 
-    return res.json();
+    return await res.json();
   },
   data: ({
     accounts,
-    rank,
+    leaderboardPosition,
   }: {
     accounts: Array<{ assetAddress: string; points: string }>;
-    rank: number;
+    leaderboardPosition: { rank: number };
   }) => {
     return {
-      rank,
+      rank: leaderboardPosition.rank,
       ...Object.fromEntries(
         accounts.map((account) => [
           `Asset: ${account.assetAddress}`,
           getPoints(account),
-        ])
+        ]),
       ),
     };
   },
   total: ({ accounts }: { accounts: Array<{ points: string }> }) =>
     accounts.reduce((total, account) => total + getPoints(account), 0),
-  rank: (data: { rank: number }) => data.rank,
+  rank: (data: { leaderboardPosition: { rank: number } }) => {
+    return data.leaderboardPosition.rank;
+  },
 } as AdapterExport;
