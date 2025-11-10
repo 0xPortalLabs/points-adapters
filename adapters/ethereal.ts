@@ -40,8 +40,19 @@ const getPoints = ({ points }: { points: string }) => {
       "assetAddress": "0x85667e484a32d884010Cf16427D90049CCf46e97"
     }
   ],
-  "refereeAccounts": [],
-  "rank": 292
+    "refereeAccounts": [],
+    "leaderboardPosition": {
+        "address": "0x4142C8D0319B28b1cbd189E2e98a482999BF030B",
+        "lastCalculatedAt": "2025-11-10T20:07:35.364Z",
+        "rank": 439,
+        "totalPoints": "578312831352287139739603"
+    },
+    "leaderboardPositionS0": {
+        "address": "0x4142C8D0319B28b1cbd189E2e98a482999BF030B",
+        "lastCalculatedAt": "2025-10-03T23:39:07.162Z",
+        "rank": 377,
+        "totalPoints": "578312827053433376520606"
+    }
 }
  */
 export default {
