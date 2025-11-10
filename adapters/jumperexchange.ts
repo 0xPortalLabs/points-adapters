@@ -10,12 +10,18 @@ const LEADERBOARD_URL = await maybeWrapCORSProxy(
 
 export default {
   fetch: async (address: string) => {
+    const headers = {
+      Referer: "https://jumper.exchange/",
+    };
     const [rewards, leaderboard] = await Promise.all([
-      (await fetch(API_URL.replace("{address}", address))).json(),
-      (await fetch(LEADERBOARD_URL.replace("{address}", address))).json(),
+      await fetch(API_URL.replace("{address}", address), { headers }),
+      await fetch(LEADERBOARD_URL.replace("{address}", address), { headers }),
     ]);
 
-    return { rewards, leaderboard };
+    return {
+      rewards: await rewards.json(),
+      leaderboard: await leaderboard.json(),
+    };
   },
   data: ({
     rewards,
