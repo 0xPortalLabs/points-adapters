@@ -50,7 +50,7 @@ export default {
     const res = await fetch(API_URL.replace("{address}", address));
 
     if (res.status === 404)
-      return { accounts: [], leaderboardPositionS0: { rank: 0 } };
+      return { accounts: [], leaderboardPosition: { rank: 0 } };
 
     return await res.json();
   },
