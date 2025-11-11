@@ -1,6 +1,7 @@
 import { getAddress } from "viem";
 import { AdapterExport } from "../utils/adapter.ts";
 import { maybeWrapCORSProxy } from "../utils/cors.ts";
+import { convertKeysToStartCase } from "../utils/object.ts";
 
 const API_URL = await maybeWrapCORSProxy(
   "https://app.nansen.ai/api/points-leaderboard",
@@ -22,12 +23,12 @@ export default {
     is_eligible: boolean;
   }) => {
     if (!data) return {};
-    return {
+    return convertKeysToStartCase({
       points: data.points,
       rank: data.rank,
       tier: data.tier,
-      is_eligible: String(data.is_eligible),
-    };
+      is_eligible: data.is_eligible ? "Yes" : "No",
+    });
   },
   total: (data: { points: number }) => {
     if (!data) return 0;
