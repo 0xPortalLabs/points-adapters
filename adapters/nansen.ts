@@ -1,7 +1,10 @@
 import { getAddress } from "viem";
 import { AdapterExport } from "../utils/adapter.ts";
+import { maybeWrapCORSProxy } from "../utils/cors.ts";
 
-const API_URL = "https://app.nansen.ai/api/points-leaderboard";
+const API_URL = await maybeWrapCORSProxy(
+  "https://app.nansen.ai/api/points-leaderboard",
+);
 
 // 0x6E93Ebc8302890fF1D1BeFd779D1DB131eF30D4d - Testing address
 export default {
