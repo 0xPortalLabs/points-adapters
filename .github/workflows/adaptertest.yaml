@@ -1,0 +1,123 @@
+name: Adapter Test
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "adapters/*.ts"
+
+jobs:
+  adapter-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Deno
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: v2.x
+
+      - name: Parse test address
+        id: parse
+        run: |
+          # Default address for PR events
+          DEFAULT_ADDRESS="0x69155e7ca2e688ccdc247f6c4ddf374b3ae77bd6"
+
+          # Check if this is a comment event
+          if [ "${{ github.event_name }}" = "issue_comment" ]; then
+            COMMENT_BODY="${{ github.event.comment.body }}"
+            # Extract address from /test <address> command
+            ADDRESS=$(echo "$COMMENT_BODY" | grep -oE '/test\s+0x[a-fA-F0-9]{40}' | grep -oE '0x[a-fA-F0-9]{40}')
+            if [ -z "$ADDRESS" ]; then
+              echo "Invalid or missing address in comment"
+              exit 0
+            fi
+          else
+            ADDRESS="$DEFAULT_ADDRESS"
+          fi
+
+          # Validate address format
+          if [[ ! "$ADDRESS" =~ ^0x[a-fA-F0-9]{40}$ ]]; then
+            echo "Invalid address format: $ADDRESS"
+            exit 0
+          fi
+
+          echo "address=$ADDRESS" >> $GITHUB_OUTPUT
+
+      - name: Cache dependencies
+        run: |
+          echo "Skipping dependency caching for testing"
+
+      - name: Get changed files
+        id: changed-files
+        run: |
+          # Get the list of changed .ts files in adapters directory
+          CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD | grep "^adapters/.*\.ts$" | head -1)
+          if [ -z "$CHANGED_FILES" ]; then
+            echo "No adapter files changed"
+            exit 0
+          fi
+          echo "changed_file=$CHANGED_FILES" >> $GITHUB_OUTPUT
+
+      - name: Run adapter tests
+        id: test
+        run: |
+          ADDRESS="${{ steps.parse.outputs.address }}"
+          CHANGED_FILE="${{ steps.changed-files.outputs.changed_file }}"
+          echo "Running adapter test for address: $ADDRESS"
+          echo "Testing file: $CHANGED_FILE"
+          deno install
+          deno run -A test.ts $CHANGED_FILE $ADDRESS > test_output.txt 2>&1
+          echo "exit_code=$?" >> $GITHUB_OUTPUT
+        continue-on-error: true
+
+      - name: Show test results
+        run: |
+          if [ -f test_output.txt ]; then
+            echo "=== Test Results ==="
+            cat test_output.txt
+            echo "==================="
+          else
+            echo "No test output found"
+          fi
+
+      - name: Comment PR with results
+        if: github.event_name != 'act_local_test'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+            let testOutput = 'No test output found';
+            try {
+              testOutput = fs.readFileSync('test_output.txt', 'utf8');
+            } catch (e) {
+              console.log('Could not read test output file');
+            }
+
+            const exitCode = '${{ steps.test.outputs.exit_code }}';
+            const status = exitCode === '0' ? '✅ PASSED' : '❌ FAILED';
+            const address = '${{ steps.parse.outputs.address }}';
+            const changedFile = '${{ steps.changed-files.outputs.changed_file }}' || 'No files detected';
+
+            const comment = `## Adapter Test Results ${status}
+
+            **Test Address:** \`${address}\`
+            **Tested File:** \`${changedFile}\`
+
+            ### Output:
+            \`\`\`
+            ${testOutput}
+            \`\`\`
+
+            ---
+
+            **Want to test another address?** 
+
+            Comment on this PR with: \`/test <address>\` to run the adapter test with a different address.`;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
