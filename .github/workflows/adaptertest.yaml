@@ -44,31 +44,75 @@ jobs:
 
           echo "address=$ADDRESS" >> $GITHUB_OUTPUT
 
-      - name: Cache dependencies
-        run: |
-          echo "Skipping dependency caching for testing"
+      - name: Cache Deno dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/deno
+            ~/.deno
+          key: ${{ runner.os }}-deno-${{ hashFiles('**/deno.lock', '**/deno.json') }}
+          restore-keys: |
+            ${{ runner.os }}-deno-
 
       - name: Get changed files
         id: changed-files
         run: |
-          # Get the list of changed .ts files in adapters directory
-          CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD | grep "^adapters/.*\.ts$" | head -1)
+          # Get PR base and head SHAs from GitHub context
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            BASE_SHA="${{ github.event.pull_request.base.sha }}"
+            HEAD_SHA="${{ github.event.pull_request.head.sha }}"
+          elif [ "${{ github.event_name }}" = "issue_comment" ]; then
+            # For comment events, get the PR info
+            BASE_SHA="${{ github.event.pull_request.base.sha }}"
+            HEAD_SHA="${{ github.event.pull_request.head.sha }}"
+          else
+            echo "Unsupported event type: ${{ github.event_name }}"
+            exit 1
+          fi
+
+          # Validate we have both SHAs
+          if [ -z "$BASE_SHA" ] || [ -z "$HEAD_SHA" ]; then
+            echo "Error: Could not determine base SHA ($BASE_SHA) or head SHA ($HEAD_SHA)"
+            exit 1
+          fi
+
+          # Fetch the base and head refs
+          echo "Fetching base SHA: $BASE_SHA"
+          if ! git fetch origin "$BASE_SHA"; then
+            echo "Error: Failed to fetch base SHA $BASE_SHA"
+            exit 1
+          fi
+
+          echo "Fetching head SHA: $HEAD_SHA"  
+          if ! git fetch origin "$HEAD_SHA"; then
+            echo "Error: Failed to fetch head SHA $HEAD_SHA"
+            exit 1
+          fi
+
+          # Get changed files between base and head
+          echo "Comparing $BASE_SHA..$HEAD_SHA"
+          CHANGED_FILES=$(git diff --name-only "$BASE_SHA" "$HEAD_SHA" | grep "^adapters/.*\.ts$" | head -1)
+
           if [ -z "$CHANGED_FILES" ]; then
-            echo "No adapter files changed"
+            echo "No adapter files changed in this PR"
+            echo "changed_file=" >> $GITHUB_OUTPUT
             exit 0
           fi
+
+          echo "Found changed adapter file: $CHANGED_FILES"
           echo "changed_file=$CHANGED_FILES" >> $GITHUB_OUTPUT
 
       - name: Run adapter tests
         id: test
         run: |
+          deno install
           ADDRESS="${{ steps.parse.outputs.address }}"
           CHANGED_FILE="${{ steps.changed-files.outputs.changed_file }}"
           echo "Running adapter test for address: $ADDRESS"
           echo "Testing file: $CHANGED_FILE"
-          deno install
           deno run -A test.ts $CHANGED_FILE $ADDRESS > test_output.txt 2>&1
-          echo "exit_code=$?" >> $GITHUB_OUTPUT
+          exit_code=$?
+          echo "exit_code=$exit_code" >> $GITHUB_OUTPUT
         continue-on-error: true
 
       - name: Show test results
