@@ -323,7 +323,9 @@ jobs:
 
             **Need to test with a different address?** 
 
-            Simply reply to this comment with any Ethereum address (e.g., \`0x1234567890123456789012345678901234567890\`) and the tests will run automatically with that address!`;            github.rest.issues.createComment({
+            Simply reply to this comment with any Ethereum address (e.g., \`0x1234567890123456789012345678901234567890\`) and the tests will run automatically with that address!`;
+
+            github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
