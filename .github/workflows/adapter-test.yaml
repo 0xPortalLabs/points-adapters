@@ -1,0 +1,331 @@
+name: Adapter Test
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "adapters/*.ts"
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+jobs:
+  adapter-test:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' || (github.event_name == 'issue_comment' && github.event.issue.pull_request != null)
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check for adapter changes
+        id: check-changes
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          if [ "$EVENT_NAME" = "pull_request" ]; then
+            # Direct PR event - SHAs are already in environment variables
+            # Validate we have both SHAs
+            if [ -z "$BASE_SHA" ] || [ -z "$HEAD_SHA" ]; then
+              echo "Error: Could not determine base SHA ($BASE_SHA) or head SHA ($HEAD_SHA)"
+              exit 1
+            fi
+
+            # Validate SHA format (40 hex characters)
+            if [[ ! "$BASE_SHA" =~ ^[a-f0-9]{40}$ ]] || [[ ! "$HEAD_SHA" =~ ^[a-f0-9]{40}$ ]]; then
+              echo "Error: Invalid SHA format"
+              exit 1
+            fi
+
+            # Fetch the base and head refs
+            echo "Fetching base SHA: $BASE_SHA"
+            if ! git fetch origin "$BASE_SHA"; then
+              echo "Error: Failed to fetch base SHA $BASE_SHA"
+              exit 1
+            fi
+
+            echo "Fetching head SHA: $HEAD_SHA"  
+            if ! git fetch origin "$HEAD_SHA"; then
+              echo "Error: Failed to fetch head SHA $HEAD_SHA"
+              exit 1
+            fi
+
+            # Get changed files between base and head
+            echo "Comparing $BASE_SHA..$HEAD_SHA for adapter changes"
+            CHANGED_FILES=$(git diff --name-only "$BASE_SHA" "$HEAD_SHA" | grep "^adapters/.*\.ts$")
+          elif [ "$EVENT_NAME" = "issue_comment" ]; then
+            # For PR comments, we need to get the PR info via API
+            echo "Getting PR information from comment event..."
+            PR_DATA=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+              "https://api.github.com/repos/${{ github.repository }}/pulls/${{ github.event.issue.number }}")
+            
+            BASE_SHA=$(echo "$PR_DATA" | jq -r '.base.sha')
+            HEAD_SHA=$(echo "$PR_DATA" | jq -r '.head.sha')
+            
+            if [ -z "$BASE_SHA" ] || [ -z "$HEAD_SHA" ] || [ "$BASE_SHA" = "null" ] || [ "$HEAD_SHA" = "null" ]; then
+              echo "Error: Cannot get PR SHAs from API response"
+              exit 1
+            fi
+            
+            # Validate SHA format (40 hex characters)
+            if [[ ! "$BASE_SHA" =~ ^[a-f0-9]{40}$ ]] || [[ ! "$HEAD_SHA" =~ ^[a-f0-9]{40}$ ]]; then
+              echo "Error: Invalid SHA format"
+              exit 1
+            fi
+
+            # Fetch the base and head refs
+            echo "Fetching base SHA: $BASE_SHA"
+            if ! git fetch origin "$BASE_SHA"; then
+              echo "Error: Failed to fetch base SHA $BASE_SHA"
+              exit 1
+            fi
+
+            echo "Fetching head SHA: $HEAD_SHA"  
+            if ! git fetch origin "$HEAD_SHA"; then
+              echo "Error: Failed to fetch head SHA $HEAD_SHA"
+              exit 1
+            fi
+
+            # Get changed files between base and head
+            echo "Comparing $BASE_SHA..$HEAD_SHA for adapter changes"
+            CHANGED_FILES=$(git diff --name-only "$BASE_SHA" "$HEAD_SHA" | grep "^adapters/.*\.ts$")
+          else
+            echo "Unsupported event type: $EVENT_NAME"
+            exit 1
+          fi
+
+          if [ -z "$CHANGED_FILES" ]; then
+            echo "No adapter files found to test. Skipping tests."
+            exit 0
+          fi
+
+          echo "Found adapter files to test:"
+          echo "$CHANGED_FILES"
+
+          # Store the list of changed files (newline-separated)
+          echo "changed_files<<EOF" >> $GITHUB_OUTPUT
+          echo "$CHANGED_FILES" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Setup Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Set test address
+        id: parse
+        env:
+          COMMENT_BODY: ${{ github.event.comment.body }}
+        run: |
+          # Default address
+          ADDRESS="0x69155e7ca2e688ccdc247f6c4ddf374b3ae77bd6"
+
+          # If this is a comment event, try to extract address from comment
+          if [ "${{ github.event_name }}" = "issue_comment" ]; then
+            echo "Parsing comment for address..."
+            # Look for Ethereum address pattern in comment (0x followed by 40 hex chars)
+            COMMENT_ADDRESS=$(echo "$COMMENT_BODY" | grep -oE '0x[a-fA-F0-9]{40}' | head -n1)
+            
+            if [ -n "$COMMENT_ADDRESS" ]; then
+              ADDRESS="$COMMENT_ADDRESS"
+              echo "Found address in comment: $ADDRESS"
+            else
+              echo "No valid address found in comment, using default"
+            fi
+          else
+            echo "Using default address for PR event"
+          fi
+
+          # Mask the address to prevent it from appearing in logs
+          echo "::add-mask::$ADDRESS"
+          echo "address=$ADDRESS" >> $GITHUB_OUTPUT
+
+      - name: Cache Deno dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/deno
+            ~/.deno
+            node_modules
+          key: ${{ runner.os }}-deno-${{ hashFiles('**/deno.lock', '**/deno.json', '**/package.json') }}
+          restore-keys: |
+            ${{ runner.os }}-deno-
+
+      - name: Install dependencies
+        run: deno install
+
+      - name: Run adapter tests
+        id: test
+        env:
+          CHANGED_FILES: ${{ steps.check-changes.outputs.changed_files }}
+          POINTS_ADDRESS: ${{ steps.parse.outputs.address }}
+        run: |
+          if [[ ! "$POINTS_ADDRESS" =~ ^0x[a-fA-F0-9]{40}$ ]]; then
+            echo "Error: Invalid address format"
+            exit 1
+          fi
+
+          # Initialize overall results
+          overall_exit_code=0
+          NO_POINTS_ADDRESS="0x0000000000000000000000000000000000000000"
+
+          # Clear output files
+          > test_output.txt
+
+          # Process each changed adapter file
+          file_count=0
+          while IFS= read -r CHANGED_FILE; do
+            [ -z "$CHANGED_FILE" ] && continue
+            
+            # Validate file format
+            if [[ ! "$CHANGED_FILE" =~ ^adapters/[a-zA-Z0-9_-]+\.ts$ ]]; then
+              echo "Error: Invalid file path format: $CHANGED_FILE"
+              overall_exit_code=1
+              continue
+            fi
+            
+            file_count=$((file_count + 1))
+            echo "## 📁 Testing: $CHANGED_FILE" >> test_output.txt
+            echo "" >> test_output.txt
+            
+            
+            # Test 1: Address likely to have points
+            # Capture both stdout and stderr, and preserve exit code
+            set +e  # Don't exit on error
+            test1_output=$(deno run -A test.ts "$CHANGED_FILE" "$POINTS_ADDRESS" 2>&1)
+            points_exit_code=$?
+            set -e  # Re-enable exit on error
+            
+            if [ $points_exit_code -eq 0 ]; then
+              result_icon="✅ PASSED"
+              points_result=0
+            else
+              result_icon="❌ FAILED"
+              points_result=1
+              overall_exit_code=1
+            fi
+            
+            echo "### 🟢 Test 1: Address with Points - $result_icon" >> test_output.txt
+            echo "**Address:** \`$POINTS_ADDRESS\`" >> test_output.txt
+            echo "" >> test_output.txt
+            echo "<details>" >> test_output.txt
+            echo "<summary>Click to view test output</summary>" >> test_output.txt
+            echo "" >> test_output.txt
+            echo "\`\`\`" >> test_output.txt
+            echo "$test1_output" >> test_output.txt
+            echo "\`\`\`" >> test_output.txt
+            echo "" >> test_output.txt
+            echo "</details>" >> test_output.txt
+
+            echo "" >> test_output.txt
+            
+            # Test 2: Address likely to have no points
+            # Capture both stdout and stderr, and preserve exit code
+            set +e  # Don't exit on error
+            test2_output=$(deno run -A test.ts "$CHANGED_FILE" "$NO_POINTS_ADDRESS" 2>&1)
+            no_points_exit_code=$?
+            set -e  # Re-enable exit on error
+            
+            if [ $no_points_exit_code -eq 0 ]; then
+              result_icon="✅ PASSED"
+              no_points_result=0
+            else
+              result_icon="❌ FAILED"
+              no_points_result=1
+              overall_exit_code=1
+            fi
+            
+            echo "### 🔴 Test 2: Address with No Points - $result_icon" >> test_output.txt
+            echo "**Address:** \`$NO_POINTS_ADDRESS\`" >> test_output.txt
+            echo "" >> test_output.txt
+            echo "<details>" >> test_output.txt
+            echo "<summary>Click to view test output</summary>" >> test_output.txt
+            echo "" >> test_output.txt
+            echo "\`\`\`" >> test_output.txt
+            echo "$test2_output" >> test_output.txt
+            echo "\`\`\`" >> test_output.txt
+            echo "" >> test_output.txt
+            echo "</details>" >> test_output.txt
+            
+            echo "" >> test_output.txt
+            echo "---" >> test_output.txt
+            echo "" >> test_output.txt
+            
+          done <<< "$CHANGED_FILES"
+
+          echo "Tested $file_count adapter file(s)"
+          echo "file_count=$file_count" >> $GITHUB_OUTPUT
+          echo "exit_code=$overall_exit_code" >> $GITHUB_OUTPUT
+        continue-on-error: true
+
+      - name: Show test results
+        run: |
+          if [ -f test_output.txt ]; then
+            echo "=== Test Results ==="
+            cat test_output.txt
+            echo "==================="
+          else
+            echo "No test output found"
+          fi
+
+      - name: Comment PR with results
+        uses: actions/github-script@v7
+        env:
+          OVERALL_EXIT_CODE: ${{ steps.test.outputs.exit_code }}
+          POINTS_EXIT_CODE: ${{ steps.test.outputs.points_exit_code }}
+          NO_POINTS_EXIT_CODE: ${{ steps.test.outputs.no_points_exit_code }}
+          POINTS_ADDRESS: ${{ steps.parse.outputs.address }}
+          CHANGED_FILES: ${{ steps.check-changes.outputs.changed_files }}
+          FILE_COUNT: ${{ steps.test.outputs.file_count }}
+        with:
+          script: |
+            const fs = require('fs');
+            let testOutput = 'No test output found';
+            try {
+              testOutput = fs.readFileSync('test_output.txt', 'utf8');
+            } catch (e) {
+              console.log('Could not read test output file');
+            }
+
+            // Get values from environment variables to prevent injection
+            const overallExitCode = process.env.OVERALL_EXIT_CODE;
+            const overallStatus = overallExitCode === '0' ? '✅ PASSED' : '❌ FAILED';
+
+            const pointsAddress = process.env.POINTS_ADDRESS;
+            const noPointsAddress = '0x0000000000000000000000000000000000000000';
+            const changedFiles = process.env.CHANGED_FILES || 'No files detected';
+            const fileCount = process.env.FILE_COUNT || '0';
+
+            // Validate inputs to prevent injection
+            const addressRegex = /^0x[a-fA-F0-9]{40}$/;
+
+            if (pointsAddress && !addressRegex.test(pointsAddress)) {
+              console.log('Invalid points address format');
+              return;
+            }
+
+            // Format the list of changed files
+            const fileList = changedFiles === 'No files detected' 
+              ? 'No files detected' 
+              : changedFiles.split('\n').filter(f => f.trim()).map(f => `\`${f}\``).join(', ');
+
+            const comment = `## Adapter Test Results ${overallStatus}
+
+            **Tested ${fileCount} Adapter File(s):** ${fileList}
+
+            ${testOutput}
+
+            ---
+
+            **Need to test with a different address?** 
+
+            Simply reply to this comment with any Ethereum address (e.g., \`0x1234567890123456789012345678901234567890\`) and the tests will run automatically with that address!`;            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
