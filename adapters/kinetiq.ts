@@ -1,28 +1,31 @@
 import type { AdapterExport } from "../utils/adapter.ts";
+
+import { checksumAddress } from "viem";
+
 import { maybeWrapCORSProxy } from "../utils/cors.ts";
 
-// Historical endpoint: https://kinetiq.xyz/api/points/{address}/history?chainId=1
-const API_URL = await maybeWrapCORSProxy(
-  "https://kinetiq.xyz/api/points/{address}?chainId=1"
-);
+const API_URL = await maybeWrapCORSProxy("https://kinetiq.xyz/kpoints");
 
-// {
-//   "address": "0x...",
-//   "points": 1234.56,
-//   "rank": 123,
-//   "tier": "Gold"  // Bush, Bronze, Silver, Gold, Platinum, Diamond, Onyx
-// }
+// 0:{"a":"$@1","f":"","b":"RlJjJG8BajH16-DM4LyPm"}
+// 1:{"address":"0x12...","points":0,"tier":"Bush"}
 export default {
   fetch: async (address: string) => {
-    const url = API_URL.replace("{address}", address.toLowerCase());
+    address = checksumAddress(address as `0x${string}`);
 
-    const res = await fetch(url, {
+    const res = await fetch(API_URL, {
+      method: "POST",
+      body: JSON.stringify([{ chainId: 1, userAddress: address }]),
       headers: {
-        Accept: "application/json",
+        "next-action": "7fe98e616734232bdb03a27d671f1ea032ddd6ebed",
       },
     });
 
-    return await res.json();
+    const lines = (await res.text()).split("\n").filter((l) => l.trim());
+    const data = lines.find((l) => l.includes("address"));
+    if (!data) throw new Error("invalid response format");
+
+    // Remove "1:" prefix.
+    return JSON.parse(data.slice(2));
   },
   data: (data: { rank?: number; tier: string }) => ({
     Tier: data.tier,
