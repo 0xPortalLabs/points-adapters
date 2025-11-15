@@ -56,7 +56,7 @@ jobs:
                 # Second parameter is optional file
                 if [ -n "$PARAM2" ]; then
                   # Validate file format (must be file.ts)
-                  if echo "$PARAM2" | grep -qE '^[a-zA-Z0-9_-]+\.ts$'; then
+                  if echo "$PARAM2" | grep -qE '^.+\.ts$'; then
                     # Convert filename to adapters/filename.ts
                     CUSTOM_FILE="adapters/$PARAM2"
                     echo "Using custom file: $CUSTOM_FILE"
@@ -186,7 +186,7 @@ jobs:
             [ -z "$CHANGED_FILE" ] && continue
             
             # Validate file format
-            if [[ ! "$CHANGED_FILE" =~ ^adapters/[a-zA-Z0-9_-]+\.ts$ ]]; then
+            if [[ ! "$CHANGED_FILE" =~ ^adapters/.+\.ts$ ]]; then
               echo "Error: Invalid file path format: $CHANGED_FILE"
               continue
             fi
