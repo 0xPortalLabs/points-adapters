@@ -192,34 +192,28 @@ jobs:
             fi
             
             file_count=$((file_count + 1))
-            echo "## 📁 Testing: $CHANGED_FILE" >> test_output.txt
+            echo "**$CHANGED_FILE**" >> test_output.txt
             echo "" >> test_output.txt
             
             if [ "$IS_TEST_COMMAND" = "true" ]; then
               # Custom /test command - only test the specified address
-              echo "### 🧪 Custom Address Test" >> test_output.txt
-              echo "**Address:** \`$POINTS_ADDRESS\`" >> test_output.txt
-              echo "" >> test_output.txt
               echo "<details>" >> test_output.txt
-              echo "<summary>Click to view test output</summary>" >> test_output.txt
+              echo "<summary>$POINTS_ADDRESS</summary>" >> test_output.txt
               echo "" >> test_output.txt
               echo "\`\`\`" >> test_output.txt
               
               # Capture both stdout and stderr
-              test_output=$(deno run -A test.ts "$CHANGED_FILE" "$POINTS_ADDRESS" 2>&1 || true)
+              custom_test_output=$(deno run -A test.ts "$CHANGED_FILE" "$POINTS_ADDRESS" 2>&1 || true)
               
-              echo "$test_output" >> test_output.txt
+              echo "$custom_test_output" >> test_output.txt
               echo "\`\`\`" >> test_output.txt
               echo "" >> test_output.txt
               echo "</details>" >> test_output.txt
             else
               # Standard PR testing - test both addresses
               # Test 1: Address likely to have points
-              echo "### 🟢 Test 1: Address with Points" >> test_output.txt
-              echo "**Address:** \`$POINTS_ADDRESS\`" >> test_output.txt
-              echo "" >> test_output.txt
               echo "<details>" >> test_output.txt
-              echo "<summary>Click to view test output</summary>" >> test_output.txt
+              echo "<summary>$POINTS_ADDRESS</summary>" >> test_output.txt
               echo "" >> test_output.txt
               echo "\`\`\`" >> test_output.txt
               
@@ -230,15 +224,11 @@ jobs:
               echo "\`\`\`" >> test_output.txt
               echo "" >> test_output.txt
               echo "</details>" >> test_output.txt
-
               echo "" >> test_output.txt
               
               # Test 2: Address likely to have no points
-              echo "### 🔴 Test 2: Address with No Points" >> test_output.txt
-              echo "**Address:** \`$NO_POINTS_ADDRESS\`" >> test_output.txt
-              echo "" >> test_output.txt
               echo "<details>" >> test_output.txt
-              echo "<summary>Click to view test output</summary>" >> test_output.txt
+              echo "<summary>$NO_POINTS_ADDRESS</summary>" >> test_output.txt
               echo "" >> test_output.txt
               echo "\`\`\`" >> test_output.txt
               
@@ -251,8 +241,6 @@ jobs:
               echo "</details>" >> test_output.txt
             fi
             
-            echo "" >> test_output.txt
-            echo "---" >> test_output.txt
             echo "" >> test_output.txt
             
           done <<< "$CHANGED_FILES"
@@ -303,14 +291,9 @@ jobs:
 
             ${testOutput}
 
-
-            **Need to test with a different address or specific file?** 
-
             Use the \`/test\` command:
             - \`/test 0x1234567890123456789012345678901234567890\` - Test with custom address
-            - \`/test 0x1234567890123456789012345678901234567890 filename.ts\` - Test specific file with custom address
-
-            The tests will run automatically with your parameters!`;
+            - \`/test 0x1234567890123456789012345678901234567890 filename.ts\` - Test specific file with custom address`;
 
             github.rest.issues.createComment({
               issue_number: context.issue.number,
