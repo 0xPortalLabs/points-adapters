@@ -1,6 +1,6 @@
 ## IMPORTANT NOTES
 
-#### Before Submitting:
+### Before Submitting:
 - [ ] Enable "Allow edits by maintainers" on this PR
 - [ ] Test your adapter locally with a valid address and an invalid address
 - [ ] Ensure your adapter works with different address formats (checksummed, lowercase, uppercase)
@@ -8,7 +8,7 @@
 
 ---
 
-## PR Type
+### PR Type
 
 - [ ] **New Adapter** - Adding a new protocol adapter
 - [ ] **Adapter Update** - Fixing/improving an existing adapter
@@ -17,7 +17,7 @@
 
 ---
 
-## Testing Information
+### Testing Information
 
 **Adapter File:** `adapters/your-adapter.ts`
 
@@ -37,7 +37,7 @@ deno run --allow-net --allow-read=adapters test.ts adapters/your-adapter.ts <add
 
 ---
 
-## 📝 Adapter Details
+## Adapter Details
 
 **Protocol Name:**
 
