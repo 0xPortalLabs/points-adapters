@@ -96,7 +96,7 @@ if (res.rank) console.log(`User Rank: ${nth(res.rank)}`);
 if (res.claimable) console.log(`Is there an airdrop? ${res.claimable}`);
 
 if (res.deprecated && Object.keys(res.deprecated).length > 0) {
-  const labels = Object.keys(res.data);
+  const labels = Object.keys(res.total);
 
   const invalidKeys = Object.keys(res.deprecated).filter(
     (key) => !labels.includes(key) && key != "Points"
