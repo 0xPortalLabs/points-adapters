@@ -1,4 +1,4 @@
-**IMPORTANT NOTES**
+## IMPORTANT NOTES
 
 #### Before Submitting:
 - [ ] Enable "Allow edits by maintainers" on this PR
@@ -43,7 +43,7 @@ deno run --allow-net --allow-read=adapters test.ts adapters/your-adapter.ts <add
 
 
 **Defillama Slug:**
-(from https://api.llama.fi/protocols)
+(from [Defillama protocols API](https://api.llama.fi/protocols))
 
 **Important Features:**
 - [ ] Supports multiple address formats (lowercase, uppercase, checksummed)
