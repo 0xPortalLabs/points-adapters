@@ -21,7 +21,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           # For comments, checkout the PR branch; for PRs, use default behavior
-          ref: ${{ github.event_name == 'issue_comment' && format('refs/pull/{0}/head', github.event.issue.number) || '' }}
+          ref: ${{ github.event_name == 'issue_comment' && format('refs/pull/{0}/head', github.event.issue.number) || null }}
 
       - name: Parse test parameters
         id: parse
@@ -98,19 +98,22 @@ jobs:
           echo "is_test_command=$IS_TEST_COMMAND" >> $GITHUB_OUTPUT
 
       - name: Post immediate response for test commands
+        id: initial-comment
         if: steps.parse.outputs.is_test_command == 'true'
         uses: actions/github-script@v7
         with:
           script: |
-            github.rest.issues.createComment({
+            const comment = await github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
               body: "🔄 Running tests with your custom parameters..."
             });
+            return comment.data.id;
 
       - name: Check for adapter changes
         id: check-changes
+        if: steps.parse.outputs.is_test_command == 'true' || github.event_name == 'pull_request'
         env:
           EVENT_NAME: ${{ github.event_name }}
         run: |
@@ -163,7 +166,7 @@ jobs:
             ~/.cache/deno
             ~/.deno
             node_modules
-          key: ${{ runner.os }}-deno-${{ hashFiles('**/deno.lock', '**/deno.json', '**/package.json') }}
+          key: ${{ runner.os }}-deno-${{ hashFiles('**/deno.lock', '**/deno.json') }}
           restore-keys: |
             ${{ runner.os }}-deno-
 
@@ -172,6 +175,7 @@ jobs:
 
       - name: Run adapter tests
         id: test
+        if: steps.parse.outputs.is_test_command == 'true' || github.event_name == 'pull_request'
         env:
           CHANGED_FILES: ${{ steps.check-changes.outputs.changed_files }}
           POINTS_ADDRESS: ${{ steps.parse.outputs.address }}
@@ -250,6 +254,7 @@ jobs:
         continue-on-error: true
 
       - name: Show test results
+        if: steps.parse.outputs.is_test_command == 'true' || github.event_name == 'pull_request'
         run: |
           if [ -f test_output.txt ]; then
             echo "=== Test Results ==="
@@ -260,13 +265,28 @@ jobs:
           fi
 
       - name: Comment PR with results
+        if: steps.parse.outputs.is_test_command == 'true' || github.event_name == 'pull_request'
         uses: actions/github-script@v7
         env:
           POINTS_ADDRESS: ${{ steps.parse.outputs.address }}
           CHANGED_FILES: ${{ steps.check-changes.outputs.changed_files }}
           FILE_COUNT: ${{ steps.test.outputs.file_count }}
+          INITIAL_COMMENT_ID: ${{ steps.initial-comment.outputs.result }}
         with:
           script: |
+            const initialCommentId = process.env.INITIAL_COMMENT_ID;
+            if (initialCommentId && initialCommentId !== 'null') {
+              try {
+                await github.rest.issues.deleteComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  comment_id: parseInt(initialCommentId)
+                });
+                console.log('Deleted initial comment');
+              } catch (error) {
+                console.log('Could not delete initial comment:', error.message);
+              }
+            }
             const fs = require('fs');
             let testOutput = 'No test output found';
             try {
