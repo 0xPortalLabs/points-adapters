@@ -5,9 +5,12 @@ import { maybeWrapCORSProxy } from "../utils/cors.ts";
 
 // NOTE: API for leaderboard
 // https://api.resolv.im/points/leaderboard?page=1
-const API_URL = "https://web-api.resolv.xyz/points?address={address}";
-const RANK_URL =
-  "https://web-api.resolv.xyz/points/leaderboard/slice?address={address}";
+const API_URL = await maybeWrapCORSProxy(
+  "https://web-api.resolv.xyz/points?address={address}",
+);
+const RANK_URL = await maybeWrapCORSProxy(
+  "https://web-api.resolv.xyz/points/leaderboard/slice?address={address}",
+);
 
 /*
 {
@@ -47,10 +50,11 @@ const RANK_URL =
 export default {
   fetch: async (address: string) => {
     const [data, rankData] = await Promise.all([
-      (await fetch(API_URL.replace("{address}", address))).json(),
-      (await fetch(RANK_URL.replace("{address}", address))).json(),
+      await fetch(API_URL.replace("{address}", address)),
+      await fetch(RANK_URL.replace("{address}", address)),
     ]);
-    return { data, rankData };
+
+    return { data: await data.json(), rankData: await rankData.json() };
   },
   data: ({ data }: { data: { dailyActivities: Record<string, number> } }) =>
     convertKeysToStartCase(data.dailyActivities),
