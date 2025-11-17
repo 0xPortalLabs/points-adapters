@@ -1,0 +1,343 @@
+name: Adapter Test
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "adapters/*.ts"
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+jobs:
+  adapter-test:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' || (github.event_name == 'issue_comment' && github.event.issue.pull_request != null)
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # For comments, checkout the PR branch; for PRs, use default behavior
+          ref: ${{ github.event_name == 'issue_comment' && format('refs/pull/{0}/head', github.event.issue.number) || null }}
+
+      - name: Parse test parameters
+        id: parse
+        env:
+          COMMENT_BODY: ${{ github.event.comment.body }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          # Default address
+          ADDRESS="0x69155e7ca2e688ccdc247f6c4ddf374b3ae77bd6"
+          CUSTOM_FILE=""
+          IS_TEST_COMMAND=false
+
+          if [ "$EVENT_NAME" = "issue_comment" ]; then
+            # Check if comment is a /test command
+            if echo "$COMMENT_BODY" | grep -q "^/test\s"; then
+              echo "Detected /test command"
+              IS_TEST_COMMAND=true
+              
+              # Parse /test <address> [file]
+              TEST_PARAMS=$(echo "$COMMENT_BODY" | sed -n 's/^\/test\s\+//p')
+              
+              # Split parameters by whitespace
+              PARAM1=$(echo "$TEST_PARAMS" | awk '{print $1}')
+              PARAM2=$(echo "$TEST_PARAMS" | awk '{print $2}')
+              
+              if [ -n "$PARAM1" ]; then
+                # First parameter is always treated as address
+                ADDRESS="$PARAM1"
+                echo "Using address from /test command: $ADDRESS"
+                
+                # Second parameter is optional file
+                if [ -n "$PARAM2" ]; then
+                  # Validate file format (must be file.ts with no path traversal)
+                  if echo "$PARAM2" | grep -qE '^[^/\\]+\.ts$'; then
+                    # Convert filename to adapters/filename.ts
+                    CUSTOM_FILE="adapters/$PARAM2"
+                    echo "Using custom file: $CUSTOM_FILE"
+                  else
+                    echo "Invalid file format: $PARAM2 (must be filename.ts without path separators)"
+                    exit 1
+                  fi
+                fi
+              else
+                echo "Error: /test command requires an address"
+                exit 1
+              fi
+            else
+              echo "Regular comment (not /test command), skipping"
+              exit 0
+            fi
+          else
+            # PR event - try to parse address from PR template
+            if [ -n "$PR_BODY" ]; then
+              echo "Parsing PR template for test address..."
+              echo "PR Body preview:"
+              echo "$PR_BODY" | head -20
+              
+              # Look for address in "**Test Address (with points):**" section
+              ADDRESS_SECTION=$(echo "$PR_BODY" | sed -n '/\*\*Test Address (with points):\*\*/,/```.*```/p')
+              
+              if [ -n "$ADDRESS_SECTION" ]; then
+                echo "Found address section:"
+                echo "$ADDRESS_SECTION"
+                
+                # Extract content between backticks (inside the code block)
+                CODE_BLOCK_CONTENT=$(echo "$ADDRESS_SECTION" | sed -n '/```/,/```/p' | sed '1d;$d')
+                echo "Code block content: '$CODE_BLOCK_CONTENT'"
+                
+                # Extract 0x address from the code block content, ignoring placeholder text
+                PR_ADDRESS=$(echo "$CODE_BLOCK_CONTENT" | grep -oE '0x[a-fA-F0-9]{40}' | head -n1)
+                
+                if [ -n "$PR_ADDRESS" ] && [ "$PR_ADDRESS" != "0x..." ]; then
+                  ADDRESS="$PR_ADDRESS"
+                  echo "Found valid address in PR template: $ADDRESS"
+                else
+                  echo "No valid address found in PR template (found placeholder or empty), using default"
+                fi
+              else
+                echo "Test Address section not found in PR template, using default"
+              fi
+            else
+              echo "No PR body available, using default address"
+            fi
+          fi
+
+          echo "$ADDRESS"
+          echo "address=$ADDRESS" >> $GITHUB_OUTPUT
+          echo "custom_file=$CUSTOM_FILE" >> $GITHUB_OUTPUT
+          echo "is_test_command=$IS_TEST_COMMAND" >> $GITHUB_OUTPUT
+
+      - name: Post immediate response for test commands
+        id: initial-comment
+        if: steps.parse.outputs.is_test_command == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const comment = await github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: "🔄 Running tests with your custom parameters..."
+            });
+            return comment.data.id;
+
+      - name: Check for adapter changes
+        id: check-changes
+        if: steps.parse.outputs.is_test_command == 'true' || github.event_name == 'pull_request'
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          # Since we always compare to main, just use a simple git diff
+          echo "Comparing current branch to main for adapter changes"
+
+          # Fetch main to ensure we have the latest
+          git fetch origin main
+
+          # Determine files to test
+          if [ "$EVENT_NAME" = "issue_comment" ]; then
+            # Check if a custom file was specified in /test command
+            if [ -n "${{ steps.parse.outputs.custom_file }}" ]; then
+              CHANGED_FILES="${{ steps.parse.outputs.custom_file }}"
+              echo "Using custom file from /test command: $CHANGED_FILES"
+            else
+              # For comments, we checked out the PR branch, so compare current state to main
+              CHANGED_FILES=$(git diff --name-only origin/main | grep "^adapters/.*\.ts$" || true)
+              if [ -z "$CHANGED_FILES" ]; then
+                echo "No adapter files found to test. Skipping tests."
+                # Set empty output before exiting
+                echo "changed_files=" >> $GITHUB_OUTPUT
+                exit 0
+              fi
+            fi
+          else
+            # For PR events, compare PR branch to main
+            CHANGED_FILES=$(git diff --name-only origin/main..HEAD | grep "^adapters/.*\.ts$" || true)
+            if [ -z "$CHANGED_FILES" ]; then
+              echo "No adapter files found to test. Skipping tests."
+              # Set empty output before exiting
+              echo "changed_files=" >> $GITHUB_OUTPUT
+              exit 0
+            fi
+          fi
+
+          echo "Found adapter files to test:"
+          echo "$CHANGED_FILES"
+
+          # Store the list of changed files (newline-separated)
+          echo "changed_files<<EOF" >> $GITHUB_OUTPUT
+          echo "$CHANGED_FILES" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Setup Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Cache Deno dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/deno
+            ~/.deno
+            node_modules
+          key: ${{ runner.os }}-deno-${{ hashFiles('**/deno.lock', '**/deno.json') }}
+          restore-keys: |
+            ${{ runner.os }}-deno-
+
+      - name: Install dependencies
+        run: deno install
+
+      - name: Run adapter tests
+        id: test
+        if: steps.parse.outputs.is_test_command == 'true' || github.event_name == 'pull_request'
+        env:
+          CHANGED_FILES: ${{ steps.check-changes.outputs.changed_files }}
+          POINTS_ADDRESS: ${{ steps.parse.outputs.address }}
+          IS_TEST_COMMAND: ${{ steps.parse.outputs.is_test_command }}
+        run: |
+          # Initialize results
+          NO_POINTS_ADDRESS="0x9999999999999999999999999999999999999999"
+
+          # Process each changed adapter file
+          file_count=0
+          while IFS= read -r CHANGED_FILE; do
+            [ -z "$CHANGED_FILE" ] && continue
+            
+            # Validate file format
+            if [[ ! "$CHANGED_FILE" =~ ^adapters/.+\.ts$ ]]; then
+              echo "Error: Invalid file path format: $CHANGED_FILE"
+              continue
+            fi
+            
+            file_count=$((file_count + 1))
+            echo "**$CHANGED_FILE**" >> test_output.txt
+            echo "" >> test_output.txt
+            
+            if [ "$IS_TEST_COMMAND" = "true" ]; then
+              # Custom /test command - only test the specified address
+              echo "<details>" >> test_output.txt
+              echo "<summary>$POINTS_ADDRESS</summary>" >> test_output.txt
+              echo "" >> test_output.txt
+              echo "\`\`\`" >> test_output.txt
+              
+              # Capture both stdout and stderr
+              custom_test_output=$(deno run --allow-net --allow-read=adapters --allow-env test.ts "$CHANGED_FILE" "$POINTS_ADDRESS" 2>&1 || true)
+              
+              echo "$custom_test_output" >> test_output.txt
+              echo "\`\`\`" >> test_output.txt
+              echo "" >> test_output.txt
+              echo "</details>" >> test_output.txt
+            else
+              # Standard PR testing - test both addresses
+              # Test 1: Address likely to have points
+              echo "<details>" >> test_output.txt
+              echo "<summary>$POINTS_ADDRESS</summary>" >> test_output.txt
+              echo "" >> test_output.txt
+              echo "\`\`\`" >> test_output.txt
+              
+              # Capture both stdout and stderr
+              test1_output=$(deno run --allow-net --allow-read=adapters --allow-env test.ts "$CHANGED_FILE" "$POINTS_ADDRESS" 2>&1 || true)
+              
+              echo "$test1_output" >> test_output.txt
+              echo "\`\`\`" >> test_output.txt
+              echo "" >> test_output.txt
+              echo "</details>" >> test_output.txt
+              echo "" >> test_output.txt
+              
+              # Test 2: Address likely to have no points
+              echo "<details>" >> test_output.txt
+              echo "<summary>$NO_POINTS_ADDRESS</summary>" >> test_output.txt
+              echo "" >> test_output.txt
+              echo "\`\`\`" >> test_output.txt
+              
+              # Capture both stdout and stderr
+              test2_output=$(deno run --allow-net --allow-read=adapters --allow-env test.ts "$CHANGED_FILE" "$NO_POINTS_ADDRESS" 2>&1 || true)
+              
+              echo "$test2_output" >> test_output.txt
+              echo "\`\`\`" >> test_output.txt
+              echo "" >> test_output.txt
+              echo "</details>" >> test_output.txt
+            fi
+            
+            echo "" >> test_output.txt
+            
+          done <<< "$CHANGED_FILES"
+
+          echo "Tested $file_count adapter file(s)"
+          echo "file_count=$file_count" >> $GITHUB_OUTPUT
+        continue-on-error: true
+
+      - name: Show test results
+        if: steps.parse.outputs.is_test_command == 'true' || github.event_name == 'pull_request'
+        run: |
+          if [ -f test_output.txt ]; then
+            echo "=== Test Results ==="
+            cat test_output.txt
+            echo "==================="
+          else
+            echo "No test output found"
+          fi
+
+      - name: Comment PR with results
+        if: steps.parse.outputs.is_test_command == 'true' || github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        env:
+          POINTS_ADDRESS: ${{ steps.parse.outputs.address }}
+          CHANGED_FILES: ${{ steps.check-changes.outputs.changed_files }}
+          FILE_COUNT: ${{ steps.test.outputs.file_count }}
+          INITIAL_COMMENT_ID: ${{ steps.initial-comment.outputs.result }}
+        with:
+          script: |
+            const initialCommentId = process.env.INITIAL_COMMENT_ID;
+            if (initialCommentId && initialCommentId !== 'null') {
+              try {
+                await github.rest.issues.deleteComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  comment_id: parseInt(initialCommentId)
+                });
+                console.log('Deleted initial comment');
+              } catch (error) {
+                console.log('Could not delete initial comment:', error.message);
+              }
+            }
+            const fs = require('fs');
+            let testOutput = 'No test output found';
+            try {
+              testOutput = fs.readFileSync('test_output.txt', 'utf8');
+            } catch (e) {
+              console.log('Could not read test output file');
+            }
+
+            // Get values from environment variables
+            const pointsAddress = process.env.POINTS_ADDRESS;
+            const changedFiles = process.env.CHANGED_FILES || 'No files detected';
+            const fileCount = process.env.FILE_COUNT || '0';
+
+            // Format the list of changed files
+            const fileList = changedFiles === 'No files detected' 
+              ? 'No files detected' 
+              : changedFiles.split('\n').filter(f => f.trim()).map(f => `\`${f}\``).join(', ');
+
+            const comment = `
+
+            **Tested ${fileCount} Adapter File(s):** ${fileList}
+
+            ${testOutput}
+
+            Use the \`/test\` command:
+            - \`/test 0x1234567890123456789012345678901234567890\` - Test with custom address
+            - \`/test 0x1234567890123456789012345678901234567890 filename.ts\` - Test specific file with custom address`;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
