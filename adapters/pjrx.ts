@@ -14,9 +14,12 @@ export default {
   fetch: async (address: string) => {
     const res = await fetch(API_URL.replace("{address}", address));
 
-    return await res.json();
+    const data = await res.json();
+    if (data.error === "User not found") return { pointsTotal: 0, rank: 0 };
+
+    return data;
   },
   data: (_) => ({}),
-  total: (data: API_RESPONSE) => (data ? data.pointsTotal : 0),
-  rank: (data: API_RESPONSE) => (data ? data.rank : 0),
+  total: (data: API_RESPONSE) => data.pointsTotal,
+  rank: (data: API_RESPONSE) => data.rank,
 } as AdapterExport;
