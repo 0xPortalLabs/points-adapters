@@ -19,7 +19,13 @@ export default {
 
     return data;
   },
-  data: (_) => ({}),
+  data: (data: API_RESPONSE) => {
+    if (!data) return {};
+    return {
+      "Total Points": data.pointsTotal,
+      "Rank": data.rank,
+    };
+  },
   total: (data: API_RESPONSE) => data.pointsTotal,
   rank: (data: API_RESPONSE) => data.rank,
 } as AdapterExport;
