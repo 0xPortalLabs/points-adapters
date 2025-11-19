@@ -28,8 +28,10 @@ export default {
     return JSON.parse(data.slice(2));
   },
   data: (data: { rank?: number; tier: string }) => ({
-    Tier: data.tier,
-    Rank: data.rank,
+    kPoints: {
+      Tier: data.tier,
+      Rank: data.rank,
+    },
   }),
   total: (data: { points: number }) => ({ kPoints: data.points }),
   rank: (data: { rank?: number }) => data.rank || 0,
