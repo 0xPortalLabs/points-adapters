@@ -81,7 +81,7 @@ if (Object.keys(res.data).length > 0) {
 
       return acc;
     },
-    {} as Record<string, Record<string, unknown>>
+    {} as Record<string, Record<string, unknown>>,
   );
 
   console.table(formattedData);
@@ -96,15 +96,15 @@ if (res.rank) console.log(`User Rank: ${nth(res.rank)}`);
 if (res.claimable) console.log(`Is there an airdrop? ${res.claimable}`);
 
 if (res.deprecated && Object.keys(res.deprecated).length > 0) {
-  const labels = Object.keys(res.total);
+  const labels = Object.keys(res.data);
 
   const invalidKeys = Object.keys(res.deprecated).filter(
-    (key) => !labels.includes(key) && key != "Points"
+    (key) => !labels.includes(key) && key != "Points",
   );
   if (invalidKeys.length > 0) {
     console.error(
       `\nInvalid deprecated keys found: ${invalidKeys.join(", ")}` +
-        "\nDeprecated keys must match exported data keys or use the default key `Points`."
+        "\nDeprecated keys must match exported data keys or use the default key `Points`.",
     );
   }
 
@@ -112,13 +112,13 @@ if (res.deprecated && Object.keys(res.deprecated).length > 0) {
     typeof ts === "number" && ts > 0 && new Date(ts * 1000) < new Date();
 
   const invalidDates = Object.entries(res.deprecated).filter(
-    ([_, timestamp]) => !isValidDeprecatedDate(timestamp)
+    ([_, timestamp]) => !isValidDeprecatedDate(timestamp),
   );
   if (invalidDates.length > 0) {
     console.error(
       `\nInvalid deprecated dates found for keys: ${invalidDates
         .map(([key]) => key)
-        .join(", ")}. Dates must be valid UNIX timestamps in the past.`
+        .join(", ")}. Dates must be valid UNIX timestamps in the past.`,
     );
   }
 
@@ -128,8 +128,8 @@ if (res.deprecated && Object.keys(res.deprecated).length > 0) {
       Object.entries(res.deprecated).map(([key, timestamp]) => [
         key,
         new Date(timestamp * 1000).toUTCString(),
-      ])
-    )
+      ]),
+    ),
   );
 }
 
@@ -164,7 +164,7 @@ if (!skipAddressCheck) {
   const compareResults = <T>(
     comparison: string,
     o1: Record<string, T>,
-    o2: Record<string, T>
+    o2: Record<string, T>,
   ) => {
     const { __data, ...x } = o1;
     const { __data: _, ...y } = o2;
@@ -238,7 +238,7 @@ if (!skipAddressCheck) {
       `
 Adapter returns different results for different address formats!
 Make sure to normalize addresses in your adapter's fetch function.
-`
+`,
     );
   }
 }
@@ -249,7 +249,7 @@ console.table(
   Object.entries(CORSstatus).map(([url, good]) => ({
     url,
     good,
-  }))
+  })),
 );
 
 if (Object.values(CORSstatus).some((x) => !x)) {
