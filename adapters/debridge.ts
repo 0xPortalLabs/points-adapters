@@ -41,8 +41,7 @@ export default {
   },
   total: ({ s3 }: { s3: { totalPoints: number } }) => s3.totalPoints,
   rank: ({ s3 }: { s3: { userRank: number } }) => s3.userRank,
-  claimable: ({ s2 }: { s2: { totalPoints: number } }) =>
-    s2.totalPoints > 0 ? true : false,
+  claimable: ({ s2 }: { s2: { totalPoints: number } }) => s2.totalPoints > 0,
   deprecated: () => ({
     "Season 1": 1729113600, // Thursday 17th October 2024 08:00 UTC
     "Season 2": 1763554128, // Wednesday 19th November 2025 12:08 UTC
