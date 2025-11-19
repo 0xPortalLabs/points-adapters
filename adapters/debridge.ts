@@ -2,7 +2,7 @@ import type { AdapterExport } from "../utils/adapter.ts";
 import { maybeWrapCORSProxy } from "../utils/cors.ts";
 
 const API_URL = await maybeWrapCORSProxy(
-  "https://points-api-td.debridge.finance/api/Points/{address}/summary"
+  "https://points-api-td.debridge.finance/api/Points/{address}/summary",
 );
 
 /*
@@ -19,14 +19,15 @@ const API_URL = await maybeWrapCORSProxy(
 export default {
   fetch: async (address: string) => {
     const url = API_URL.replace("{address}", address);
-    const [s1, s2] = await Promise.all([
-      (await fetch(url + "?season=1")).json(),
-      (await fetch(url + "?season=2")).json(),
+    const [s1, s2, s3] = await Promise.all([
+      await fetch(url + "?season=1"),
+      await fetch(url + "?season=2"),
+      await fetch(url + "?season=3"),
     ]);
 
-    return { s1, s2 };
+    return { s1: await s1.json(), s2: await s2.json(), s3: await s3.json() };
   },
-  data: ({ s1, s2 }: Record<string, Record<string, number | null>>) => {
+  data: ({ s1, s2, s3 }: Record<string, Record<string, number | null>>) => {
     const get = (obj: Record<string, number | null>) => ({
       Rank: obj.userRank,
       "Total Points": obj.totalPoints,
@@ -36,8 +37,14 @@ export default {
       "Origin Multiplier": obj.originMultiplier,
     });
 
-    return { "Season 1": get(s1), "Season 2": get(s2) };
+    return { "Season 1": get(s1), "Season 2": get(s2), "Season 3": get(s3) };
   },
-  total: ({ s2 }: { s2: { totalPoints: number } }) => s2.totalPoints,
-  rank: ({ s2 }: { s2: { userRank: number } }) => s2.userRank,
+  total: ({ s3 }: { s3: { totalPoints: number } }) => s3.totalPoints,
+  rank: ({ s3 }: { s3: { userRank: number } }) => s3.userRank,
+  claimable: ({ s2 }: { s2: { totalPoints: number } }) =>
+    s2.totalPoints > 0 ? true : false,
+  deprecated: () => ({
+    "Season 1": 1729113600, // Thursday 17th October 2024 08:00 UTC
+    "Season 2": 1763554128, // Wednesday 19th November 2025 12:08 UTC
+  }),
 } as AdapterExport;
