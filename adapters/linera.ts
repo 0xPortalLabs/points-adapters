@@ -3,7 +3,7 @@ import type { AdapterExport } from "../utils/adapter.ts";
 import { getAddress } from "viem";
 
 const API_URL = await maybeWrapCORSProxy(
-  "https://linera-api.pulsar.money/api/v1/pulsar/challenges/linera/leaderboard/1?limit=241000",
+  "https://linera-api.pulsar.money/api/v1/pulsar/challenges/linera/leaderboard/1?limit=500000",
 );
 
 //{
