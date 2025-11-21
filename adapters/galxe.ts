@@ -1,7 +1,8 @@
 import { AdapterExport } from "../utils/adapter.ts";
 import { maybeWrapCORSProxy } from "../utils/cors.ts";
 
-// { api returns something like this but they use graphql so you can adjust the query
+//api returns something like this but they use graphql so you can adjust the query
+// {
 //     "data": {
 //         "addressInfo": {
 //             "id": "meDis7ASYQKSTs5yLAWrHL",
@@ -23,6 +24,7 @@ import { maybeWrapCORSProxy } from "../utils/cors.ts";
 //                 "ggRecall": false,
 //                 "__typename": "UserLevel"
 //             },
+// }
 
 const API_URL = await maybeWrapCORSProxy(
   "https://graphigo.prd.galaxy.eco/query",
@@ -65,16 +67,15 @@ export default {
       Username: data.data.addressInfo.username,
       Level: level,
       Experience: data.data.addressInfo.userLevel.exp,
+      // really weird thing where accounts that dont exist return 81991 for gold when it is actually 0
       Gold: gold === 81991 && level === 1 ? 0 : gold,
     };
   },
   total: (data: API_RESPONSE) => {
     const gold = data.data.addressInfo.userLevel.gold;
     const level = data.data.addressInfo.userLevel.level.value;
-    // really weird thing where accounts that dont exist return 81991 for gold when it is actually 0
-    if (gold === 81991 && level === 1) return 0;
     return {
-      Gold: gold,
+      Gold: gold === 81991 && level === 1 ? 0 : gold,
     };
   },
   rank: (data: API_RESPONSE) => data.data.addressInfo.userLevel.level.value,
