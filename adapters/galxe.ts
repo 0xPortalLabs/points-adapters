@@ -31,14 +31,12 @@ const API_URL = await maybeWrapCORSProxy(
 );
 
 type API_RESPONSE = {
-  data: {
-    addressInfo: {
-      username: string;
-      userLevel: {
-        level: { value: number; minExp: string; maxExp: string };
-        exp: number;
-        gold: number;
-      };
+  addressInfo: {
+    username: string;
+    userLevel: {
+      level: { value: number; minExp: string; maxExp: string };
+      exp: number;
+      gold: number;
     };
   };
 };
@@ -58,25 +56,26 @@ export default {
         },
       }),
     });
-    return await res.json();
+    const data = await res.json();
+    return data.data;
   },
   data: (data: API_RESPONSE) => {
-    const gold = data.data.addressInfo.userLevel.gold;
-    const level = data.data.addressInfo.userLevel.level.value;
+    const gold = data.addressInfo.userLevel.gold;
+    const level = data.addressInfo.userLevel.level.value;
     return {
-      Username: data.data.addressInfo.username,
+      Username: data.addressInfo.username,
       Level: level,
-      Experience: data.data.addressInfo.userLevel.exp,
+      Experience: data.addressInfo.userLevel.exp,
       // really weird thing where accounts that dont exist return 81991 for gold when it is actually 0
       Gold: gold === 81991 && level === 1 ? 0 : gold,
     };
   },
   total: (data: API_RESPONSE) => {
-    const gold = data.data.addressInfo.userLevel.gold;
-    const level = data.data.addressInfo.userLevel.level.value;
+    const gold = data.addressInfo.userLevel.gold;
+    const level = data.addressInfo.userLevel.level.value;
     return {
       Gold: gold === 81991 && level === 1 ? 0 : gold,
     };
   },
-  rank: (data: API_RESPONSE) => data.data.addressInfo.userLevel.level.value,
+  rank: (data: API_RESPONSE) => data.addressInfo.userLevel.level.value,
 } as AdapterExport;
