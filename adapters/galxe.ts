@@ -77,5 +77,4 @@ export default {
       Gold: gold === 81991 && level === 1 ? 0 : gold,
     };
   },
-  rank: (data: API_RESPONSE) => data.addressInfo.userLevel.level.value,
 } as AdapterExport;
