@@ -63,11 +63,13 @@ export default {
     const gold = data.addressInfo.userLevel.gold;
     const level = data.addressInfo.userLevel.level.value;
     return {
-      Username: data.addressInfo.username,
-      Level: level,
-      Experience: data.addressInfo.userLevel.exp,
-      // really weird thing where accounts that dont exist return 81991 for gold when it is actually 0
-      Gold: gold === 81991 && level === 1 ? 0 : gold,
+      XP: {
+        Username: data.addressInfo.username,
+        Total: data.addressInfo.userLevel.exp,
+        Level: level,
+        // really weird thing where accounts that dont exist return 81991 for gold when it is actually 0
+        Gold: gold === 81991 && level === 1 ? 0 : gold,
+      },
     };
   },
   total: (data: API_RESPONSE) => {
