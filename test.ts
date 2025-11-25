@@ -264,3 +264,110 @@ For example:
   );
 \`\`\``);
 }
+
+// Test error handling
+console.log("\nTesting adapter error handling...");
+
+// Store original fetch
+const originalFetch = globalThis.fetch;
+
+// Monkey patch fetch to return invalid/corrupted data
+globalThis.fetch = async (input, init) => {
+  const response = await originalFetch(input, init);
+
+  // Clone the response and corrupt it
+  const cloned = response.clone();
+
+  return new Response(
+    JSON.stringify({
+      corrupted: true,
+      invalid: "data",
+      random: Math.random(),
+    }),
+    {
+      status: response.status,
+      statusText: response.statusText,
+      headers: response.headers,
+    },
+  );
+};
+
+let errorTestResult: {
+  threwError: boolean;
+  hasPoints: boolean;
+  defaultedToZero: boolean;
+} = {
+  threwError: false,
+  hasPoints: false,
+  defaultedToZero: false,
+};
+
+try {
+  const errorRes = await runAdapter(adapter, address);
+
+  // Check if it returned zero/empty points
+  const totalPoints =
+    typeof errorRes.total === "object"
+      ? Object.values(errorRes.total).reduce(
+          (sum, val) => sum + (Number(val) || 0),
+          0,
+        )
+      : Number(errorRes.total) || 0;
+
+  errorTestResult.hasPoints = totalPoints > 0;
+  errorTestResult.defaultedToZero = totalPoints === 0;
+} catch (error) {
+  errorTestResult.threwError = true;
+}
+
+// Restore original fetch
+globalThis.fetch = originalFetch;
+
+console.log("\nError handling test results:");
+console.table(errorTestResult);
+
+// Validate error handling based on original results
+const hasOriginalPoints =
+  typeof res.total === "object"
+    ? Object.values(res.total).reduce(
+        (sum, val) => sum + (Number(val) || 0),
+        0,
+      ) > 0
+    : Number(res.total) > 0;
+
+console.log(`\nOriginal user had points: ${hasOriginalPoints}`);
+
+if (
+  hasOriginalPoints &&
+  errorTestResult.hasPoints &&
+  !errorTestResult.threwError
+) {
+  console.error(`
+ERROR: Adapter returned points despite corrupted API data.
+The adapter should throw an error when data is invalid.
+`);
+} else if (
+  hasOriginalPoints &&
+  errorTestResult.defaultedToZero &&
+  !errorTestResult.threwError
+) {
+  console.error(`
+Adapter silently returned zero points for corrupted data.
+User has ${typeof res.total === "object" ? JSON.stringify(res.total) : res.total} points normally.
+The adapter should throw an error, not default to zero.
+
+Add validation like:
+\`\`\`typescript
+total: (data: { caps: string }) => {
+  if (!data || !data.caps) throw new Error("Invalid API response");
+  return { Caps: Number(data.caps) };
+}
+\`\`\`
+`);
+} else if (hasOriginalPoints && errorTestResult.threwError) {
+  console.log("PASS: Adapter throws error for corrupted data");
+} else if (!hasOriginalPoints && errorTestResult.defaultedToZero) {
+  console.log("PASS: User has no points, zero is acceptable");
+} else if (!hasOriginalPoints && errorTestResult.threwError) {
+  console.log("PASS: Adapter throws error (acceptable)");
+}
