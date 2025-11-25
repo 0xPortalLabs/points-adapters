@@ -306,13 +306,25 @@ try {
   const errorRes = await runAdapter(adapter, address);
 
   // Check if it returned zero/empty points
-  const totalPoints =
-    typeof errorRes.total === "object"
-      ? Object.values(errorRes.total).reduce(
-          (sum, val) => sum + (Number(val) || 0),
-          0,
-        )
-      : Number(errorRes.total) || 0;
+  let totalPoints = 0;
+  if (typeof errorRes.total === "object") {
+    for (const val of Object.values(errorRes.total)) {
+      if (typeof val === "number" && isFinite(val)) {
+        totalPoints += val;
+      } else if (typeof val === "string") {
+        const parsed = parseFloat(val);
+        if (isFinite(parsed)) {
+          totalPoints += parsed;
+        }
+      }
+      // Invalid values are skipped, not treated as zero
+    }
+  } else if (errorRes.total != null) {
+    const parsed = Number(errorRes.total);
+    if (isFinite(parsed)) {
+      totalPoints = parsed;
+    }
+  }
 
   errorTestResult.hasPoints = totalPoints > 0;
   errorTestResult.defaultedToZero = totalPoints === 0;
