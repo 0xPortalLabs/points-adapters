@@ -275,9 +275,6 @@ const originalFetch = globalThis.fetch;
 globalThis.fetch = async (input, init) => {
   const response = await originalFetch(input, init);
 
-  // Clone the response and corrupt it
-  const cloned = response.clone();
-
   return new Response(
     JSON.stringify({
       corrupted: true,
