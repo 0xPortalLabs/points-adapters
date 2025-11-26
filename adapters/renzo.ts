@@ -23,5 +23,5 @@ export default {
   },
   data: (data: API_RESPONSE) => convertKeysToStartCase(data.totals),
   total: (data: API_RESPONSE) =>
-    Object.values(data.totals).reduce((acc, cur) => acc + cur),
+    Object.values(data.totals).reduce((acc, cur) => acc + cur, 0),
 } as AdapterExport;
