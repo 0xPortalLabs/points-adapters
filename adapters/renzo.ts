@@ -19,9 +19,12 @@ export default {
   fetch: async (address) => {
     const res = await fetch(API_URL.replace("{address}", getAddress(address)));
     const data = await res.json();
-    if (data.success) return data.data;
+    if (data.success) {
+      return data.data;
+    } else {
+      throw new Error(data.error);
+    }
   },
   data: (data: API_RESPONSE) => convertKeysToStartCase(data.totals),
-  total: (data: API_RESPONSE) =>
-    Object.values(data.totals).reduce((acc, cur) => acc + cur, 0),
+  total: (data: API_RESPONSE) => data.totals.renzoPoints,
 } as AdapterExport;
