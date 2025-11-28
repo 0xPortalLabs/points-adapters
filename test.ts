@@ -379,4 +379,13 @@ total: (data: { caps: string }) => {
   console.log("PASS: User has no points, zero is acceptable");
 } else if (!hasOriginalPoints && errorTestResult.threwError) {
   console.log("PASS: Adapter throws error (acceptable)");
+} else if (
+  !hasOriginalPoints &&
+  errorTestResult.hasPoints &&
+  !errorTestResult.threwError
+) {
+  console.error(`
+ERROR: Adapter returned points for corrupted API data even though the user initially had no points.
+The adapter should either throw on invalid/corrupt data or return zero, not positive points.
+`);
 }
