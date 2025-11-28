@@ -59,8 +59,9 @@ export default {
   fetch: async (address: string) => {
     address = checksumAddress(address as `0x${string}`);
     const res = await fetch(API_URL.replace("{address}", address));
-
-    if (res.status === 404)
+    if (!res.ok) {
+      throw new Error("Failed to fetch ethereal data");
+    } else if (res.status === 404)
       return { accounts: [], leaderboardPosition: { rank: 0 } };
 
     return await res.json();

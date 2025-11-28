@@ -2,11 +2,13 @@ import type { AdapterExport } from "../utils/adapter.ts";
 import { maybeWrapCORSProxy } from "../utils/cors.ts";
 
 const API_URL = await maybeWrapCORSProxy(
-  "https://api.cap.app/v1/caps/account/{address}"
+  "https://api.cap.app/v1/caps/account/{address}",
 );
 export default {
   fetch: async (address: string) => {
     const res = await fetch(API_URL.replace("{address}", address));
+    if (!res.ok)
+      throw new Error(`Failed to fetch cap data ${await res.text()}`);
     return await res.json();
   },
   data: (data: { rank: number; caps: string }) => {

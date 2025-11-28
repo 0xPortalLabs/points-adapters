@@ -25,7 +25,7 @@ const endpoints = await Promise.all(
     Corn: "https://vo19nc0ocf.execute-api.us-east-1.amazonaws.com",
     Sonic: "https://gu6oarmjm6.execute-api.us-east-1.amazonaws.com",
     Duckchain: "https://rni0vomwkf.execute-api.us-east-1.amazonaws.com",
-  }).map(async ([k, v]) => [k, await maybeWrapCORSProxy(v)])
+  }).map(async ([k, v]) => [k, await maybeWrapCORSProxy(v)]),
 ).then(Object.fromEntries);
 
 export default {
@@ -34,26 +34,28 @@ export default {
     return Promise.all(
       Object.entries(endpoints).map(async ([chain, url]) => {
         const res = await fetch(url + `/userPoints?address=${address}`);
+        if (!res.ok)
+          throw new Error(`Request failed for ${chain}, ${await res.text()}`);
         return { chain, data: await res.json() };
-      })
+      }),
     );
   },
   data: (
-    data: { chain: string; data: Record<string, string | number> }[]
+    data: { chain: string; data: Record<string, string | number> }[],
   ): Record<string, string | number> => {
     return Object.fromEntries(
       data.flatMap(({ chain, data }) =>
         Object.entries(data)
           .filter(([key]) => key !== "dummy" && key !== "address")
-          .map(([key, value]) => [`${chain}: ${startCase(key)}`, value])
-      )
+          .map(([key, value]) => [`${chain}: ${startCase(key)}`, value]),
+      ),
     );
   },
   total: (data: { chain: string; data: Record<string, string | number> }[]) => {
     return data.reduce(
       (sum, { data }) =>
         sum + (Number(data?.points) || 0) + (Number(data?.totalPoints) || 0),
-      0
+      0,
     );
   },
 } as AdapterExport;
