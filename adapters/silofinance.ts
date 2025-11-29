@@ -54,7 +54,7 @@ export default {
           x.account.toLowerCase() === address.toLowerCase(),
       )?.rank ?? 0;
 
-    return { points, position };
+    return { points: await points.json(), position };
   },
   data: ({
     points,

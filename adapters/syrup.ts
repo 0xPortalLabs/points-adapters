@@ -31,7 +31,7 @@ export default {
       },
     });
     if (!res.ok)
-      throw new Error(`Failed to fetch swapx data ${await res.text()}`);
+      throw new Error(`Failed to fetch syrup data ${await res.text()}`);
 
     return (await res.json()).data.accountById;
   },

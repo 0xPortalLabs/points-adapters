@@ -25,7 +25,8 @@ export default {
       API_URL.replace("{address}", address.toLowerCase()),
     );
 
-    if (!res.ok) throw new Error(`Failed to fetch infrared data ${res.text()}`);
+    if (!res.ok)
+      throw new Error(`Failed to fetch infrared data ${await res.text()}`);
     return await res.json();
   },
   data: (data: Record<string, number | string>) =>

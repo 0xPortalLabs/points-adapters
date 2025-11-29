@@ -31,7 +31,11 @@ export default {
   fetch: async (address: string) => {
     address = getAddress(address);
     const res = await fetch(API_URL.replace("{address}", address));
-    if (!res.ok) throw new Error(`Failed to fetch karak data ${res.text()}`);
+    if (!res.ok)
+      throw new Error(
+        `Failed to fetch karak data: ${res.status} ${res.statusText}`,
+      );
+    throw new Error(`Failed to fetch karak data ${await res.text()}`);
     return (await res.json())[0]?.result?.data;
   },
   data: (data: { xpByPhase?: Record<string, number> }) => {

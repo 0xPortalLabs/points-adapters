@@ -14,14 +14,18 @@ export default {
       Referer: "https://checkpoint.exchange/",
     };
     const [rewards, leaderboard] = await Promise.all([
-      await fetch(API_URL.replace("{address}", address), { headers }),
-      await fetch(LEADERBOARD_URL.replace("{address}", address), { headers }),
+  await fetch(API_URL.replace("{address}", address), { headers }),
+  await fetch(LEADERBOARD_URL.replace("{address}", address), { headers }),
     ]);
 
-    if (!rewards.ok || !leaderboard.ok)
+
+    if (!rewards.ok || !leaderboard.ok) {
+      const rewardsText = await rewards.clone().text();
+      const leaderboardText = await leaderboard.clone().text();
       throw new Error(
-        `Failed to fetch jumperexchange data ${await rewards.text()}, ${await leaderboard.text()}`,
+        `Failed to fetch jumperexchange data ${rewardsText}, ${leaderboardText}`,
       );
+    }
 
     return {
       rewards: await rewards.json(),

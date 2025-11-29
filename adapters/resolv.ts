@@ -53,10 +53,12 @@ export default {
       fetch(API_URL.replace("{address}", address)),
       fetch(RANK_URL.replace("{address}", address)),
     ]);
-    if (!data.ok || !rankData.ok)
-      throw new Error(
-        `Failed to fetch ramen data ${await data.text()}, ${await rankData.text()}`,
-      );
+    if (!data.ok || !rankData.ok) {
+      const errors = [];
+      if (!data.ok) errors.push(`data: ${await data.text()}`);
+      if (!rankData.ok) errors.push(`rank: ${await rankData.text()}`);
+      throw new Error(`Failed to fetch resolv data - ${errors.join(", ")}`);
+    }
 
     return { data: await data.json(), rankData: await rankData.json() };
   },
