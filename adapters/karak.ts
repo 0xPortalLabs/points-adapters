@@ -35,7 +35,6 @@ export default {
       throw new Error(
         `Failed to fetch karak data: ${res.status} ${res.statusText}`,
       );
-    throw new Error(`Failed to fetch karak data ${await res.text()}`);
     return (await res.json())[0]?.result?.data;
   },
   data: (data: { xpByPhase?: Record<string, number> }) => {
