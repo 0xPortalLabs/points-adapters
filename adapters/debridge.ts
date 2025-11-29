@@ -24,7 +24,10 @@ export default {
       fetch(url + "?season=2"),
       fetch(url + "?season=3"),
     ]);
-
+    if (!s1.ok || !s2.ok || !s3.ok)
+      throw new Error(
+        `Failed to fetch debridge data, ${await s1.text()},${await s2.text()},${await s3.text()}`,
+      );
     return { s1: await s1.json(), s2: await s2.json(), s3: await s3.json() };
   },
   data: ({ s1, s2, s3 }: Record<string, Record<string, number | null>>) => {

@@ -11,6 +11,8 @@ const API_URL = await maybeWrapCORSProxy(
 export default {
   fetch: async (address: string) => {
     const res = await fetch(API_URL);
+    if (!res.ok)
+      throw new Error(`Failed to fetch nansen data ${await res.text()}`);
     const data = await res.json();
     return data.filter(
       (obj: { evm_address: string }) => obj.evm_address === getAddress(address),

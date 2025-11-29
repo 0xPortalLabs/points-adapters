@@ -6,7 +6,7 @@ import {
 } from "../utils/object.ts";
 
 const API_URL = await maybeWrapCORSProxy(
-  "https://app.bedrock.technology/api/v2/bedrock/third-protocol/points"
+  "https://app.bedrock.technology/api/v2/bedrock/third-protocol/points",
 );
 
 export default {
@@ -15,6 +15,8 @@ export default {
       method: "POST",
       body: JSON.stringify({ address: address.toLowerCase() }),
     });
+    if (!res.ok)
+      throw new Error(`Failed to fetch bedrock data ${await res.text()}`);
     return (await res.json()).data;
   },
   data: (data: Record<string, string>) => {

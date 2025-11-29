@@ -7,7 +7,7 @@ import {
 import { maybeWrapCORSProxy } from "../utils/cors.ts";
 
 const API_URL = await maybeWrapCORSProxy(
-  "https://explorer.prod.swaps.io/api/v0/users/{address}"
+  "https://explorer.prod.swaps.io/api/v0/users/{address}",
 );
 
 /*
@@ -22,13 +22,16 @@ const API_URL = await maybeWrapCORSProxy(
 */
 export default {
   fetch: async (address: string) => {
-    return (await fetch(API_URL.replace("{address}", address), {})).json();
+    const res = await fetch(API_URL.replace("{address}", address), {});
+    if (!res.ok)
+      throw new Error(`Failed to fetch swapsio data ${await res.text()}`);
+    return await res.json();
   },
   data: (
     data: { rewards_total?: Array<{ id: string; amount: string }> } & Record<
       string,
       number | string
-    >
+    >,
   ) => {
     const { address: _x, rewards_total, ...rest } = data;
     const rewards =
@@ -37,11 +40,11 @@ export default {
           acc[reward.id] = parseFloat(reward.amount);
           return acc;
         },
-        {} as Record<string, number>
+        {} as Record<string, number>,
       ) || {};
 
     return convertKeysToStartCase(
-      convertValuesToNormal({ ...rest, ...rewards })
+      convertValuesToNormal({ ...rest, ...rewards }),
     );
   },
   total: (data: { rewards_total?: Array<{ id: string; amount: string }> }) => {

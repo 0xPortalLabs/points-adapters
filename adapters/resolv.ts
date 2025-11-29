@@ -6,10 +6,10 @@ import { maybeWrapCORSProxy } from "../utils/cors.ts";
 // NOTE: API for leaderboard
 // https://api.resolv.im/points/leaderboard?page=1
 const API_URL = await maybeWrapCORSProxy(
-  "https://web-api.resolv.xyz/points?address={address}"
+  "https://web-api.resolv.xyz/points?address={address}",
 );
 const RANK_URL = await maybeWrapCORSProxy(
-  "https://web-api.resolv.xyz/points/leaderboard/slice?address={address}"
+  "https://web-api.resolv.xyz/points/leaderboard/slice?address={address}",
 );
 
 /*
@@ -50,11 +50,17 @@ const RANK_URL = await maybeWrapCORSProxy(
 export default {
   fetch: async (address: string) => {
     const [data, rankData] = await Promise.all([
-      (await fetch(API_URL.replace("{address}", address))).json(),
-      (await fetch(RANK_URL.replace("{address}", address))).json(),
+      fetch(API_URL.replace("{address}", address)),
+      fetch(RANK_URL.replace("{address}", address)),
     ]);
+    if (!data.ok || !rankData.ok) {
+      const errors = [];
+      if (!data.ok) errors.push(`data: ${await data.text()}`);
+      if (!rankData.ok) errors.push(`rank: ${await rankData.text()}`);
+      throw new Error(`Failed to fetch resolv data - ${errors.join(", ")}`);
+    }
 
-    return { data, rankData };
+    return { data: await data.json(), rankData: await rankData.json() };
   },
   data: ({ data }: { data: { dailyActivities: Record<string, number> } }) =>
     convertKeysToStartCase(data.dailyActivities),

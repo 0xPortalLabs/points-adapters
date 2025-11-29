@@ -5,13 +5,15 @@ import { getAddress } from "viem";
 import { startCase } from "lodash-es";
 
 const API_URL = await maybeWrapCORSProxy(
-  "https://www.ether.fi/api/dapp/portfolio/v3/{address}"
+  "https://www.ether.fi/api/dapp/portfolio/v3/{address}",
 );
 
 export default {
   fetch: async (address: string) => {
     const normalizedAddress = getAddress(address).toLowerCase();
     const res = await fetch(API_URL.replace("{address}", normalizedAddress));
+    if (!res.ok)
+      throw new Error(`Failed to fetch etherfi data ${await res.text()}`);
     return res.json();
   },
   data: ({
@@ -40,10 +42,10 @@ export default {
 
     if (TotalPointsSummary && typeof TotalPointsSummary === "object") {
       for (const [category, points] of Object.entries(
-        TotalPointsSummary as Record<string, unknown>
+        TotalPointsSummary as Record<string, unknown>,
       )) {
         for (const [type, value] of Object.entries(
-          points as Record<string, number>
+          points as Record<string, number>,
         )) {
           parse(category, type, value);
         }

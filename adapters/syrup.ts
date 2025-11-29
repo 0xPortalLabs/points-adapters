@@ -23,16 +23,17 @@ export default {
   fetch: async (address: string) => {
     req.variables.account = req.variables.accountId = address;
 
-    const res = await (
-      await fetch(API_URL.replace("{address}", address), {
-        method: "POST",
-        body: JSON.stringify(req),
-        headers: {
-          "content-type": "application/json",
-        },
-      })
-    ).json();
-    return res.data.accountById;
+    const res = await fetch(API_URL.replace("{address}", address), {
+      method: "POST",
+      body: JSON.stringify(req),
+      headers: {
+        "content-type": "application/json",
+      },
+    });
+    if (!res.ok)
+      throw new Error(`Failed to fetch syrup data ${await res.text()}`);
+
+    return (await res.json()).data.accountById;
   },
   data: (data: { dripsEarned: number; lendingApy: string }) => ({
     Drips: {

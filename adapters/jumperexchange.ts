@@ -2,10 +2,10 @@ import type { AdapterExport } from "../utils/adapter.ts";
 import { maybeWrapCORSProxy } from "../utils/cors.ts";
 
 const API_URL = await maybeWrapCORSProxy(
-  "https://api.jumper.exchange/v1/wallets/{address}/rewards"
+  "https://api.jumper.exchange/v1/wallets/{address}/rewards",
 );
 const LEADERBOARD_URL = await maybeWrapCORSProxy(
-  "https://api.jumper.exchange/v1/leaderboard/{address}"
+  "https://api.jumper.exchange/v1/leaderboard/{address}",
 );
 
 export default {
@@ -14,9 +14,18 @@ export default {
       Referer: "https://checkpoint.exchange/",
     };
     const [rewards, leaderboard] = await Promise.all([
-      await fetch(API_URL.replace("{address}", address), { headers }),
-      await fetch(LEADERBOARD_URL.replace("{address}", address), { headers }),
+  await fetch(API_URL.replace("{address}", address), { headers }),
+  await fetch(LEADERBOARD_URL.replace("{address}", address), { headers }),
     ]);
+
+
+    if (!rewards.ok || !leaderboard.ok) {
+      const rewardsText = await rewards.clone().text();
+      const leaderboardText = await leaderboard.clone().text();
+      throw new Error(
+        `Failed to fetch jumperexchange data ${rewardsText}, ${leaderboardText}`,
+      );
+    }
 
     return {
       rewards: await rewards.json(),
@@ -48,7 +57,7 @@ export default {
         ...Object.fromEntries(
           data.walletRewards
             .filter((reward) => reward.reward !== null)
-            .map(({ reward, points }) => [reward.name, points])
+            .map(({ reward, points }) => [reward.name, points]),
         ),
       },
     };

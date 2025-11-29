@@ -57,14 +57,21 @@ interface AstherusData {
 */
 export default {
   fetch: async (address: string): Promise<AstherusData> => {
-    const res = await fetch(API_URL.replace("{address}", address), {
+    const res = await fetch(API_URL, {
       method: "POST",
       body: JSON.stringify({ address }),
       headers: {
         "content-type": "application/json",
       },
     });
-    return (await res.json())?.data;
+
+    if (!res.ok)
+      throw new Error(`Fetch failed for astherus data ${await res.text()}`);
+    const json = await res.json();
+    if (!json?.data) {
+      throw new Error("Invalid response: missing data property");
+    }
+    return json.data;
   },
   data: (data: AstherusData) => {
     const { auInfo, currentEpochRhInfo } = data;

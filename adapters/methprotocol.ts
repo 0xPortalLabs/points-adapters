@@ -22,11 +22,12 @@ const API_URL = "https://cmeth-api-v2.mantle.xyz/points/{address}";
    */
 export default {
   fetch: async (address: string) => {
-    return (
-      await (
-        await fetch(API_URL.replace("{address}", address.toLowerCase()))
-      ).json()
-    ).data;
+    const res = await fetch(
+      API_URL.replace("{address}", address.toLowerCase()),
+    );
+    if (!res.ok)
+      throw new Error(`Failed to fetch methprotocol data ${await res.text()}`);
+    return (await res.json()).data;
   },
   data: (data: Record<string, string | number> | null) => {
     return data

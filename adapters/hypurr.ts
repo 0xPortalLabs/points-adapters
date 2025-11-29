@@ -20,7 +20,7 @@ type ApiResponse = {
   calculated_at: string;
 };
 const API_URL = await maybeWrapCORSProxy(
-  "https://api.fuul.xyz/api/v1/payouts/leaderboard/points?user_identifier={address}&user_identifier_type=evm_address&fields=tier"
+  "https://api.fuul.xyz/api/v1/payouts/leaderboard/points?user_identifier={address}&user_identifier_type=evm_address&fields=tier",
 );
 
 export default {
@@ -31,6 +31,8 @@ export default {
           "Bearer dd0f4f26be36808799f3d1ac5c87c850b58e8f03b964878f9680825132c29c06",
       },
     });
+    if (!res.ok)
+      throw new Error(`Failed to fetch hypurr data ${await res.text()}`);
     return await res.json();
   },
   data: (data: ApiResponse) => {
@@ -42,12 +44,12 @@ export default {
       ...(rest &&
         Object.fromEntries(
           Object.entries(rest).filter(
-            ([k, v]) => v !== null && v !== undefined && k !== "address"
-          )
+            ([k, v]) => v !== null && v !== undefined && k !== "address",
+          ),
         )),
       ...(tiers &&
         Object.fromEntries(
-          Object.entries(tiers).map(([k, v]) => [`Tiers: ${k}`, v])
+          Object.entries(tiers).map(([k, v]) => [`Tiers: ${k}`, v]),
         )),
     };
 

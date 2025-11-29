@@ -36,7 +36,10 @@ const API_URL = "https://api.level.money/v1/xp/owner/{address}/grants";
 */
 export default {
   fetch: async (address: string) => {
-    return await (await fetch(API_URL.replace("{address}", address))).json();
+    const res = await fetch(API_URL.replace("{address}", address));
+    if (!res.ok)
+      throw new Error(`Failed to fetch level data ${await res.text()}`);
+    return await res.json();
   },
   data: ({
     balance,
@@ -55,7 +58,7 @@ export default {
           grants.map((grant, index) => [
             `Grant ${index + 1}: ${grant.id}`,
             grant.balance.accrued,
-          ])
+          ]),
         ),
       },
     };

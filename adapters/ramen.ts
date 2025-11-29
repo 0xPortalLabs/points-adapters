@@ -2,7 +2,7 @@ import type { AdapterExport } from "../utils/adapter.ts";
 import { maybeWrapCORSProxy } from "../utils/cors.ts";
 
 const API_URL = await maybeWrapCORSProxy(
-  "https://api.ramen.finance/v1/rewards?address={address}"
+  "https://api.ramen.finance/v1/rewards?address={address}",
 );
 
 /**
@@ -18,8 +18,10 @@ const API_URL = await maybeWrapCORSProxy(
    */
 export default {
   fetch: async (address: string) => {
-    return (await (await fetch(API_URL.replace("{address}", address))).json())
-      .data;
+    const res = await fetch(API_URL.replace("{address}", address));
+    if (!res.ok)
+      throw new Error(`Failed to fetch ramen data ${await res.text()}`);
+    return (await res.json()).data;
   },
   data: (data: Record<string, string>) => ({
     Gacha: {

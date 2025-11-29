@@ -13,7 +13,8 @@ type API_RESPONSE = {
 export default {
   fetch: async (address: string) => {
     const res = await fetch(API_URL.replace("{address}", address));
-
+    if (!res.ok)
+      throw new Error(`Failed to fetch prjx data ${await res.text()}`);
     const data = await res.json();
     if (data.error === "User not found") return { pointsTotal: 0, rank: 0 };
 
@@ -23,7 +24,7 @@ export default {
     if (!data) return {};
     return {
       "Total Points": data.pointsTotal,
-      "Rank": data.rank,
+      Rank: data.rank,
     };
   },
   total: (data: API_RESPONSE) => data.pointsTotal,

@@ -55,24 +55,25 @@ export default {
   fetch: async (address: string) => {
     req.variables.address = address;
 
-    const res = await (
-      await fetch(API_URL.replace("{address}", address), {
-        method: "POST",
-        body: JSON.stringify(req),
-        headers: {
-          Authorization: API_KEY,
-        },
-      })
-    ).json();
-    return res.data.phase2PointSysAccountInfo;
+    const res = await fetch(API_URL.replace("{address}", address), {
+      method: "POST",
+      body: JSON.stringify(req),
+      headers: {
+        Authorization: API_KEY,
+      },
+    });
+    if (!res.ok)
+      throw new Error(`Failed to fetch solv data ${await res.text()}`);
+
+    return (await res.json()).data.phase2PointSysAccountInfo;
   },
   data: (data: Record<string, number | string>) => {
     return convertKeysToStartCase(
       Object.fromEntries(
         Object.entries(data)
           .filter(([_, v]) => !Number.isNaN(parseFloat(String(v))))
-          .map(([k, v]) => [k, Number(v)])
-      )
+          .map(([k, v]) => [k, Number(v)]),
+      ),
     );
   },
   total: (data: Record<string, string>) => parseFloat(data.totalPointsEarned),

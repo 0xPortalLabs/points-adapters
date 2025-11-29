@@ -24,11 +24,16 @@ const S1_API_URL =
 export default {
   fetch: async (address: string) => {
     const [s1, s2] = await Promise.all([
-      (await fetch(S1_API_URL.replace("{address}", address))).json(),
-      (await fetch(API_URL.replace("{address}", address))).json(),
+      fetch(S1_API_URL.replace("{address}", address)),
+      fetch(API_URL.replace("{address}", address)),
     ]);
 
-    return { s1, s2 };
+    if (!s1.ok || !s2.ok)
+      throw new Error(
+        `Failed to fetch treehouse data ${await s1.text()}, ${await s2.text()}`,
+      );
+
+    return { s1: await s1.json(), s2: await s2.json() };
   },
   data: ({
     s1,
