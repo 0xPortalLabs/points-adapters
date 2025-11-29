@@ -4,7 +4,7 @@ import { convertKeysToStartCase } from "../utils/object.ts";
 import { maybeWrapCORSProxy } from "../utils/cors.ts";
 
 const API_URL = await maybeWrapCORSProxy(
-  "https://spark2-api.blockanalitica.com/api/v1/referrals/{address}"
+  "https://spark2-api.blockanalitica.com/api/v1/referrals/{address}",
 );
 
 /**
@@ -21,7 +21,10 @@ const API_URL = await maybeWrapCORSProxy(
  */
 export default {
   fetch: async (address: string) => {
-    return await (await fetch(API_URL.replace("{address}", address))).json();
+    const res = await fetch(API_URL.replace("{address}", address));
+    if (!res.ok)
+      throw new Error(`Failed to fetch spark data ${await res.text()}`);
+    return await res.json();
   },
   data: ({
     points,

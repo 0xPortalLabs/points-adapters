@@ -2,10 +2,10 @@ import type { AdapterExport } from "../utils/adapter.ts";
 import { maybeWrapCORSProxy } from "../utils/cors.ts";
 
 const POINTS_URL = await maybeWrapCORSProxy(
-  "https://api-points.silo.finance/points/userpoints?account={address}"
+  "https://api-points.silo.finance/points/userpoints?account={address}",
 );
 const LEADERBOARD_URL = await maybeWrapCORSProxy(
-  "https://api-points.silo.finance/points/leaderboard?account={address}"
+  "https://api-points.silo.finance/points/leaderboard?account={address}",
 );
 
 /**
@@ -38,15 +38,20 @@ const LEADERBOARD_URL = await maybeWrapCORSProxy(
 // {"account":"0xf4fe75926d607d43b074f8de38a49258773090f7","userPoints":502.22421864787,"totalPoints":26484612396.44205}
 export default {
   fetch: async (address: string) => {
-    const [points, leaderboard] = await Promise.all([
-      (await fetch(POINTS_URL.replace("{address}", address))).json(),
-      (await fetch(LEADERBOARD_URL.replace("{address}", address))).json(),
+    const [points, leaderboardData] = await Promise.all([
+      fetch(POINTS_URL.replace("{address}", address)),
+      fetch(LEADERBOARD_URL.replace("{address}", address)),
     ]);
 
+    if (!points.ok || !leaderboardData.ok)
+      throw new Error(
+        `Failed to fetch silofinance data ${await points.text()}, ${await leaderboardData.text()}`,
+      );
+    const leaderboard = await leaderboardData.json();
     const position =
       leaderboard.topAccounts.find(
         (x: { account: string }) =>
-          x.account.toLowerCase() === address.toLowerCase()
+          x.account.toLowerCase() === address.toLowerCase(),
       )?.rank ?? 0;
 
     return { points, position };

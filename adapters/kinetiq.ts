@@ -19,6 +19,8 @@ export default {
         "next-action": "7fe98e616734232bdb03a27d671f1ea032ddd6ebed",
       },
     });
+    if (!res.ok)
+      throw new Error(`Failed to fetch kinetiq data ${await res.text()}`);
 
     const lines = (await res.text()).split("\n").filter((l) => l.trim());
     const data = lines.find((l) => l.includes("address"));

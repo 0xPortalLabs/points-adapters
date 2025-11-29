@@ -7,7 +7,7 @@ import {
 import { maybeWrapCORSProxy } from "../utils/cors.ts";
 
 const API_URL = await maybeWrapCORSProxy(
-  "https://infrared.finance/api/points/user/{address}?chainId=80094"
+  "https://infrared.finance/api/points/user/{address}?chainId=80094",
 );
 
 /**
@@ -21,9 +21,12 @@ const API_URL = await maybeWrapCORSProxy(
  */
 export default {
   fetch: async (address: string) => {
-    return await (
-      await fetch(API_URL.replace("{address}", address.toLowerCase()))
-    ).json();
+    const res = await fetch(
+      API_URL.replace("{address}", address.toLowerCase()),
+    );
+
+    if (!res.ok) throw new Error(`Failed to fetch infrared data ${res.text()}`);
+    return await res.json();
   },
   data: (data: Record<string, number | string>) =>
     convertKeysToStartCase(convertValuesToNormal(data)),

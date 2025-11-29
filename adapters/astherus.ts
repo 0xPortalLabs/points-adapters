@@ -67,8 +67,6 @@ export default {
 
     if (!res.ok)
       throw new Error(`Fetch failed for astherus data ${await res.text()}`);
-    if (!res.ok)
-      throw new Error(`Fetch failed for astherus data ${await res.text()}`);
     const json = await res.json();
     if (!json?.data) {
       throw new Error("Invalid response: missing data property");

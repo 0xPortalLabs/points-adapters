@@ -2,7 +2,7 @@ import type { AdapterExport } from "../utils/adapter.ts";
 import { maybeWrapCORSProxy } from "../utils/cors.ts";
 
 const API_URL = await maybeWrapCORSProxy(
-  "https://rewards.superform.xyz/api/proxy/rewards/summary/{address}"
+  "https://rewards.superform.xyz/api/proxy/rewards/summary/{address}",
 );
 
 /**
@@ -27,7 +27,10 @@ const API_URL = await maybeWrapCORSProxy(
  */
 export default {
   fetch: async (address: string) => {
-    return await (await fetch(API_URL.replace("{address}", address))).json();
+    const res = await fetch(API_URL.replace("{address}", address));
+    if (!res.ok)
+      throw new Error(`Failed to fetch superform data ${await res.text()}`);
+    return await res.json();
   },
   data: ({ user }: { user: Record<string, number> }) => ({
     Points: user.points,

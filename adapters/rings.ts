@@ -59,7 +59,10 @@ const API_URL = "https://points-api.rings.money/points/{address}";
 export default {
   fetch: async (address: string) => {
     address = getAddress(address);
-    return (await fetch(API_URL.replace("{address}", address))).json();
+    const res = await fetch(API_URL.replace("{address}", address));
+    if (!res.ok)
+      throw new Error(`Failed to fetch rings data ${await res.text()}`);
+    return res.json();
   },
   data: (data: { totalByType: Record<string, string> }) =>
     convertKeysToStartCase(
@@ -68,9 +71,9 @@ export default {
           Object.entries(data.totalByType).map(([key, value]) => [
             key,
             Number(BigInt(value) / BigInt(1e36)),
-          ])
-        )
-      )
+          ]),
+        ),
+      ),
     ),
   total: (data: { total: string }) => Number(BigInt(data.total) / BigInt(1e36)),
 } as AdapterExport;

@@ -56,6 +56,8 @@ export default {
         },
       }),
     });
+    if (!res.ok)
+      throw new Error(`Failed to fetch galxe data ${await res.text()}`);
     const data = await res.json();
     return data.data;
   },

@@ -2,7 +2,7 @@ import type { AdapterExport } from "../utils/adapter.ts";
 import { maybeWrapCORSProxy } from "../utils/cors.ts";
 
 const API_URL = await maybeWrapCORSProxy(
-  "https://app.veda.tech/api/user-veda-points?userAddress={address}"
+  "https://app.veda.tech/api/user-veda-points?userAddress={address}",
 );
 
 /* {
@@ -22,14 +22,16 @@ const API_URL = await maybeWrapCORSProxy(
 } */
 export default {
   fetch: async (address: string) => {
-    return (await (await fetch(API_URL.replace("{address}", address))).json())
-      .Response;
+    const res = await fetch(API_URL.replace("{address}", address));
+    if (!res.ok)
+      throw new Error(`Failed to fetch veda data ${await res.text()}`);
+    return (await res.json()).Response;
   },
   data: (
     data: Record<
       string,
       { vaults: Record<string, { name: string; totalPoints: number }> }
-    >
+    >,
   ) => {
     return Object.fromEntries(
       Object.entries(data).flatMap(([chain, { vaults }]) => {
@@ -41,7 +43,7 @@ export default {
         }
 
         return [];
-      })
+      }),
     );
   },
   total: (data: { userTotalVedaPointsSum: number }) =>

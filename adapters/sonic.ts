@@ -2,7 +2,7 @@ import type { AdapterExport } from "../utils/adapter.ts";
 import { maybeWrapCORSProxy } from "../utils/cors.ts";
 
 const API_URL = await maybeWrapCORSProxy(
-  "https://www.data-openblocklabs.com/sonic/user-points-stats?wallet_address={address}"
+  "https://www.data-openblocklabs.com/sonic/user-points-stats?wallet_address={address}",
 );
 
 /**
@@ -19,11 +19,14 @@ const API_URL = await maybeWrapCORSProxy(
  */
 export default {
   fetch: async (address: string) => {
-    return await (await fetch(API_URL.replace("{address}", address))).json();
+    const res = await fetch(API_URL.replace("{address}", address));
+    if (!res.ok)
+      throw new Error(`Failed to fetch sonic data ${await res.text()}`);
+    return await res.json();
   },
   data: (data: Record<string, number>) => ({
     "User Activity Last Detected": new Date(
-      data.user_activity_last_detected
+      data.user_activity_last_detected,
     ).toString(),
     "Sonic Points": data.sonic_points,
     "Loyalty Multiplier": data.loyalty_multiplier,

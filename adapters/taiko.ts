@@ -3,7 +3,7 @@ import { convertKeysToStartCase } from "../utils/object.ts";
 import { maybeWrapCORSProxy } from "../utils/cors.ts";
 
 const API_URL = await maybeWrapCORSProxy(
-  "https://trailblazer.mainnet.taiko.xyz/s4/user/rank?address={address}"
+  "https://trailblazer.mainnet.taiko.xyz/s4/user/rank?address={address}",
 );
 
 /*
@@ -24,14 +24,15 @@ const API_URL = await maybeWrapCORSProxy(
 */
 export default {
   fetch: async (address: string) => {
-    return await (
-      await fetch(API_URL.replace("{address}", address), {
-        headers: {
-          "User-Agent":
-            "Mozilla/5.0 (Windows NT 10.0; x64) Gecko/20100101 Firefox/67.4",
-        },
-      })
-    ).json();
+    const res = await fetch(API_URL.replace("{address}", address), {
+      headers: {
+        "User-Agent":
+          "Mozilla/5.0 (Windows NT 10.0; x64) Gecko/20100101 Firefox/67.4",
+      },
+    });
+    if (!res.ok)
+      throw new Error(`Failed to fetch taiko data ${await res.text()}`);
+    return await res.json();
   },
   data: ({
     multiplier = 1,
@@ -50,13 +51,13 @@ export default {
       ? breakdown.reduce(
           (
             acc: Record<string, number>,
-            item: Record<string, string | number>
+            item: Record<string, string | number>,
           ) => {
             const event = item.event as string;
             acc[`${event} Points`] = getPoints(event);
             return acc;
           },
-          {} as Record<string, number>
+          {} as Record<string, number>,
         )
       : {};
 

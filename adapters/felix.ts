@@ -3,14 +3,16 @@ import { maybeWrapCORSProxy } from "../utils/cors.ts";
 import { getAddress } from "viem";
 
 const API_URL = await maybeWrapCORSProxy(
-  "https://www.usefelix.xyz/api/points/{address}"
+  "https://www.usefelix.xyz/api/points/{address}",
 );
 
 export default {
   fetch: async (address) => {
     const response = await fetch(
-      API_URL.replace("{address}", getAddress(address))
+      API_URL.replace("{address}", getAddress(address)),
     );
+    if (!response.ok)
+      throw new Error(`Failed to fetch felix data ${await response.text()}`);
     return await response.json();
   },
   data: (data) => {

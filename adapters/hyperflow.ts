@@ -52,7 +52,7 @@ interface UserData {
 }
 
 const API_URL = await maybeWrapCORSProxy(
-  "https://api.hyperflow.fun/v1/point/leaderboard"
+  "https://api.hyperflow.fun/v1/point/leaderboard",
 );
 
 export default {
@@ -60,10 +60,14 @@ export default {
     address = getAddress(address);
 
     const response = await fetch(API_URL);
+    if (!response.ok)
+      throw new Error(
+        `Failed to fetch hyperflow data ${await response.text()}`,
+      );
     const data = await response.json();
 
     return data.items.find(
-      (user: UserData) => getAddress(user.user) === address
+      (user: UserData) => getAddress(user.user) === address,
     );
   },
   data: (data: UserData) => {
@@ -77,7 +81,7 @@ export default {
           Object.entries(pointPartnerBonuses).map(([k, v]) => [
             `Point Partner Bonuses: ${k}`,
             v,
-          ])
+          ]),
         )),
     };
 

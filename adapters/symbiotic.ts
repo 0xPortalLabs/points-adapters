@@ -2,7 +2,7 @@ import type { AdapterExport } from "../utils/adapter.ts";
 import { maybeWrapCORSProxy } from "../utils/cors.ts";
 
 const API_URL = await maybeWrapCORSProxy(
-  "https://app.symbiotic.fi/api/v2/dashboard/{address}"
+  "https://app.symbiotic.fi/api/v2/dashboard/{address}",
 );
 
 interface PointsData {
@@ -24,7 +24,7 @@ const getPoints = (obj: PointsData) => {
     const remainder = BigInt(obj.points) % divisor;
 
     return parseFloat(
-      `${whole}.${remainder.toString().padStart(decimals, "0")}`
+      `${whole}.${remainder.toString().padStart(decimals, "0")}`,
     );
   }
 
@@ -59,11 +59,14 @@ const getPoints = (obj: PointsData) => {
  */
 export default {
   fetch: async (address: string) => {
-    return (await fetch(API_URL.replace("{address}", address))).json();
+    const res = await fetch(API_URL.replace("{address}", address));
+    if (!res.ok)
+      throw new Error(`Failed to fetch symbiotic data ${await res.text()}`);
+    return res.json();
   },
   data: (data: { points: PointsData[]; totalDepositUsd: number }) => {
     const pointsData = Object.fromEntries(
-      data.points.map((x) => [`${x.meta.name} Points`, getPoints(x)])
+      data.points.map((x) => [`${x.meta.name} Points`, getPoints(x)]),
     );
     return {
       "Symbiotic Points": {
@@ -75,7 +78,7 @@ export default {
   total: (data: { points: PointsData[] }) => ({
     "Symbiotic Points": data.points.reduce(
       (total, x) => total + getPoints(x),
-      0
+      0,
     ),
   }),
 } as AdapterExport;

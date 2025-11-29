@@ -25,9 +25,12 @@ const API_URL =
  */
 export default {
   fetch: async (address: string) => {
-    const data = await (
-      await fetch(API_URL.replace("{address}", address.toLowerCase()))
-    ).json();
+    const res = await fetch(
+      API_URL.replace("{address}", address.toLowerCase()),
+    );
+    if (!res.ok)
+      throw new Error(`Failed to fetch swapx data ${await res.text()}`);
+    const data = await res.json();
 
     if (!data.success || typeof data.message === "string")
       return { lockedSwpxUSD: 0, EpochUserStatsXX: [] };
@@ -45,7 +48,7 @@ export default {
       EpochUserStatsXX.map(({ epoch, powerPercentage }) => [
         `Epoch ${epoch}`,
         powerPercentage,
-      ])
+      ]),
     );
 
     return { lockedSwpxUSD, ...epochData };

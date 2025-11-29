@@ -13,8 +13,10 @@ const API_URL =
  */
 export default {
   fetch: async (address: string) => {
-    return (await (await fetch(API_URL.replace("{address}", address))).json())
-      .result.rows;
+    const res = await fetch(API_URL.replace("{address}", address));
+    if (!res.ok)
+      throw new Error(`Failed to fetch lombard data ${await res.text()}`);
+    return (await res.json()).result.rows;
   },
   data: (data: { points_json: string }[]) => {
     if (data.length > 0) {
@@ -23,8 +25,8 @@ export default {
         Object.entries(parsed).flatMap(([cat, x]) =>
           Object.entries(x as Record<string, number>).map(([k, v]) => {
             return [`${startCase(cat)}: ${startCase(k)}`, v];
-          })
-        )
+          }),
+        ),
       );
     }
 
@@ -33,7 +35,7 @@ export default {
   total: (data: { points_json: string }[]) => {
     if (data.length > 0) {
       const parsed: Record<string, { lpoints: number }> = JSON.parse(
-        data[0].points_json
+        data[0].points_json,
       );
       return Object.values(parsed).reduce((x, y) => x + y.lpoints, 0);
     }
