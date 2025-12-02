@@ -54,10 +54,21 @@ export default {
       tenure_achieved: data.rank?.tenure_achieved,
     });
   },
-  total: (data: { points: POINTS_TYPE[]; rank: TIER_TYPE }) => {
+  total: (data: { points: POINTS_TYPE[] }) => {
     const season2 = data.points.find(
       (season) => season.season_type === "season_2",
     );
     return season2?.data.reduce((acc, session) => acc + session.points, 0);
   },
+  claimable: (data: { points: POINTS_TYPE[] }) => {
+    const season1 = data.points.find(
+      (season) => season.season_type === "season_1",
+    );
+    return Boolean(
+      season1?.data.reduce((acc, session) => acc + session.points, 0),
+    );
+  },
+  deprecated: (data: { points: POINTS_TYPE[] }) => ({
+    "Season 1": 1738367999, // 31st January 2025
+  }),
 } as AdapterExport;
