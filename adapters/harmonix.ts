@@ -35,7 +35,13 @@ type TIER_TYPE = {
 export default {
   fetch: async (address) => {
     const pointsData = await fetch(POINTS_URL.replace("{address}", address));
+    if (!pointsData.ok) {
+      throw new Error(`Failed to fetch points: ${pointsData.status} ${pointsData.statusText}`);
+    }
     const rankData = await fetch(TIER_URL.replace("{address}", address));
+    if (!rankData.ok) {
+      throw new Error(`Failed to fetch tier: ${rankData.status} ${rankData.statusText}`);
+    }
 
     return {
       points: await pointsData.json(),
