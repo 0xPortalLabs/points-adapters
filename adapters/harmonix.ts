@@ -68,7 +68,7 @@ export default {
       season1?.data.reduce((acc, session) => acc + session.points, 0),
     );
   },
-  deprecated: (data: { points: POINTS_TYPE[] }) => ({
+  deprecated: () => ({
     "Season 1": 1738367999, // 31st January 2025
   }),
 } as AdapterExport;
