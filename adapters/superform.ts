@@ -2,7 +2,7 @@ import type { AdapterExport } from "../utils/adapter.ts";
 import { maybeWrapCORSProxy } from "../utils/cors.ts";
 
 const API_URL = await maybeWrapCORSProxy(
-  "https://rewards.superform.xyz/api/proxy/rewards/summary/{address}"
+  "https://persephone.superform.xyz/v1/rewards/summary/{address}",
 );
 
 /**
