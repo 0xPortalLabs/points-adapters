@@ -46,6 +46,7 @@ export default {
   }) => ({
     "S1 XP": season_1.user_points,
     "S2 Cred": season_2.user_points,
-    "Superform Points": user.points,
+    "S3 Points": user.points,
   }),
+  rank: (data: { user: { rank: string } }) => Number(data.user.rank),
 } as AdapterExport;

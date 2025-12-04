@@ -67,6 +67,7 @@ export default {
     return (await res.json())?.data;
   },
   data: (data: AstherusData) => {
+    console.log(data);
     const { auInfo, currentEpochRhInfo } = data;
     return {
       "Au Share": auInfo.share,
@@ -93,4 +94,5 @@ export default {
   },
   total: (data: AstherusData) => data.auInfo.totalAu,
   rank: (data: AstherusData) => parseInt(String(data.currentEpochRhInfo.rank)),
+  claimable: (data: AstherusData) => Boolean(data.auInfo.totalAu),
 } as AdapterExport;
