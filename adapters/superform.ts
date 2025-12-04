@@ -29,8 +29,18 @@ export default {
   fetch: async (address: string) => {
     return await (await fetch(API_URL.replace("{address}", address))).json();
   },
-  data: ({ user }: { user: Record<string, number> }) => ({
-    Points: user.points,
+  data: ({
+    user,
+    season_1,
+    season_2,
+  }: {
+    user: Record<string, number>;
+    season_1: { user_points: number };
+    season_2: { user_points: number };
+  }) => ({
+    "S3 Points": user.points,
+    "S2 Cred": season_2.user_points,
+    "S1 XP": season_1.user_points,
     "Points Per Day": user.points_per_day,
     "Referrals Direct": user.referrals_direct,
     "Referrals Indirect": user.referrals_indirect,
@@ -44,9 +54,9 @@ export default {
     season_1: { user_points: number };
     season_2: { user_points: number };
   }) => ({
-    "S1 XP": season_1.user_points,
-    "S2 Cred": season_2.user_points,
     "S3 Points": user.points,
+    "S2 Cred": season_2.user_points,
+    "S1 XP": season_1.user_points,
   }),
   rank: (data: { user: { rank: string } }) => Number(data.user.rank),
 } as AdapterExport;
