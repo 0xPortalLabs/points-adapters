@@ -35,13 +35,7 @@ type TIER_TYPE = {
 export default {
   fetch: async (address) => {
     const pointsData = await fetch(POINTS_URL.replace("{address}", address));
-    if (!pointsData.ok) {
-      throw new Error(`Failed to fetch points: ${pointsData.status} ${pointsData.statusText}`);
-    }
     const rankData = await fetch(TIER_URL.replace("{address}", address));
-    if (!rankData.ok) {
-      throw new Error(`Failed to fetch tier: ${rankData.status} ${rankData.statusText}`);
-    }
 
     return {
       points: await pointsData.json(),
@@ -49,30 +43,49 @@ export default {
     };
   },
   data: (data: { points: POINTS_TYPE[]; rank: TIER_TYPE }) => {
+    const season1 = data.points.find((s) => s.season_type === "season_1");
+    const season2 = data.points.find((s) => s.season_type === "season_2");
+
     return convertKeysToStartCase({
-      ...Object.fromEntries(
-        data.points.map((season) => [
-          season.season_type,
-          season.data.reduce((acc, session) => acc + session.points, 0),
-        ]),
-      ),
+      ...(season2 && {
+        season_2: season2.data.reduce(
+          (acc, session) => acc + session.points,
+          0,
+        ),
+      }),
+      ...(season1 && {
+        season_1: season1.data.reduce(
+          (acc, session) => acc + session.points,
+          0,
+        ),
+      }),
       tier: data.rank?.tier,
       tenure_achieved: data.rank?.tenure_achieved,
     });
   },
   total: (data: { points: POINTS_TYPE[] }) => {
+    const season1 = data.points.find(
+      (season) => season.season_type === "season_1",
+    );
     const season2 = data.points.find(
       (season) => season.season_type === "season_2",
     );
-    return season2?.data.reduce((acc, session) => acc + session.points, 0);
+    return {
+      "S2 Points": season2?.data.reduce(
+        (acc, session) => acc + session.points,
+        0,
+      ),
+      "S1 Points": season1?.data.reduce(
+        (acc, session) => acc + session.points,
+        0,
+      ),
+    };
   },
   claimable: (data: { points: POINTS_TYPE[] }) => {
     const season1 = data.points.find(
       (season) => season.season_type === "season_1",
     );
-    return Boolean(
-      season1?.data.reduce((acc, session) => acc + session.points, 0),
-    );
+    return season1?.data.some((session) => session.points > 0) ?? false;
   },
   deprecated: () => ({
     "Season 1": 1738367999, // 31st January 2025
