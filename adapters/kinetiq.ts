@@ -16,7 +16,7 @@ export default {
       method: "POST",
       body: JSON.stringify([{ chainId: 1, userAddress: address }]),
       headers: {
-        "next-action": "7fe98e616734232bdb03a27d671f1ea032ddd6ebed",
+        "next-action": "7fd2a89dbd995d775d4ffa0dee8bdee0aeb36e666b",
       },
     });
 
