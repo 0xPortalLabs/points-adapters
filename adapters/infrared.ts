@@ -7,7 +7,7 @@ import {
 import { maybeWrapCORSProxy } from "../utils/cors.ts";
 
 const API_URL = await maybeWrapCORSProxy(
-  "https://infrared.finance/api/points/user/{address}?chainId=80094"
+  "https://infrared.finance/api/points/user/{address}?chainId=80094",
 );
 
 /**
@@ -29,6 +29,7 @@ export default {
     convertKeysToStartCase(convertValuesToNormal(data)),
   total: ({ points }: { points: number }) => points,
   rank: ({ rank }: { rank: number }) => rank,
+  claimable: ({ points }: { points: number }) => points > 0,
   deprecated: () => ({
     Points: 1762359104, // Wednesday 5th November 2025 16:11 GMT
   }),
