@@ -43,22 +43,26 @@ export default {
     };
   },
   data: (data: { points: POINTS_TYPE[]; rank: TIER_TYPE }) => {
-    const season1 = data.points.find((s) => s.season_type === "season_1");
-    const season2 = data.points.find((s) => s.season_type === "season_2");
+    const processSeasonData = (seasonType: string, prefix: string) => {
+      const season = data.points.find((s) => s.season_type === seasonType);
+      const reduced =
+        season?.data.reduce(
+          (acc, curr) => ({
+            points: (acc.points || 0) + curr.points,
+            staking_points: (acc.staking_points || 0) + curr.staking_points,
+            referral_points: (acc.referral_points || 0) + curr.referral_points,
+          }),
+          {} as Record<string, number>,
+        ) || {};
+
+      return Object.fromEntries(
+        Object.entries(reduced).map(([k, v]) => [`${prefix} ${k}`, v]),
+      );
+    };
 
     return convertKeysToStartCase({
-      ...(season2 && {
-        season_2: season2.data.reduce(
-          (acc, session) => acc + session.points,
-          0,
-        ),
-      }),
-      ...(season1 && {
-        season_1: season1.data.reduce(
-          (acc, session) => acc + session.points,
-          0,
-        ),
-      }),
+      ...processSeasonData("season_2", "Season 2"),
+      ...processSeasonData("season_1", "Season 1"),
       tier: data.rank?.tier,
       tenure_achieved: data.rank?.tenure_achieved,
     });
@@ -72,11 +76,21 @@ export default {
     );
     return {
       "S2 Points": season2?.data.reduce(
-        (acc, session) => acc + session.points,
+        (acc, session) =>
+          acc +
+          session.points +
+          session.staking_points +
+          session.referral_points +
+          session.swap_points,
         0,
       ),
       "S1 Points": season1?.data.reduce(
-        (acc, session) => acc + session.points,
+        (acc, session) =>
+          acc +
+          session.points +
+          session.staking_points +
+          session.referral_points +
+          session.swap_points,
         0,
       ),
     };
@@ -88,6 +102,6 @@ export default {
     return season1?.data.some((session) => session.points > 0) ?? false;
   },
   deprecated: () => ({
-    "Season 1": 1738367999, // 31st January 2025
+    "S1 Points": 1738367999, // 31st January 2025
   }),
 } as AdapterExport;
