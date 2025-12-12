@@ -1,6 +1,6 @@
 import type { AdapterExport } from "../utils/adapter.ts";
 import { maybeWrapCORSProxy } from "../utils/cors.ts";
-import { getAddress } from "viem";
+import { getAddress, formatEther } from "viem";
 import { convertValuesToNormal } from "../utils/object.ts";
 const API_URL = await maybeWrapCORSProxy(
   "https://public.api.across.to/rewards/op-rebates/summary?userAddress={address}",
@@ -27,17 +27,13 @@ export default {
     return await res.json();
   },
   data: (data: Response) => {
-    data: (data: Response) => {
-      return convertValuesToNormal({
     return convertValuesToNormal({
       ...data,
-      unclaimedRewards: Number(
-        parseInt(data.unclaimedRewards) / 1000000000000000000,
-      ),
+      unclaimedRewards: Number(formatEther(BigInt(data.unclaimedRewards))),
     });
   },
   total: (data: Response) => ({
-    OP: Number(parseInt(data.unclaimedRewards) / 1000000000000000000),
+    OP: Number(formatEther(BigInt(data.unclaimedRewards))),
   }),
-  claimable: (data: Response) => Boolean(data.claimableRewards),
+  claimable: (data: Response) => Number(data.claimableRewards) > 0,
 } as AdapterExport;
