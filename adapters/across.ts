@@ -27,7 +27,8 @@ export default {
     return await res.json();
   },
   data: (data: Response) => {
-    console.log;
+    data: (data: Response) => {
+      return convertValuesToNormal({
     return convertValuesToNormal({
       ...data,
       unclaimedRewards: Number(
