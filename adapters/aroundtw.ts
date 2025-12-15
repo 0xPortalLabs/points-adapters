@@ -22,7 +22,9 @@ type API_RESPONSE = {
 export default {
   fetch: async (address) => {
     const res = await fetch(API_URL.replace("{address}", getAddress(address)));
-    return await res.json();
+    const data: API_RESPONSE = await res.json();
+    if (!data.player) throw new Error("Player does not exist");
+    return data;
   },
   data: (data: API_RESPONSE) => {
     const progressData = data.progress.reduce(
