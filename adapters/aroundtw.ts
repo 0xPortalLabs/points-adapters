@@ -29,7 +29,11 @@ export default {
       (acc, obj, index) => {
         const convertedObj = convertKeysToStartCase(obj);
         Object.entries(convertedObj).forEach(([key, value]) => {
-          acc[`Level ${index + 1} ${key}`] = value;
+          if (key === "Completed At") {
+            acc[`Level ${index + 1} ${key}`] = new Date(value).toLocaleString();
+          } else {
+            acc[`Level ${index + 1} ${key}`] = value;
+          }
         });
         return acc;
       },
