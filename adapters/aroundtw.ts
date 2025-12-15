@@ -3,10 +3,8 @@ import type { AdapterExport } from "../utils/adapter.ts";
 import { maybeWrapCORSProxy } from "../utils/cors.ts";
 import { convertKeysToStartCase } from "../utils/object.ts";
 
-const date = Date.now();
-
 const API_URL = await maybeWrapCORSProxy(
-  `https://basearoundtheworld.vercel.app/api/player?address={address}&_t=${date}`,
+  "https://basearoundtheworld.vercel.app/api/player?address={address}&_t={timestamp}",
 );
 
 type API_RESPONSE = {
@@ -21,9 +19,25 @@ type API_RESPONSE = {
 };
 export default {
   fetch: async (address) => {
-    const res = await fetch(API_URL.replace("{address}", getAddress(address)));
+    const timestamp = Date.now().toString();
+    const res = await fetch(
+      API_URL.replace("{address}", getAddress(address)).replace(
+        "{timestamp}",
+        timestamp,
+      ),
+    );
     const data: API_RESPONSE = await res.json();
-    if (!data.player) throw new Error("Player does not exist");
+    if (!data.player) {
+      return {
+        player: {
+          name: "Unknown user",
+          totalScore: 0,
+          levelsCompleted: 0,
+          bestLevel: 0,
+        },
+        progress: [],
+      };
+    }
     return data;
   },
   data: (data: API_RESPONSE) => {
