@@ -1,6 +1,7 @@
 import { AdapterExport } from "../utils/adapter.ts";
 import { maybeWrapCORSProxy } from "../utils/cors.ts";
 import { getAddress } from "viem";
+import { convertKeysToStartCase } from "../utils/object.ts";
 
 const API_URL = await maybeWrapCORSProxy("https://api.doma.xyz/graphql");
 
@@ -25,7 +26,7 @@ export default {
   },
   data: (data: { leaderboard: Record<string, number | string> }) => {
     const { walletAddress, ...rest } = data.leaderboard;
-    return rest;
+    return convertKeysToStartCase(rest);
   },
   total: (data: { leaderboard: Record<string, number | string> }) =>
     data.leaderboard.points,
