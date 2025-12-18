@@ -92,6 +92,6 @@ export default {
     };
   },
   total: (data: AstherusData) => data.auInfo.totalAu,
-  rank: (data: AstherusData) => parseInt(String(data.currentEpochRhInfo.rank)),
+  rank: (data: AstherusData) => parseInt(String(data.auInfo.rank)),
   claimable: (data: AstherusData) => Boolean(data.auInfo.totalAu),
 } as AdapterExport;
