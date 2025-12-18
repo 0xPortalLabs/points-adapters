@@ -28,17 +28,20 @@ export default {
     const s2_points = data.v2Points.reduce((acc, curr) => {
       return (curr.points || 0) + (curr.referralPoints || 0) + acc;
     }, 0);
-    const { v2Points, stats, lastUpdateTimestampSec, ...rest } = data;
+    const { v2Points, ...rest } = data;
     return {
-      ...convertKeysToStartCase(rest),
+      ...convertKeysToStartCase({ ...rest, ...data.stats }),
       "V2 Points": s2_points,
     };
   },
-  total: (data: { v2Points: V2_POINTS[] }) => {
+  total: (data: { v1Points: number; v2Points: V2_POINTS[] }) => {
     const points = data.v2Points.reduce((acc, curr) => {
       return (curr.points || 0) + (curr.referralPoints || 0) + acc;
     }, 0);
-    return points;
+    return {
+      "V2 Points": points,
+      "V1 Points": data.v1Points,
+    };
   },
   rank: (data: { rank: number }) => data.rank,
   deprecated: () => ({
