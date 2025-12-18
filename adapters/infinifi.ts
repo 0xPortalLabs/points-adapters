@@ -31,7 +31,9 @@ export default {
     const { v2Points, lastUpdateTimestampSec, ...rest } = data;
     return {
       ...convertKeysToStartCase({ ...rest, ...data.stats }),
-      "Last Updated Time": lastUpdateTimestampSec,
+      "Last Updated Time": new Date(
+        lastUpdateTimestampSec * 1000,
+      ).toISOString(),
       "V2 Points": s2_points,
     };
   },
