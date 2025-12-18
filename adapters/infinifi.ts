@@ -28,9 +28,10 @@ export default {
     const s2_points = data.v2Points.reduce((acc, curr) => {
       return (curr.points || 0) + (curr.referralPoints || 0) + acc;
     }, 0);
-    const { v2Points, ...rest } = data;
+    const { v2Points, lastUpdateTimestampSec, ...rest } = data;
     return {
       ...convertKeysToStartCase({ ...rest, ...data.stats }),
+      "Last Updated Time": lastUpdateTimestampSec,
       "V2 Points": s2_points,
     };
   },
