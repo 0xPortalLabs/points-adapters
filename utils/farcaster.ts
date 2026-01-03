@@ -1,26 +1,24 @@
-export async function fidFromAddress(address: `0x${string}`) {
-  const response = await fetch(
-    `https://api.neynar.com/v2/farcaster/user/bulk-by-address?addresses=${address}`,
-    {
-      headers: {
-        accept: "application/json",
-        api_key: "NEYNAR_API_DOCS",
-      },
-    },
-  );
+import { createPublicClient, http, parseAbi } from "viem";
+import { optimism } from "viem/chains";
 
-  if (!response.ok) {
-    return 0n;
-  }
+const idRegistryAbi = parseAbi([
+  "function idOf(address owner) view returns (uint256 fid)"
+]);
 
-  const data = await response.json();
+const ID_REGISTRY = "0x00000000fc6c5f01fc30151999387bb99a9f489b";
 
-  if (
-    !data[address.toLowerCase()] ||
-    data[address.toLowerCase()].length === 0
-  ) {
-    return 0n;
-  }
+const client = createPublicClient({
+  chain: optimism,
+  transport: http("https://public-op-mainnet.fastnode.io")
+});
 
-  return BigInt(data[address.toLowerCase()][0].fid);
+export async function fidFromCustodyAddress(owner: `0x${string}`) {
+  const fid = await client.readContract({
+    address: ID_REGISTRY,
+    abi: idRegistryAbi,
+    functionName: "idOf",
+    args: [owner]
+  });
+
+  return fid;
 }

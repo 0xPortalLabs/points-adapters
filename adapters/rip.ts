@@ -1,11 +1,11 @@
-import { fidFromAddress } from "../utils/farcaster.ts";
+import { fidFromCustodyAddress } from "../utils/farcaster.ts";
 import type { AdapterExport } from "../utils/adapter.ts";
 import { maybeWrapCORSProxy } from "../utils/cors.ts";
 import { getAddress } from "viem";
 import { convertKeysToStartCase } from "../utils/object.ts";
 
 const API_URL = await maybeWrapCORSProxy(
-  "https://rips.app/api/users/{fid}/stats",
+  "https://rips.app/api/users/{fid}/stats"
 );
 
 type DATA_TYPE = {
@@ -14,17 +14,17 @@ type DATA_TYPE = {
 
 export default {
   fetch: async (address) => {
-    const fid = await fidFromAddress(getAddress(address));
+    const fid = await fidFromCustodyAddress(getAddress(address));
     const res_stats = await fetch(API_URL.replace("{fid}", String(fid)));
     const data = await res_stats.json();
     return {
-      stats: data.stats,
+      stats: data.stats
     };
   },
   data: (data: DATA_TYPE) => {
     return convertKeysToStartCase(data.stats);
   },
   total: (data: DATA_TYPE) => ({
-    "Total Rips": data.stats.totalRips,
-  }),
+    "Total Rips": data.stats.totalRips
+  })
 } as AdapterExport;
