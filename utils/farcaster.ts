@@ -15,7 +15,7 @@ const client = createPublicClient({
   )
 });
 
-export async function fidFromCustodyAddress(owner: `0x${string}`) {
+export async function getFidFromCustodyAddress(owner: `0x${string}`) {
   const fid = await client.readContract({
     address: ID_REGISTRY,
     abi: idRegistryAbi,

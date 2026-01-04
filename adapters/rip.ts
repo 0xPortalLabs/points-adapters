@@ -1,4 +1,4 @@
-import { fidFromCustodyAddress } from "../utils/farcaster.ts";
+import { getFidFromCustodyAddress } from "../utils/farcaster.ts";
 import type { AdapterExport } from "../utils/adapter.ts";
 import { maybeWrapCORSProxy } from "../utils/cors.ts";
 import { getAddress } from "viem";
@@ -14,7 +14,7 @@ type DATA_TYPE = {
 
 export default {
   fetch: async (address) => {
-    const fid = await fidFromCustodyAddress(getAddress(address));
+    const fid = await getFidFromCustodyAddress(getAddress(address));
     const res_stats = await fetch(API_URL.replace("{fid}", String(fid)));
     const data = await res_stats.json();
     return {
