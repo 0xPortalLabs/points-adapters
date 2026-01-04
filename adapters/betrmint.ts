@@ -21,7 +21,7 @@ export default {
   },
   data: (data: { position: number; score: number }) => ({
     Position: data.position,
-    Karma: data.score
+    Karma: data.score ?? 0
   }),
   total: (data: { position: number; score: number }) => ({
     Karma: data.score
