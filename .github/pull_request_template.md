@@ -1,6 +1,7 @@
 ## IMPORTANT NOTES
 
 ### Before Submitting:
+
 - [ ] Enable "Allow edits by maintainers" on this PR
 - [ ] Test your adapter locally with a valid address and an invalid address
 - [ ] Ensure your adapter works with different address formats (checksummed, lowercase, uppercase)
@@ -22,17 +23,20 @@
 **Adapter File:** `adapters/your-adapter.ts`
 
 **Test Address (with points):**
+
 ```
 0x...
 ```
 
 **Expected Output:**
-- Total Points: 
-- Rank: 
+
+- Total Points:
+- Rank:
 
 **How to Test Locally:**
+
 ```bash
-deno run --allow-net --allow-read=adapters test.ts adapters/your-adapter.ts <address>
+deno run --allow-net --allow-read=adapters --allow-env test.ts adapters/your-adapter.ts <address>
 ```
 
 ---
@@ -41,11 +45,11 @@ deno run --allow-net --allow-read=adapters test.ts adapters/your-adapter.ts <add
 
 **Protocol Name:**
 
-
 **Defillama Slug:**
 (from [Defillama protocols API](https://api.llama.fi/protocols))
 
 **Important Features:**
+
 - [ ] Supports multiple address formats (lowercase, uppercase, checksummed)
 - [ ] CORS-friendly API calls
 - [ ] Fails fast on errors
