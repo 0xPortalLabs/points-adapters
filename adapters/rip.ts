@@ -17,14 +17,12 @@ export default {
     const fid = await getFidFromCustodyAddress(getAddress(address));
     const res_stats = await fetch(API_URL.replace("{fid}", String(fid)));
     const data = await res_stats.json();
-    return {
-      stats: data.stats
-    };
+    return data.stats;
   },
   data: (data: DATA_TYPE) => {
     return convertKeysToStartCase(data.stats);
   },
   total: (data: DATA_TYPE) => ({
-    "Rips": data.stats.totalRips
+    Rips: data.stats.totalRips
   })
 } as AdapterExport;
