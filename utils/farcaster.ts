@@ -1,4 +1,4 @@
-import { createPublicClient, http, parseAbi } from "viem";
+import { createPublicClient, http, parseAbi, fallback } from "viem";
 import { optimism } from "viem/chains";
 import { maybeWrapCORSProxy } from "../utils/cors.ts";
 
@@ -10,12 +10,25 @@ const ID_REGISTRY = "0x00000000fc6c5f01fc30151999387bb99a9f489b";
 
 const client = createPublicClient({
   chain: optimism,
-  transport: http(
-    await maybeWrapCORSProxy("https://public-op-mainnet.fastnode.io")
+  transport: fallback(
+    [
+      http("https://public-op-mainnet.fastnode.io"),
+      http("https://optimism-rpc.publicnode.com"),
+      http("https://endpoints.omniatech.io/v1/op/mainnet/public"),
+      http("https://1rpc.io/op"),
+      http("https://optimism.drpc.org"),
+      http("https://optimism-public.nodies.app"),
+      http(
+        "https://api-optimism-mainnet-archive.n.dwellir.com/2ccf18bf-2916-4198-8856-42172854353c"
+      )
+    ],
+    { rank: true }
   )
 });
 
-export async function getFidFromCustodyAddress(owner: `0x${string}`) {
+const getFidFromCustodyAddress = async (
+  owner: `0x${string}`
+): Promise<bigint> => {
   const fid = await client.readContract({
     address: ID_REGISTRY,
     abi: idRegistryAbi,
@@ -24,4 +37,6 @@ export async function getFidFromCustodyAddress(owner: `0x${string}`) {
   });
 
   return fid;
-}
+};
+
+export { getFidFromCustodyAddress };
