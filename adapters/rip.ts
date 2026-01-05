@@ -25,6 +25,6 @@ export default {
     return convertKeysToStartCase(data.stats);
   },
   total: (data: DATA_TYPE) => ({
-    "Total Rips": data.stats.totalRips
+    "Rips": data.stats.totalRips
   })
 } as AdapterExport;
