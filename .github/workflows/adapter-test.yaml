@@ -230,7 +230,7 @@ jobs:
               custom_test_output=$(deno run --allow-net --allow-read=adapters --allow-env test.ts "$CHANGED_FILE" "$POINTS_ADDRESS" 2>&1 || true)
               
               echo "$custom_test_output" >> test_output.txt
-              echo "\`\`\`" >> test_output.txt
+              echo "\`\`\`\`" >> test_output.txt
               echo "" >> test_output.txt
               echo "</details>" >> test_output.txt
             else
@@ -245,7 +245,7 @@ jobs:
               test1_output=$(deno run --allow-net --allow-read=adapters --allow-env test.ts "$CHANGED_FILE" "$POINTS_ADDRESS" 2>&1 || true)
               
               echo "$test1_output" >> test_output.txt
-              echo "\`\`\`" >> test_output.txt
+              echo "\`\`\`\`" >> test_output.txt
               echo "" >> test_output.txt
               echo "</details>" >> test_output.txt
               echo "" >> test_output.txt
