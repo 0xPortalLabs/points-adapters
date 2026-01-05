@@ -257,7 +257,7 @@ jobs:
               echo "\`\`\`\`" >> test_output.txt
               
               # Capture both stdout and stderr
-              test2_output=$(deno run --allow-net --allow-read=adapters --allow-read=utils --allow-env test.ts "$CHANGED_FILE" "$NO_POINTS_ADDRESS" 2>&1 || true)
+              test2_output=$(deno run --allow-net --allow-read=adapters --allow-env test.ts "$CHANGED_FILE" "$NO_POINTS_ADDRESS" 2>&1 || true)
               
               echo "$test2_output" >> test_output.txt
               echo "\`\`\`\`" >> test_output.txt
