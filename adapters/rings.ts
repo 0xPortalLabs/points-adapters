@@ -1,12 +1,12 @@
 import type { AdapterExport } from "../utils/adapter.ts";
 import {
   convertKeysToStartCase,
-  convertValuesToNormal,
+  convertValuesToNormal
 } from "../utils/object.ts";
 
 import { getAddress } from "viem";
 
-const API_URL = "https://points-api.rings.money/points/{address}";
+const API_URL = "https://points-api-s2.rings.money/points/{address}"; // new endpoint but both are currently returning 522 error
 
 // NOTE: leaderboard api
 // https://points-api.rings.money/points/leaderboard?limit=10&offset=10
@@ -67,10 +67,10 @@ export default {
         Object.fromEntries(
           Object.entries(data.totalByType).map(([key, value]) => [
             key,
-            Number(BigInt(value) / BigInt(1e36)),
+            Number(BigInt(value) / BigInt(1e36))
           ])
         )
       )
     ),
-  total: (data: { total: string }) => Number(BigInt(data.total) / BigInt(1e36)),
+  total: (data: { total: string }) => Number(BigInt(data.total) / BigInt(1e36))
 } as AdapterExport;
