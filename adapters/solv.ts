@@ -31,7 +31,7 @@ query Phase2PointSysAccountInfo($address: String) {
         }
         isHighestLevel
     }
-}`
+}`,
 };
 
 /*
@@ -55,18 +55,18 @@ export default {
   fetch: async (address: string) => {
     req.variables.address = address;
 
-    const res = await fetch(API_URL.replace("{address}", address), {
-      method: "POST",
-      body: JSON.stringify(req),
-      headers: {
-        Authorization: API_KEY
-      }
-    });
-    if (!res.ok) {
-      throw new Error(`Failed to fetch solv data ${await res.text()}`);
-    }
-    const data = await res.json();
-    return data.data.phase2PointSysAccountInfo;
+    const res = await (
+      await fetch(API_URL.replace("{address}", address), {
+        method: "POST",
+        body: JSON.stringify(req),
+        headers: {
+          Authorization: API_KEY,
+          "User-Agent":
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+        },
+      })
+    ).json();
+    return res.data.phase2PointSysAccountInfo;
   },
   data: (data: Record<string, number | string>) => {
     return convertKeysToStartCase(
@@ -77,5 +77,5 @@ export default {
       )
     );
   },
-  total: (data: Record<string, string>) => parseFloat(data.totalPointsEarned)
+  total: (data: Record<string, string>) => parseFloat(data.totalPointsEarned),
 } as AdapterExport;

@@ -3,11 +3,11 @@ import { maybeWrapCORSProxy } from "../utils/cors.ts";
 import { convertKeysToStartCase } from "../utils/object.ts";
 
 const POINTS_URL = await maybeWrapCORSProxy(
-  "https://api.harmonix.fi/api/v1/points/users/{address}/points",
+  "https://api.harmonix.fi/api/v1/points/users/{address}/points"
 );
 
 const TIER_URL = await maybeWrapCORSProxy(
-  "https://api.harmonix.fi/api/v1/users/tier?wallet_address={address}",
+  "https://api.harmonix.fi/api/v1/users/tier?wallet_address={address}"
 );
 
 type DATA_TYPE = {
@@ -34,8 +34,20 @@ type TIER_TYPE = {
 
 export default {
   fetch: async (address) => {
-    const pointsData = await fetch(POINTS_URL.replace("{address}", address));
-    const rankData = await fetch(TIER_URL.replace("{address}", address));
+    const headers = {
+      headers: {
+        "User-Agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+      },
+    };
+    const pointsData = await fetch(
+      POINTS_URL.replace("{address}", address),
+      headers
+    );
+    const rankData = await fetch(
+      TIER_URL.replace("{address}", address),
+      headers
+    );
 
     return {
       points: await pointsData.json(),
@@ -52,11 +64,11 @@ export default {
             staking_points: (acc.staking_points || 0) + curr.staking_points,
             referral_points: (acc.referral_points || 0) + curr.referral_points,
           }),
-          {} as Record<string, number>,
+          {} as Record<string, number>
         ) || {};
 
       return Object.fromEntries(
-        Object.entries(reduced).map(([k, v]) => [`${prefix} ${k}`, v]),
+        Object.entries(reduced).map(([k, v]) => [`${prefix} ${k}`, v])
       );
     };
 
@@ -69,10 +81,10 @@ export default {
   },
   total: (data: { points: POINTS_TYPE[] }) => {
     const season1 = data.points.find(
-      (season) => season.season_type === "season_1",
+      (season) => season.season_type === "season_1"
     );
     const season2 = data.points.find(
-      (season) => season.season_type === "season_2",
+      (season) => season.season_type === "season_2"
     );
     return {
       "S2 Points": season2?.data.reduce(
@@ -82,7 +94,7 @@ export default {
           session.staking_points +
           session.referral_points +
           session.swap_points,
-        0,
+        0
       ),
       "S1 Points": season1?.data.reduce(
         (acc, session) =>
@@ -91,13 +103,13 @@ export default {
           session.staking_points +
           session.referral_points +
           session.swap_points,
-        0,
+        0
       ),
     };
   },
   claimable: (data: { points: POINTS_TYPE[] }) => {
     const season1 = data.points.find(
-      (season) => season.season_type === "season_1",
+      (season) => season.season_type === "season_1"
     );
     return season1?.data.some((session) => session.points > 0) ?? false;
   },

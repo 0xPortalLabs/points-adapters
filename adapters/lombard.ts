@@ -13,10 +13,13 @@ const API_URL =
  */
 export default {
   fetch: async (address: string) => {
-    const res = await fetch(API_URL.replace("{address}", address));
-    if (!res.ok)
-      throw new Error(`Failed to fetch lombard error ${await res.text()}`);
-    return (await res.json()).result.rows;
+    const response = await fetch(API_URL.replace("{address}", address), {
+      headers: {
+        "User-Agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+      },
+    });
+    return (await response.json()).result.rows;
   },
   data: (data: { points_json: string }[]) => {
     if (data.length > 0) {
@@ -41,5 +44,5 @@ export default {
     }
 
     return 0;
-  }
+  },
 } as AdapterExport;
