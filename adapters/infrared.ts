@@ -1,36 +1,12 @@
 import type { AdapterExport } from "../utils/adapter.ts";
 
-import {
-  convertKeysToStartCase,
-  convertValuesToNormal,
-} from "../utils/object.ts";
-import { maybeWrapCORSProxy } from "../utils/cors.ts";
-
-const API_URL = await maybeWrapCORSProxy(
-  "https://infrared.finance/api/points/user/{address}?chainId=80094",
-);
-
-/**
- * {
-  change_24h_percent: 0.00357901741278315,
-  points: 243692.3138659346,
-  points_percent: 0.010865683238629048,
-  rank: 1,
-  timestamp: "2025-04-24T14:31:32Z",
-};
- */
+// Points program has now fully ended and API is no longer available.
 export default {
-  fetch: async (address: string) => {
-    return await (
-      await fetch(API_URL.replace("{address}", address.toLowerCase()))
-    ).json();
-  },
-  data: (data: Record<string, number | string>) =>
-    convertKeysToStartCase(convertValuesToNormal(data)),
-  total: ({ points }: { points: number }) => points,
-  rank: ({ rank }: { rank: number }) => rank,
-  claimable: ({ points }: { points: number }) => points > 0,
+  fetch: async () => await Promise.resolve({}),
+  data: () => ({}),
+  total: () => 0,
+  claimable: () => true, // Airdrop ends on 12th January 2026
   deprecated: () => ({
-    Points: 1762359104, // Wednesday 5th November 2025 16:11 GMT
-  }),
+    Points: 1762359104 // Wednesday 5th November 2025 16:11 GMT
+  })
 } as AdapterExport;

@@ -13,8 +13,13 @@ const API_URL =
  */
 export default {
   fetch: async (address: string) => {
-    return (await (await fetch(API_URL.replace("{address}", address))).json())
-      .result.rows;
+    const response = await fetch(API_URL.replace("{address}", address), {
+      headers: {
+        "User-Agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+      },
+    });
+    return (await response.json()).result.rows;
   },
   data: (data: { points_json: string }[]) => {
     if (data.length > 0) {

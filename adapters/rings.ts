@@ -6,7 +6,7 @@ import {
 
 import { getAddress } from "viem";
 
-const API_URL = "https://points-api.rings.money/points/{address}";
+const API_URL = "https://points-api-s2.rings.money/points/{address}";
 
 // NOTE: leaderboard api
 // https://points-api.rings.money/points/leaderboard?limit=10&offset=10

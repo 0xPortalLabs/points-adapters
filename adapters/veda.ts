@@ -22,8 +22,10 @@ const API_URL = await maybeWrapCORSProxy(
 } */
 export default {
   fetch: async (address: string) => {
-    return (await (await fetch(API_URL.replace("{address}", address))).json())
-      .Response;
+    const res = await fetch(API_URL.replace("{address}", address));
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+    return data.Response;
   },
   data: (
     data: Record<
@@ -36,7 +38,7 @@ export default {
         if (vaults && typeof vaults === "object") {
           return Object.values(vaults).map(({ name, totalPoints }) => [
             `${chain}#${name}`,
-            totalPoints,
+            totalPoints
           ]);
         }
 
@@ -45,5 +47,5 @@ export default {
     );
   },
   total: (data: { userTotalVedaPointsSum: number }) =>
-    data.userTotalVedaPointsSum,
+    data.userTotalVedaPointsSum
 } as AdapterExport;
