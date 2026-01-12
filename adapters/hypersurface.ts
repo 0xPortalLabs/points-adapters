@@ -22,10 +22,10 @@ export default {
     return await res.json();
   },
   data: (data: API_RESPONSE) => ({
-    Rank: data.rank.place,
-    "Total Participants": data.rank.total,
-    Points: data.state.value,
+    Rank: data.rank?.place ?? 0,
+    "Total Participants": data.rank?.total ?? 0,
+    Points: data.state?.value ?? 0,
   }),
-  total: (data: API_RESPONSE) => data.state.value,
-  rank: (data: API_RESPONSE) => data.rank.place,
+  total: (data: API_RESPONSE) => data.state?.value ?? 0,
+  rank: (data: API_RESPONSE) => data.rank?.place ?? 0,
 } as AdapterExport;
