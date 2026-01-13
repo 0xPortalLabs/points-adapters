@@ -19,13 +19,25 @@ type API_RESPONSE = {
 export default {
   fetch: async (address) => {
     const res = await fetch(API_URL.replace("{address}", address));
-    return await res.json();
+    const data = await res.json();
+    if (!data.rank.place || !data.state.value) {
+      return {
+        rank: {
+          place: 0,
+          total: 0,
+        },
+        state: {
+          value: 0,
+        },
+      };
+    }
+    return data;
   },
   data: (data: API_RESPONSE) => ({
-    Rank: data.rank?.place ?? 0,
-    "Total Participants": data.rank?.total ?? 0,
-    Points: data.state?.value ?? 0,
+    Rank: data.rank.place,
+    "Total Participants": data.rank.total,
+    Points: data.state.value,
   }),
-  total: (data: API_RESPONSE) => data.state?.value ?? 0,
-  rank: (data: API_RESPONSE) => data.rank?.place ?? 0,
+  total: (data: API_RESPONSE) => data.state.value,
+  rank: (data: API_RESPONSE) => data.rank.place,
 } as AdapterExport;
