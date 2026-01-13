@@ -20,7 +20,7 @@ export default {
   fetch: async (address) => {
     const res = await fetch(API_URL.replace("{address}", address));
     const data = await res.json();
-    if (!data.rank.place || !data.state.value) {
+    if (!data.rank?.place || !data.state?.value) {
       return {
         rank: {
           place: 0,
