@@ -19,6 +19,8 @@ type API_RESPONSE = {
 export default {
   fetch: async (address) => {
     const res = await fetch(API_URL.replace("{address}", address));
+    if (!res.ok)
+      throw new Error(`Failed to fetch hypersurface data ${await res.text()}`);
     const data = await res.json();
     if (!data.rank?.place || !data.state?.value) {
       return {
