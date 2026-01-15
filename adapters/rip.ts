@@ -15,14 +15,17 @@ type DATA_TYPE = {
 export default {
   fetch: async (address) => {
     const fid = await getFidFromCustodyAddress(getAddress(address));
-    const res_stats = await fetch(API_URL.replace("{fid}", String(fid)));
+    const res_stats = await fetch(API_URL.replace("{fid}", fid));
     const data = await res_stats.json();
     return data.stats;
   },
-  data: (data: DATA_TYPE) => {
-    return convertKeysToStartCase(data.stats);
-  },
-  total: (data: DATA_TYPE) => ({
-    Rips: data.stats.totalRips
-  })
+  data: (stats: Record<string, number>) => ({
+    Rips: {
+      Streak: stats.streak,
+      Points: stats.totalRips,
+    },
+  }),
+  total: (stats: Record<string, number>) => ({
+    Rips: stats.totalRips,
+  }),
 } as AdapterExport;

@@ -3,7 +3,7 @@ import { optimism } from "viem/chains";
 import { maybeWrapCORSProxy } from "../utils/cors.ts";
 
 const idRegistryAbi = parseAbi([
-  "function idOf(address owner) view returns (uint256 fid)"
+  "function idOf(address owner) view returns (uint256 fid)",
 ]);
 
 const ID_REGISTRY = "0x00000000fc6c5f01fc30151999387bb99a9f489b";
@@ -20,23 +20,23 @@ const client = createPublicClient({
       http("https://optimism-public.nodies.app"),
       http(
         "https://api-optimism-mainnet-archive.n.dwellir.com/2ccf18bf-2916-4198-8856-42172854353c"
-      )
+      ),
     ],
     { rank: true }
-  )
+  ),
 });
 
 const getFidFromCustodyAddress = async (
   owner: `0x${string}`
-): Promise<bigint> => {
+): Promise<string> => {
   const fid = await client.readContract({
     address: ID_REGISTRY,
     abi: idRegistryAbi,
     functionName: "idOf",
-    args: [owner]
+    args: [owner],
   });
 
-  return fid;
+  return String(fid);
 };
 
 export { getFidFromCustodyAddress };
