@@ -12,7 +12,7 @@ export default {
     const res = await fetch(
       API_URL.replace(
         "{fid}",
-        await getFidFromCustodyAddress(getAddress(address) as `0x${string}`)
+        await getFidFromCustodyAddress(getAddress(address))
       )
     );
     const data = await res.json();
