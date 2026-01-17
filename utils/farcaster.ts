@@ -22,7 +22,9 @@ const client = createPublicClient({
         "https://api-optimism-mainnet-archive.n.dwellir.com/2ccf18bf-2916-4198-8856-42172854353c"
       ),
     ],
-    { rank: true }
+    {
+      rank: false,
+    }
   ),
 });
 
