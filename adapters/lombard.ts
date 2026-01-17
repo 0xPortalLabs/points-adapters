@@ -3,7 +3,8 @@ import { maybeWrapCORSProxy } from "../utils/cors.ts";
 import { startCase } from "lodash-es";
 
 const API_URL = await maybeWrapCORSProxy(
-  "https://bff.prod.lombard.finance/sentio-api/lombard-points/{address}");
+  "https://bff.prod.lombard.finance/sentio-api/lombard-points/{address}"
+);
 
 /*
  * [{
