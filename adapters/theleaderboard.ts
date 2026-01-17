@@ -20,7 +20,7 @@ export default {
   },
   data: (data: {
     points: number;
-    rank: number;
+    rank: number | string;
     farcasterUsername: string;
   }) => ({
     Points: data.points,
@@ -28,5 +28,8 @@ export default {
     "Farcaster Username": data.farcasterUsername,
   }),
   total: (data: { points: number }) => data.points,
-  rank: (data: { rank: number }) => data.rank,
+  rank: (data: { rank: number | string }) => {
+    if (data.rank === "1000+") return 0;
+    return data.rank;
+  },
 } as AdapterExport;
