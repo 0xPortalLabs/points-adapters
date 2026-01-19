@@ -25,6 +25,7 @@ type AdapterResult<T = object> = {
   total: number | LabelledPoints;
   claimable?: boolean;
   rank?: number;
+  reward?: Caip19;
   deprecated?: DeprecatedLabels;
 };
 
