@@ -76,7 +76,7 @@ export default {
       Rank: rank,
       Unranked: isUnranked ? "Yes" : "No",
       Claimable: claimable && claimable !== "0" ? "Yes" : "No",
-      Rewards: `${formatEther(claimable as bigint)} ETH`,
+      Rewards: `${formatEther(BigInt(claimable))} ETH`,
     };
   },
   total: (data: API_RESPONSE) => Number(data.earnings.total),
