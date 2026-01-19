@@ -4,6 +4,9 @@ type LabelledPoints = { [label: string]: number };
 type DetailedData = { [key: string]: string | number };
 type LabelledDetailedData = { [label: string]: DetailedData };
 type DeprecatedLabels = { [label: string]: number };
+type Caip19 = {
+  [asset: string]: { amount: bigint; symbol: string; decimals: number };
+};
 // An adapter exporting a points function (address: string) -> number
 // or exporting function (address: string): {label1: number, label2: number, ...}
 type AdapterExport<T = object> = {
@@ -12,6 +15,7 @@ type AdapterExport<T = object> = {
   total: (data: T) => number | LabelledPoints;
   claimable?: (data: T) => boolean;
   rank?: (data: T) => number;
+  reward?: (data: T) => Caip19;
   deprecated?: (data: T) => DeprecatedLabels;
 };
 
