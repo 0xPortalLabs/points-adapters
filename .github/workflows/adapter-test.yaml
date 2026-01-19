@@ -224,13 +224,13 @@ jobs:
               echo "<details>" >> test_output.txt
               echo "<summary>$POINTS_ADDRESS</summary>" >> test_output.txt
               echo "" >> test_output.txt
-              echo "\`\`\`" >> test_output.txt
+              echo "\`\`\`\`" >> test_output.txt
               
               # Capture both stdout and stderr
               custom_test_output=$(timeout 10m deno run --allow-net --allow-read=adapters --allow-env test.ts "$CHANGED_FILE" "$POINTS_ADDRESS" 2>&1 || true)
               
               echo "$custom_test_output" >> test_output.txt
-              echo "\`\`\`" >> test_output.txt
+              echo "\`\`\`\`" >> test_output.txt
               echo "" >> test_output.txt
               echo "</details>" >> test_output.txt
             else
@@ -239,13 +239,13 @@ jobs:
               echo "<details>" >> test_output.txt
               echo "<summary>$POINTS_ADDRESS</summary>" >> test_output.txt
               echo "" >> test_output.txt
-              echo "\`\`\`" >> test_output.txt
+              echo "\`\`\`\`" >> test_output.txt
               
               # Capture both stdout and stderr
               test1_output=$(timeout 10m deno run --allow-net --allow-read=adapters --allow-env test.ts "$CHANGED_FILE" "$POINTS_ADDRESS" 2>&1 || true)
               
               echo "$test1_output" >> test_output.txt
-              echo "\`\`\`" >> test_output.txt
+              echo "\`\`\`\`" >> test_output.txt
               echo "" >> test_output.txt
               echo "</details>" >> test_output.txt
               echo "" >> test_output.txt
@@ -254,13 +254,13 @@ jobs:
               echo "<details>" >> test_output.txt
               echo "<summary>$NO_POINTS_ADDRESS</summary>" >> test_output.txt
               echo "" >> test_output.txt
-              echo "\`\`\`" >> test_output.txt
+              echo "\`\`\`\`" >> test_output.txt
               
               # Capture both stdout and stderr
               test2_output=$(timeout 10m deno run --allow-net --allow-read=adapters --allow-env test.ts "$CHANGED_FILE" "$NO_POINTS_ADDRESS" 2>&1 || true)
               
               echo "$test2_output" >> test_output.txt
-              echo "\`\`\`" >> test_output.txt
+              echo "\`\`\`\`" >> test_output.txt
               echo "" >> test_output.txt
               echo "</details>" >> test_output.txt
             fi
