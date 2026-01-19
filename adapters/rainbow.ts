@@ -66,7 +66,7 @@ export default {
     return data.data.points.user;
   },
   data: (data: API_RESPONSE) => {
-    const isUnranked = !!data.stats.position.unranked;
+    const isUnranked = data.stats.position.unranked;
     const rank = isUnranked ? 0 : data.stats.position.current;
     const points = data.earnings.total;
     const claimable = data.rewards.claimable;
@@ -80,7 +80,8 @@ export default {
     };
   },
   total: (data: API_RESPONSE) => Number(data.earnings.total),
-  rank: (data: API_RESPONSE) => data.stats.position.current,
+  rank: (data: API_RESPONSE) =>
+    data.stats.position.unranked ? 0 : data.stats.position.current,
   claimable: (data: API_RESPONSE) => {
     const claimable = data.rewards.claimable;
     return claimable && claimable !== "0";
