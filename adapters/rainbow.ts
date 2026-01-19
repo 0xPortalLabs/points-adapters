@@ -82,8 +82,4 @@ export default {
   total: (data: API_RESPONSE) => Number(data.earnings.total),
   rank: (data: API_RESPONSE) =>
     data.stats.position.unranked ? 0 : data.stats.position.current,
-  claimable: (data: API_RESPONSE) => {
-    const claimable = data.rewards.claimable;
-    return claimable && claimable !== "0";
-  },
 } as AdapterExport;
