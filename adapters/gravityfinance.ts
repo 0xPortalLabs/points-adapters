@@ -34,7 +34,11 @@ import { maybeWrapCORSProxy } from "../utils/cors.ts";
 export default {
   fetch: async (address: string) => {
     /* const data = await (
-      await fetch(API_URL.replace("{address}", address))
+      await fetch(API_URL.replace("{address}", address), {
+        headers: {
+          "User-Agent": "Checkpoint API (https://checkpoint.exchange)",
+        },
+      })
     ).json();
 
     return data?.[address.toLowerCase()] ?? data.error; */

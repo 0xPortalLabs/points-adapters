@@ -29,8 +29,7 @@ export default {
       headers: {
         Authorization:
           "Bearer dd0f4f26be36808799f3d1ac5c87c850b58e8f03b964878f9680825132c29c06",
-        "User-Agent":
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+        "User-Agent": "Checkpoint API (https://checkpoint.exchange)",
       },
     });
     return await res.json();

@@ -50,8 +50,7 @@ const RANK_URL = await maybeWrapCORSProxy(
 export default {
   fetch: async (address: string) => {
     const headers = {
-      "User-Agent":
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+      "User-Agent": "Checkpoint API (https://checkpoint.exchange)",
     };
 
     const [data, rankData] = await Promise.all([

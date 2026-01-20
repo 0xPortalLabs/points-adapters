@@ -23,14 +23,7 @@ type DATA_TYPE = {
 
 export default {
   fetch: async (address: string) => {
-    const res = await fetch(API_URL.replace("{address}", address), {
-      headers: {
-        Host: "points.mellow.finance",
-        Accept: "*/*",
-        "User-Agent":
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
-      },
-    });
+    const res = await fetch(API_URL.replace("{address}", address), { headers: { Host: "points.mellow.finance", Accept: "*/*", "User-Agent": "Checkpoint API (https://checkpoint.exchange)" } });
     if (!res.ok)
       throw new Error(`Failed to retrieve mellow data: ${await res.text()}`);
     return await res.json();
