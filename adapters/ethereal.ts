@@ -4,8 +4,6 @@ import { checksumAddress } from "viem";
 
 const API_URL = "https://deposit-api.ethereal.trade/v1/account/{address}";
 
-// ...existing code...
-
 const getPoints = ({ points }: { points: string }) => {
   const divisor = BigInt(1e18);
   const whole = BigInt(points) / divisor;
@@ -85,7 +83,7 @@ export default {
         accounts.map((account) => [
           `Asset: ${account.assetAddress}`,
           getPoints(account),
-        ]),
+        ])
       ),
     };
   },
