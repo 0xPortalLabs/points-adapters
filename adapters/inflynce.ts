@@ -19,7 +19,8 @@ export default {
         variables: { fid: await getFidFromCustodyAddress(getAddress(address)) },
       }),
     });
-    return (await res.json()).data.user_points_by_pk;
+    const data = (await res.json()).data.user_points_by_pk;
+    return data ?? { totalPoints: 0 };
   },
   data: (data: { totalPoints: number }) => ({
     Points: data.totalPoints,
