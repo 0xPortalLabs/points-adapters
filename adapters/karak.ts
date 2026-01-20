@@ -30,9 +30,13 @@ const API_URL =
 export default {
   fetch: async (address: string) => {
     address = getAddress(address);
-    return (
-      await (await fetch(API_URL.replace("{address}", address))).json()
-    )[0]?.result?.data;
+    const res = await fetch(API_URL.replace("{address}", address), {
+      headers: {
+        "User-Agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+      },
+    });
+    return (await res.json())[0]?.result?.data;
   },
   data: (data: { xpByPhase?: Record<string, number> }) => {
     const xp = data?.xpByPhase ? convertValuesToNormal(data.xpByPhase) : {};

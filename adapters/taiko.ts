@@ -28,7 +28,7 @@ export default {
       await fetch(API_URL.replace("{address}", address), {
         headers: {
           "User-Agent":
-            "Mozilla/5.0 (Windows NT 10.0; x64) Gecko/20100101 Firefox/67.4",
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
         },
       })
     ).json();

@@ -5,6 +5,11 @@ const API_URL = await maybeWrapCORSProxy(
   "https://points-api-td.debridge.finance/api/Points/{address}/summary",
 );
 
+const headers = {
+  "User-Agent":
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+};
+
 /*
 {
   "userRank": 3321,
@@ -20,9 +25,9 @@ export default {
   fetch: async (address: string) => {
     const url = API_URL.replace("{address}", address);
     const [s1, s2, s3] = await Promise.all([
-      fetch(url + "?season=1"),
-      fetch(url + "?season=2"),
-      fetch(url + "?season=3"),
+      fetch(url + "?season=1", { headers }),
+      fetch(url + "?season=2", { headers }),
+      fetch(url + "?season=3", { headers }),
     ]);
 
     return { s1: await s1.json(), s2: await s2.json(), s3: await s3.json() };

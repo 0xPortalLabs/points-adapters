@@ -13,7 +13,12 @@ export default {
     address = checksumAddress(address as `0x${string}`);
 
     const milestones = await (
-      await fetch(AIRDROP_URL.replace("{address}", address))
+      await fetch(AIRDROP_URL.replace("{address}", address), {
+        headers: {
+          "User-Agent":
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+        },
+      })
     ).json();
 
     return milestones;
@@ -25,13 +30,13 @@ export default {
   }) => {
     return {
       Minerals: {
-        "Airdrop Amount": airdrop ? parseFloat(airdrop.amount) ?? 0 : 0,
+        "Airdrop Amount": airdrop ? (parseFloat(airdrop.amount) ?? 0) : 0,
         "Level Snapshot": airdrop?.level_snapshot ?? 0,
       },
     };
   },
   total: ({ airdrop }: { airdrop?: { amount: string } }) => ({
-    Minerals: airdrop ? parseFloat(airdrop.amount) ?? 0 : 0,
+    Minerals: airdrop ? (parseFloat(airdrop.amount) ?? 0) : 0,
   }),
   // If they have airdrop data then it is probably claimable.
   claimable: ({ airdrop }: { airdrop?: unknown }) => Boolean(airdrop),

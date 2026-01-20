@@ -10,7 +10,12 @@ const API_URL = await maybeWrapCORSProxy(
 export default {
   fetch: async (address) => {
     const fid = await getFidFromCustodyAddress(getAddress(address));
-    const res = await fetch(API_URL.replace("{fid}", fid));
+    const res = await fetch(API_URL.replace("{fid}", fid), {
+      headers: {
+        "User-Agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+      },
+    });
 
     const data = await res.json();
     return data;

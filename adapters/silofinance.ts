@@ -38,9 +38,14 @@ const LEADERBOARD_URL = await maybeWrapCORSProxy(
 // {"account":"0xf4fe75926d607d43b074f8de38a49258773090f7","userPoints":502.22421864787,"totalPoints":26484612396.44205}
 export default {
   fetch: async (address: string) => {
+    const headers = {
+      "User-Agent":
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+    };
+
     const [points, leaderboard] = await Promise.all([
-      (await fetch(POINTS_URL.replace("{address}", address))).json(),
-      (await fetch(LEADERBOARD_URL.replace("{address}", address))).json(),
+      (await fetch(POINTS_URL.replace("{address}", address), { headers })).json(),
+      (await fetch(LEADERBOARD_URL.replace("{address}", address), { headers })).json(),
     ]);
 
     const position =

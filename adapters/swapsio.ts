@@ -22,7 +22,14 @@ const API_URL = await maybeWrapCORSProxy(
 */
 export default {
   fetch: async (address: string) => {
-    return (await fetch(API_URL.replace("{address}", address), {})).json();
+    return (
+      await fetch(API_URL.replace("{address}", address), {
+        headers: {
+          "User-Agent":
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+        },
+      })
+    ).json();
   },
   data: (
     data: { rewards_total?: Array<{ id: string; amount: string }> } & Record<

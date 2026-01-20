@@ -49,9 +49,14 @@ const RANK_URL = await maybeWrapCORSProxy(
 */
 export default {
   fetch: async (address: string) => {
+    const headers = {
+      "User-Agent":
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+    };
+
     const [data, rankData] = await Promise.all([
-      (await fetch(API_URL.replace("{address}", address))).json(),
-      (await fetch(RANK_URL.replace("{address}", address))).json(),
+      (await fetch(API_URL.replace("{address}", address), { headers })).json(),
+      (await fetch(RANK_URL.replace("{address}", address), { headers })).json(),
     ]);
 
     return { data, rankData };

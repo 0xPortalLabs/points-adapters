@@ -28,12 +28,19 @@ const endpoints = await Promise.all(
   }).map(async ([k, v]) => [k, await maybeWrapCORSProxy(v)])
 ).then(Object.fromEntries);
 
+const headers = {
+  "User-Agent":
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+};
+
 export default {
   fetch: (address: string) => {
     address = getAddress(address); // toCheckSum()
     return Promise.all(
       Object.entries(endpoints).map(async ([chain, url]) => {
-        const res = await fetch(url + `/userPoints?address=${address}`);
+        const res = await fetch(url + `/userPoints?address=${address}`, {
+          headers,
+        });
         return { chain, data: await res.json() };
       })
     );

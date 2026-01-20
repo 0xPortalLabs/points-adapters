@@ -4,6 +4,8 @@ import { checksumAddress } from "viem";
 
 const API_URL = "https://deposit-api.ethereal.trade/v1/account/{address}";
 
+// ...existing code...
+
 const getPoints = ({ points }: { points: string }) => {
   const divisor = BigInt(1e18);
   const whole = BigInt(points) / divisor;
@@ -58,7 +60,12 @@ const getPoints = ({ points }: { points: string }) => {
 export default {
   fetch: async (address: string) => {
     address = checksumAddress(address as `0x${string}`);
-    const res = await fetch(API_URL.replace("{address}", address));
+    const res = await fetch(API_URL.replace("{address}", address), {
+      headers: {
+        "User-Agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+      },
+    });
 
     if (res.status === 404)
       return { accounts: [], leaderboardPosition: { rank: 0 } };

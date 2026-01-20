@@ -14,6 +14,10 @@ export default {
     const res = await fetch(API_URL, {
       method: "POST",
       body: JSON.stringify({ address: address.toLowerCase() }),
+      headers: {
+        "User-Agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+      },
     });
     return (await res.json()).data;
   },
