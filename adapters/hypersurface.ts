@@ -22,7 +22,7 @@ export default {
     if (!res.ok)
       throw new Error(`Failed to fetch hypersurface data ${await res.text()}`);
     const data = await res.json();
-    if (!data.rank?.place || !data.state?.value) {
+    if (data.rank == null || data.state == null) {
       return {
         rank: {
           place: 0,
