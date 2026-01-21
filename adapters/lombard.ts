@@ -1,6 +1,6 @@
 import type { AdapterExport } from "../utils/adapter.ts";
 import { maybeWrapCORSProxy } from "../utils/cors.ts";
-import { startCase } from "lodash-es";
+import { isEmpty } from "lodash-es";
 
 const API_URL = await maybeWrapCORSProxy(
   "https://mainnet.prod.lombard.finance/api/v1/referral-system/season-2/points/{address}"
@@ -21,10 +21,7 @@ type API_RESPONSE = {
   holding_points: number;
   protocol_points: number;
   total: number;
-  protocol_points_map: {
-    "lombard-holding-points-eth": number;
-    "lombard-sonic-vault-eth": number;
-  };
+  protocol_points_map: Record<string, number>;
   badge_points: number;
   checkin_points: number;
 };
@@ -36,28 +33,28 @@ export default {
       },
     });
     const data = await response.json();
-    if (!data) {
+    // API returns an empty object when address doesn't exist
+    if (!data || isEmpty(data)) {
       return {
         holding_points: 0,
         protocol_points: 0,
         total: 0,
-        protocol_points_map: {
-          "lombard-holding-points-eth": 0,
-          "lombard-sonic-vault-eth": 0,
-        },
+        protocol_points_map: {},
         badge_points: 0,
         checkin_points: 0,
       };
     }
     return data;
   },
-  data: (data: API_RESPONSE) => ({
-    "Total Points": data.total,
-    "Defi Activities Points":
-      data.protocol_points_map["lombard-holding-points-eth"] +
-      data.protocol_points_map["lombard-sonic-vault-eth"],
-    "Badge Points": data.badge_points,
-    "Tap In Points": data.checkin_points,
-  }),
+  data: (data: API_RESPONSE) => {
+    return {
+      "Total Points": data.total,
+      "Defi Activities Points": Object.values(
+        data.protocol_points_map || {}
+      ).reduce((s, v) => s + (Number(v) || 0), 0),
+      "Badge Points": data.badge_points,
+      "Tap In Points": data.checkin_points,
+    };
+  },
   total: (data: API_RESPONSE) => data.total,
-} as AdapterExport;
+} as unknown as AdapterExport;
