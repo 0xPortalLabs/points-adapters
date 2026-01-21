@@ -3,15 +3,31 @@ import { maybeWrapCORSProxy } from "../utils/cors.ts";
 import { startCase } from "lodash-es";
 
 const API_URL = await maybeWrapCORSProxy(
-  "https://bff.prod.lombard.finance/sentio-api/lombard-points/{address}"
+  "https://mainnet.prod.lombard.finance/api/v1/referral-system/season-2/points/{address}"
 );
 
-/*
- * [{
- *   account:	"0x3c2..."
- *   points_json:	'{"lombard-etherfi-ethereum":{"bpoints":0,"lpoints":15.199198466659,"ebtc_balance":0,"multiplier":2}}'
- * }]
- */
+// {
+//     "holding_points": 0.015005404,
+//     "protocol_points": 21.982641,
+//     "total": 1921.9977,
+//     "protocol_points_map": {
+//         "lombard-holding-points-eth": 0.015005404,
+//         "lombard-sonic-vault-eth": 21.982641
+//     },
+//     "badge_points": 1500,
+//     "checkin_points": 400
+// }
+type API_RESPONSE = {
+  holding_points: number;
+  protocol_points: number;
+  total: number;
+  protocol_points_map: {
+    "lombard-holding-points-eth": number;
+    "lombard-sonic-vault-eth": number;
+  };
+  badge_points: number;
+  checkin_points: number;
+};
 export default {
   fetch: async (address: string) => {
     const response = await fetch(API_URL.replace("{address}", address), {
@@ -20,30 +36,15 @@ export default {
           "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
       },
     });
-    return (await response.json()).result.rows;
+    return await response.json();
   },
-  data: (data: { points_json: string }[]) => {
-    if (data.length > 0) {
-      const parsed = JSON.parse(data[0].points_json);
-      return Object.fromEntries(
-        Object.entries(parsed).flatMap(([cat, x]) =>
-          Object.entries(x as Record<string, number>).map(([k, v]) => {
-            return [`${startCase(cat)}: ${startCase(k)}`, v];
-          })
-        )
-      );
-    }
-
-    return {};
-  },
-  total: (data: { points_json: string }[]) => {
-    if (data.length > 0) {
-      const parsed: Record<string, { lpoints: number }> = JSON.parse(
-        data[0].points_json
-      );
-      return Object.values(parsed).reduce((x, y) => x + y.lpoints, 0);
-    }
-
-    return 0;
-  },
+  data: (data: API_RESPONSE) => ({
+    "Total Points": data.total,
+    "Defi Activities Points":
+      data.protocol_points_map["lombard-holding-points-eth"] +
+      data.protocol_points_map["lombard-sonic-vault-eth"],
+    "Badge Points": data.badge_points,
+    "Tap In Points": data.checkin_points,
+  }),
+  total: (data: API_RESPONSE) => data.total,
 } as AdapterExport;
