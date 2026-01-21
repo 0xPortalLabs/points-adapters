@@ -1,6 +1,7 @@
 import type { AdapterExport } from "../utils/adapter.ts";
 import { maybeWrapCORSProxy } from "../utils/cors.ts";
 import { isEmpty } from "lodash-es";
+import { convertKeysToStartCase } from "../utils/object.ts";
 
 const API_URL = await maybeWrapCORSProxy(
   "https://mainnet.prod.lombard.finance/api/v1/referral-system/season-2/points/{address}"
@@ -49,9 +50,7 @@ export default {
   data: (data: API_RESPONSE) => {
     return {
       "Total Points": data.total,
-      "Defi Activities Points": Object.values(
-        data.protocol_points_map || {}
-      ).reduce((s, v) => s + (Number(v) || 0), 0),
+      ...convertKeysToStartCase(data.protocol_points_map),
       "Badge Points": data.badge_points,
       "Tap In Points": data.checkin_points,
     };
