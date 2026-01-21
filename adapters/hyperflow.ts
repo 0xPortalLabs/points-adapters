@@ -52,14 +52,14 @@ interface UserData {
 }
 
 const API_URL = await maybeWrapCORSProxy(
-  "https://api.hyperflow.fun/v1/point/leaderboard"
+  "https://api.hyperflow.fun/v1/point/leaderboard?user={address}"
 );
 
 export default {
   fetch: async (address: string): Promise<UserData> => {
     address = getAddress(address);
 
-    const response = await fetch(API_URL);
+    const response = await fetch(API_URL.replace("{address}", address));
     const data = await response.json();
 
     return data.items.find(
