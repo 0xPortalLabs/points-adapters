@@ -93,6 +93,7 @@ export {
   type LabelledDetailedData,
   type LabelledPoints,
   type DeprecatedLabels,
+  type Caip19,
   runAdapter,
   runAllAdapters,
 };
