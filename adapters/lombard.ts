@@ -57,4 +57,4 @@ export default {
     };
   },
   total: (data: API_RESPONSE) => data.total,
-} as unknown as AdapterExport;
+} as AdapterExport;
