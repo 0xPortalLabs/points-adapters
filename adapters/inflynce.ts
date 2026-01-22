@@ -23,7 +23,7 @@ export default {
     return data ?? { totalPoints: 0 };
   },
   data: (data: { totalPoints: number }) => ({
-    Points: data.totalPoints,
+    IP: data.totalPoints,
   }),
-  total: (data: { totalPoints: number }) => data.totalPoints,
+  total: (data: { totalPoints: number }) => ({ IP: data.totalPoints }),
 } as AdapterExport;
