@@ -4,6 +4,9 @@ type LabelledPoints = { [label: string]: number };
 type DetailedData = { [key: string]: string | number };
 type LabelledDetailedData = { [label: string]: DetailedData };
 type DeprecatedLabels = { [label: string]: number };
+type Caip19 = `${string}/${string}:${string}`;
+type RewardsValue = { amount: bigint; symbol: string; decimals: number };
+type RewardsData = Record<Caip19, RewardsValue>;
 // An adapter exporting a points function (address: string) -> number
 // or exporting function (address: string): {label1: number, label2: number, ...}
 type AdapterExport<T = object> = {
@@ -12,6 +15,7 @@ type AdapterExport<T = object> = {
   total: (data: T) => number | LabelledPoints;
   claimable?: (data: T) => boolean;
   rank?: (data: T) => number;
+  reward?: (data: T) => RewardsData;
   deprecated?: (data: T) => DeprecatedLabels;
 };
 
@@ -21,6 +25,7 @@ type AdapterResult<T = object> = {
   total: number | LabelledPoints;
   claimable?: boolean;
   rank?: number;
+  reward?: RewardsData;
   deprecated?: DeprecatedLabels;
 };
 
@@ -88,6 +93,7 @@ export {
   type LabelledDetailedData,
   type LabelledPoints,
   type DeprecatedLabels,
+  type Caip19,
   runAdapter,
   runAllAdapters,
 };
