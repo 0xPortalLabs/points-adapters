@@ -27,7 +27,6 @@ export default {
   fetch: async (address) => {
     const res = await fetch(API_URL.replace("{address}", address));
     const data = await res.json();
-    if (!data.success) return { season1: 0, season2: [] };
     return data.data;
   },
   data: (data: API_RESPONSE) => ({
