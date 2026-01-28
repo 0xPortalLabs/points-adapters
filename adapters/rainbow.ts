@@ -27,6 +27,7 @@ export default {
       headers: {
         "Content-Type": "application/json",
         Authorization: "Bearer cYTvNiT7WQaQXCXVsbBn7H9cyxboFCQ3",
+          "User-Agent": "Checkpoint API (https://checkpoint.exchange)",
       },
       method: "POST",
       body: JSON.stringify({

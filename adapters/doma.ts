@@ -10,6 +10,7 @@ export default {
     const res = await fetch(API_URL, {
       method: "POST",
       headers: {
+        "User-Agent": "Checkpoint API (https://checkpoint.exchange)",
         "Content-Type": "application/json",
         "Api-key":
           "v1.c6e3f41019fb97237b7f192d49adb2ae464f2ba7ca6c0737fd6eab71ee01d1d4",

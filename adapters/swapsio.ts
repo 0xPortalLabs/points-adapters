@@ -22,7 +22,11 @@ const API_URL = await maybeWrapCORSProxy(
 */
 export default {
   fetch: async (address: string) => {
-    return (await fetch(API_URL.replace("{address}", address), {})).json();
+    return (
+      await fetch(API_URL.replace("{address}", address), {
+        headers: { "User-Agent": "Checkpoint API (https://checkpoint.exchange)" },
+      })
+    ).json();
   },
   data: (
     data: { rewards_total?: Array<{ id: string; amount: string }> } & Record<

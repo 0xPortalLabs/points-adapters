@@ -28,12 +28,18 @@ const endpoints = await Promise.all(
   }).map(async ([k, v]) => [k, await maybeWrapCORSProxy(v)])
 ).then(Object.fromEntries);
 
+const headers = {
+  "User-Agent": "Checkpoint API (https://checkpoint.exchange)",
+};
+
 export default {
   fetch: (address: string) => {
     address = getAddress(address); // toCheckSum()
     return Promise.all(
       Object.entries(endpoints).map(async ([chain, url]) => {
-        const res = await fetch(url + `/userPoints?address=${address}`);
+        const res = await fetch(url + `/userPoints?address=${address}`, {
+          headers,
+        });
         return { chain, data: await res.json() };
       })
     );

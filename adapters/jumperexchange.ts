@@ -12,6 +12,7 @@ export default {
   fetch: async (address: string) => {
     const headers = {
       Referer: "https://checkpoint.exchange/",
+      "User-Agent": "Checkpoint API (https://checkpoint.exchange)",
     };
     const [rewards, leaderboard] = await Promise.all([
       await fetch(API_URL.replace("{address}", address), { headers }),

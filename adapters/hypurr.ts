@@ -29,6 +29,7 @@ export default {
       headers: {
         Authorization:
           "Bearer dd0f4f26be36808799f3d1ac5c87c850b58e8f03b964878f9680825132c29c06",
+        "User-Agent": "Checkpoint API (https://checkpoint.exchange)",
       },
     });
     return await res.json();

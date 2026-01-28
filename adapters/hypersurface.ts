@@ -18,7 +18,7 @@ type API_RESPONSE = {
 
 export default {
   fetch: async (address) => {
-    const res = await fetch(API_URL.replace("{address}", address));
+    const res = await fetch(API_URL.replace("{address}", address), { headers: { "User-Agent": "Checkpoint API (https://checkpoint.exchange)" } });
     if (!res.ok)
       throw new Error(`Failed to fetch hypersurface data ${await res.text()}`);
     const data = await res.json();

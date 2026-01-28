@@ -14,6 +14,9 @@ export default {
     const res = await fetch(API_URL, {
       method: "POST",
       body: JSON.stringify({ address: address.toLowerCase() }),
+      headers: {
+        "User-Agent": "Checkpoint API (https://checkpoint.exchange)",
+      },
     });
     return (await res.json()).data;
   },

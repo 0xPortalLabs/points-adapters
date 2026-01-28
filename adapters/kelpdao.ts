@@ -9,11 +9,8 @@ const API_URL = "https://common.kelpdao.xyz/km-el-points/user/{address}";
 
 export default {
   fetch: async (address: string) => {
-    return (
-      await (
-        await fetch(API_URL.replace("{address}", address.toLowerCase()))
-      ).json()
-    ).value;
+    const res = await fetch(API_URL.replace("{address}", address.toLowerCase()), { headers: { "User-Agent": "Checkpoint API (https://checkpoint.exchange)" } });
+    return (await res.json()).value;
   },
   data: (data: Record<string, string>) => ({
     "Kernel Points": convertKeysToStartCase(convertValuesToNormal(data)),

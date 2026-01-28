@@ -58,8 +58,7 @@ const API_URL = await maybeWrapCORSProxy(
 export default {
   fetch: async (address: string): Promise<UserData> => {
     address = getAddress(address);
-
-    const response = await fetch(API_URL.replace("{address}", address));
+      const response = await fetch(API_URL.replace("{address}", address), { headers: { "User-Agent": "Checkpoint API (https://checkpoint.exchange)" } });
     const data = await response.json();
 
     return data.items.find(

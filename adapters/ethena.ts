@@ -17,9 +17,13 @@ export default {
   fetch: async (address: string) => {
     address = checksumAddress(address as `0x${string}`);
 
-    const data = await (
-      await fetch(API_URL.replace("{address}", address))
-    ).json();
+    const res = await fetch(API_URL.replace("{address}", address), {
+      headers: {
+          "User-Agent": "Checkpoint API (https://checkpoint.exchange)",
+      },
+    });
+
+    const data = await res.json();
 
     return data.queryWallet[0];
   },

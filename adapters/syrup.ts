@@ -29,6 +29,7 @@ export default {
         body: JSON.stringify(req),
         headers: {
           "content-type": "application/json",
+            "User-Agent": "Checkpoint API (https://checkpoint.exchange)",
         },
       })
     ).json();

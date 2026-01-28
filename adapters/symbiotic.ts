@@ -59,7 +59,13 @@ const getPoints = (obj: PointsData) => {
  */
 export default {
   fetch: async (address: string) => {
-    return (await fetch(API_URL.replace("{address}", address))).json();
+    return (
+      await fetch(API_URL.replace("{address}", address), {
+        headers: {
+            "User-Agent": "Checkpoint API (https://checkpoint.exchange)",
+        },
+      })
+    ).json();
   },
   data: (data: { points: PointsData[]; totalDepositUsd: number }) => {
     const pointsData = Object.fromEntries(

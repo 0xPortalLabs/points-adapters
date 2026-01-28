@@ -10,7 +10,7 @@ const API_URL = await maybeWrapCORSProxy(
 // 0x6E93Ebc8302890fF1D1BeFd779D1DB131eF30D4d - Testing address
 export default {
   fetch: async (address: string) => {
-    const res = await fetch(API_URL);
+    const res = await fetch(API_URL, { headers: { "User-Agent": "Checkpoint API (https://checkpoint.exchange)" } });
     const data = await res.json();
     return data.filter(
       (obj: { evm_address: string }) => obj.evm_address === getAddress(address),

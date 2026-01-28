@@ -13,7 +13,12 @@ export default {
       API_URL.replace(
         "{fid}",
         await getFidFromCustodyAddress(getAddress(address))
-      )
+      ),
+      {
+        headers: {
+          "User-Agent": "Checkpoint API (https://checkpoint.exchange)",
+        },
+      }
     );
     const data = await res.json();
     return data;

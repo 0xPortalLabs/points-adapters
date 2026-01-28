@@ -59,7 +59,13 @@ const API_URL = "https://points-api-s2.rings.money/points/{address}";
 export default {
   fetch: async (address: string) => {
     address = getAddress(address);
-    return (await fetch(API_URL.replace("{address}", address))).json();
+    return (
+      await fetch(API_URL.replace("{address}", address), {
+        headers: {
+          "User-Agent": "Checkpoint API (https://checkpoint.exchange)",
+        },
+      })
+    ).json();
   },
   data: (data: { totalByType: Record<string, string> }) =>
     convertKeysToStartCase(

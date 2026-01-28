@@ -59,11 +59,7 @@ export default {
       await fetch(API_URL.replace("{address}", address), {
         method: "POST",
         body: JSON.stringify(req),
-        headers: {
-          Authorization: API_KEY,
-          "User-Agent":
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
-        },
+        headers: { Authorization: API_KEY, "User-Agent": "Checkpoint API (https://checkpoint.exchange)" },
       })
     ).json();
     return res.data.phase2PointSysAccountInfo;

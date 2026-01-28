@@ -9,7 +9,10 @@ const API_URL = await maybeWrapCORSProxy(
 export default {
   fetch: async (address) => {
     const response = await fetch(
-      API_URL.replace("{address}", getAddress(address))
+      API_URL.replace("{address}", getAddress(address)),
+      {
+        headers: { "User-Agent": "Checkpoint API (https://checkpoint.exchange)" },
+      }
     );
     return await response.json();
   },

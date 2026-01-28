@@ -25,6 +25,11 @@ export default {
         "{timestamp}",
         timestamp,
       ),
+      {
+        headers: {
+          "User-Agent": "Checkpoint API (https://checkpoint.exchange)",
+        },
+      },
     );
     const data: API_RESPONSE = await res.json();
     if (!data.player) {

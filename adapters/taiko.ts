@@ -27,8 +27,7 @@ export default {
     return await (
       await fetch(API_URL.replace("{address}", address), {
         headers: {
-          "User-Agent":
-            "Mozilla/5.0 (Windows NT 10.0; x64) Gecko/20100101 Firefox/67.4",
+            "User-Agent": "Checkpoint API (https://checkpoint.exchange)",
         },
       })
     ).json();

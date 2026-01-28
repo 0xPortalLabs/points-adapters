@@ -58,7 +58,11 @@ const getPoints = ({ points }: { points: string }) => {
 export default {
   fetch: async (address: string) => {
     address = checksumAddress(address as `0x${string}`);
-    const res = await fetch(API_URL.replace("{address}", address));
+    const res = await fetch(API_URL.replace("{address}", address), {
+      headers: {
+          "User-Agent": "Checkpoint API (https://checkpoint.exchange)",
+      },
+    });
 
     if (res.status === 404)
       return { accounts: [], leaderboardPosition: { rank: 0 } };
@@ -78,7 +82,7 @@ export default {
         accounts.map((account) => [
           `Asset: ${account.assetAddress}`,
           getPoints(account),
-        ]),
+        ])
       ),
     };
   },

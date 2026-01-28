@@ -11,7 +11,10 @@ export default {
   fetch: async (address) => {
     const res = await fetch(API_URL, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "User-Agent": "Checkpoint API (https://checkpoint.exchange)",
+      },
       body: JSON.stringify({
         operationName: "GetPointsByFid",
         query:

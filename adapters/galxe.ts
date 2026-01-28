@@ -46,6 +46,7 @@ export default {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "User-Agent": "Checkpoint API (https://checkpoint.exchange)",
       },
       body: JSON.stringify({
         operationName: "BasicUserInfo",

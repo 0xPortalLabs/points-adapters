@@ -38,9 +38,11 @@ const LEADERBOARD_URL = await maybeWrapCORSProxy(
 // {"account":"0xf4fe75926d607d43b074f8de38a49258773090f7","userPoints":502.22421864787,"totalPoints":26484612396.44205}
 export default {
   fetch: async (address: string) => {
+    const headers = { "User-Agent": "Checkpoint API (https://checkpoint.exchange)" };
+
     const [points, leaderboard] = await Promise.all([
-      (await fetch(POINTS_URL.replace("{address}", address))).json(),
-      (await fetch(LEADERBOARD_URL.replace("{address}", address))).json(),
+      (await fetch(POINTS_URL.replace("{address}", address), { headers })).json(),
+      (await fetch(LEADERBOARD_URL.replace("{address}", address), { headers })).json(),
     ]);
 
     const position =

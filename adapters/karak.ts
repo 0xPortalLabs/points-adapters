@@ -30,9 +30,8 @@ const API_URL =
 export default {
   fetch: async (address: string) => {
     address = getAddress(address);
-    return (
-      await (await fetch(API_URL.replace("{address}", address))).json()
-    )[0]?.result?.data;
+    const res = await fetch(API_URL.replace("{address}", address), { headers: { "User-Agent": "Checkpoint API (https://checkpoint.exchange)" } });
+    return (await res.json())[0]?.result?.data;
   },
   data: (data: { xpByPhase?: Record<string, number> }) => {
     const xp = data?.xpByPhase ? convertValuesToNormal(data.xpByPhase) : {};

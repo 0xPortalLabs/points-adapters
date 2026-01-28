@@ -49,9 +49,13 @@ const RANK_URL = await maybeWrapCORSProxy(
 */
 export default {
   fetch: async (address: string) => {
+    const headers = {
+      "User-Agent": "Checkpoint API (https://checkpoint.exchange)",
+    };
+
     const [data, rankData] = await Promise.all([
-      (await fetch(API_URL.replace("{address}", address))).json(),
-      (await fetch(RANK_URL.replace("{address}", address))).json(),
+      (await fetch(API_URL.replace("{address}", address), { headers })).json(),
+      (await fetch(RANK_URL.replace("{address}", address), { headers })).json(),
     ]);
 
     return { data, rankData };
