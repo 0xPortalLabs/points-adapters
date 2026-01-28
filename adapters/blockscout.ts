@@ -14,12 +14,7 @@ type API_RESPONSE = {
 };
 export default {
   fetch: async (address) => {
-    const res = await fetch(API_URL.replace("{address}", address), {
-      method: "GET",
-      headers: {
-        Accept: "*/*",
-      },
-    });
+    const res = await fetch(API_URL.replace("{address}", address));
     const data = await res.json();
     if (data.message === "user not found") {
       throw new Error("User not found");
