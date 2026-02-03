@@ -143,7 +143,7 @@ The third export is `total` which gives us the aggregate points for a wallet. Th
 The fourth export is `rank` which gives the user rank for the protocol's points program. This is displayed on the "leaderboard" info on a protocol.
 
 ```ts
-reward: (_) => ({
+reward: () => ({
   "eip155:1/erc20:0x6B175474E89094C44Da98b954EedeAC495271d0F": {
     amount: 1500000000000000000n,
     symbol: "DAI",
