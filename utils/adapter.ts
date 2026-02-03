@@ -41,6 +41,7 @@ const runAdapter = async (adapter: AdapterExport, address: string) => {
   if (adapter.claimable) ret.claimable = adapter.claimable(data);
   if (adapter.rank) ret.rank = adapter.rank(data);
   if (adapter.deprecated) ret.deprecated = adapter.deprecated(data);
+  if (adapter.reward) ret.reward = adapter.reward(data);
 
   ret.data = convertValuesToNormal(ret.data);
   ret.total =
@@ -94,6 +95,8 @@ export {
   type LabelledPoints,
   type DeprecatedLabels,
   type Caip19,
+  type RewardsData,
+  type RewardsValue,
   runAdapter,
   runAllAdapters,
 };
