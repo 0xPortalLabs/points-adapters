@@ -15,7 +15,7 @@ type API_RESPONSE = {
       tradingPoints: number;
       stakingPoints: number;
       signalPoints: number;
-      rank: 0;
+      rank: number;
     };
   };
   boosts: {
