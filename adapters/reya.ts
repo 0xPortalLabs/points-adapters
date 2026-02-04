@@ -26,7 +26,11 @@ type API_RESPONSE = {
 };
 export default {
   fetch: async (address: string) => {
-    const res = await fetch(API_URL.replace("{address}", getAddress(address)));
+    const res = await fetch(API_URL.replace("{address}", getAddress(address)), {
+      headers: {
+        "User-Agent": "Checkpoint API (https://checkpoint.exchange)",
+      },
+    });
     return await res.json();
   },
   data: (data: API_RESPONSE) => ({
