@@ -6,6 +6,7 @@ const API_URL = await maybeWrapCORSProxy(
   "https://api.usd.ai/usdai/wallet/{address}"
 );
 
+// 0xa67963e047cf23aa96a178f434f678a6a3a537e9
 type API_RESPONSE = {
   xpState: {
     xp: Record<string, number>;
