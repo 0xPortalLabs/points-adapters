@@ -22,7 +22,11 @@ type API_RESPONSE = {
 export default {
   fetch: async (address: string) => {
     address = checksumAddress(address);
-    const res = await fetch(API_URL.replace("{address}", address));
+    const res = await fetch(API_URL.replace("{address}", address), {
+      headers: {
+        "User-Agent": "Checkpoint API (https://checkpoint.exchange)",
+      },
+    });
 
     return await res.json();
   },
