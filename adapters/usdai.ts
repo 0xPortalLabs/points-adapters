@@ -53,6 +53,7 @@ export default {
         ...xpState.xp,
         totalXp: xpState.totalXp,
         icoXp: xpState.icoXp,
+        airdropXp: xpState.airdropXp,
         noAlignmentXp: xpState.noAlignmentXp,
         inviteXp: xpState.inviteXp,
         qualifiedWallets: xpState.qualifiedWallets,
