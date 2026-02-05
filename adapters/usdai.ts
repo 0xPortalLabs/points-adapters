@@ -1,4 +1,4 @@
-import type { AdapterExport } from "../utils/adapter";
+import type { AdapterExport } from "../utils/adapter.ts";
 import { maybeWrapCORSProxy } from "../utils/cors.ts";
 import { convertKeysToStartCase } from "../utils/object.ts";
 
