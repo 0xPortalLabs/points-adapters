@@ -2,8 +2,6 @@ import type { AdapterExport } from "../utils/adapter.ts";
 import { maybeWrapCORSProxy } from "../utils/cors.ts";
 import { getAddress } from "viem";
 
-import { startCase } from "lodash-es";
-
 const API_URL = await maybeWrapCORSProxy(
   "https://www.ether.fi/api/dapp/portfolio/v3/{address}"
 );
@@ -29,25 +27,29 @@ export default {
     };
 
     const parse = (category: string, type: string, value: number) => {
-      if (type === "AllTimePoints") {
-        groups["All Time Points"][category] = value;
-      } else if (type === "CurrentPoints") {
-        groups["Current Points"][category] = value;
-      } else if (type === "LastMonthPoints") {
-        groups["Last Month Points"][category] = value;
-      } else if (type === "Latest3MonthsPoints") {
-        groups["Latest 3 Months Points"][category] = value;
+      switch (type) {
+        case "AllTimePoints":
+          groups["All Time Points"][category] = value;
+          break;
+        case "CurrentPoints":
+          groups["Current Points"][category] = value;
+          break;
+        case "LastMonthPoints":
+          groups["Last Month Points"][category] = value;
+          break;
+        case "Latest3MonthsPoints":
+          groups["Latest 3 Months Points"][category] = value;
+          break;
       }
     };
 
     if (TotalPointsSummary && typeof TotalPointsSummary === "object") {
-      for (const [category, points] of Object.entries(
-        TotalPointsSummary as Record<string, unknown>
-      )) {
-        for (const [type, value] of Object.entries(
-          points as Record<string, number>
-        )) {
-          parse(category, type, value);
+      const summary = TotalPointsSummary as Record<string, Record<string, number>>;
+      for (const category in summary) {
+        const points = summary[category];
+        if (!points || typeof points !== "object") continue;
+        for (const type in points) {
+          parse(category, type, points[type]);
         }
       }
     }
@@ -62,10 +64,11 @@ export default {
     let totalCurrentPoints = 0;
 
     if (TotalPointsSummary && typeof TotalPointsSummary === "object") {
-      for (const points of Object.values(TotalPointsSummary)) {
-        if (points && typeof points === "object" && points.CurrentPoints) {
-          totalCurrentPoints += points.CurrentPoints;
-        }
+      const summary = TotalPointsSummary as Record<string, Record<string, number>>;
+      for (const category in summary) {
+        const points = summary[category];
+        if (!points || typeof points !== "object") continue;
+        if (points.CurrentPoints) totalCurrentPoints += points.CurrentPoints;
       }
     }
 

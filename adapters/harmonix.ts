@@ -1,6 +1,5 @@
 import type { AdapterExport } from "../utils/adapter.ts";
 import { maybeWrapCORSProxy } from "../utils/cors.ts";
-import { convertKeysToStartCase } from "../utils/object.ts";
 
 const POINTS_URL = await maybeWrapCORSProxy(
   "https://api.harmonix.fi/api/v1/points/users/{address}/points"
@@ -50,63 +49,100 @@ export default {
     };
   },
   data: (data: { points: POINTS_TYPE[]; rank: TIER_TYPE }) => {
-    const processSeasonData = (seasonType: string, prefix: string) => {
-      const season = data.points.find((s) => s.season_type === seasonType);
-      const reduced =
-        season?.data.reduce(
-          (acc, curr) => ({
-            points: (acc.points || 0) + curr.points,
-            staking_points: (acc.staking_points || 0) + curr.staking_points,
-            referral_points: (acc.referral_points || 0) + curr.referral_points,
-          }),
-          {} as Record<string, number>
-        ) || {};
+    const totalsBySeason: Record<
+      string,
+      { points: number; staking_points: number; referral_points: number }
+    > = {};
 
-      return Object.fromEntries(
-        Object.entries(reduced).map(([k, v]) => [`${prefix} ${k}`, v])
-      );
-    };
+    for (const season of data.points) {
+      const seasonType = season.season_type;
+      if (seasonType !== "season_1" && seasonType !== "season_2") continue;
+      if (totalsBySeason[seasonType]) continue; // keep first match like find()
 
-    return convertKeysToStartCase({
-      ...processSeasonData("season_2", "Season 2"),
-      ...processSeasonData("season_1", "Season 1"),
-      tier: data.rank?.tier,
-      tenure_achieved: data.rank?.tenure_achieved,
-    });
+      let points = 0;
+      let stakingPoints = 0;
+      let referralPoints = 0;
+
+      for (const session of season.data) {
+        points += session.points;
+        stakingPoints += session.staking_points;
+        referralPoints += session.referral_points;
+      }
+
+      totalsBySeason[seasonType] = {
+        points,
+        staking_points: stakingPoints,
+        referral_points: referralPoints,
+      };
+    }
+
+    const output: Record<string, number | string | undefined> = {};
+    const season2 = totalsBySeason["season_2"];
+    if (season2) {
+      output["Season 2 Points"] = season2.points;
+      output["Season 2 Staking Points"] = season2.staking_points;
+      output["Season 2 Referral Points"] = season2.referral_points;
+    }
+
+    const season1 = totalsBySeason["season_1"];
+    if (season1) {
+      output["Season 1 Points"] = season1.points;
+      output["Season 1 Staking Points"] = season1.staking_points;
+      output["Season 1 Referral Points"] = season1.referral_points;
+    }
+
+    output["Tier"] = data.rank?.tier;
+    output["Tenure Achieved"] = data.rank?.tenure_achieved;
+
+    return output;
   },
   total: (data: { points: POINTS_TYPE[] }) => {
-    const season1 = data.points.find(
-      (season) => season.season_type === "season_1"
-    );
-    const season2 = data.points.find(
-      (season) => season.season_type === "season_2"
-    );
+    let s1Total: number | undefined;
+    let s2Total: number | undefined;
+
+    for (const season of data.points) {
+      if (season.season_type === "season_1") {
+        if (s1Total !== undefined) continue; // keep first match like find()
+        let total = 0;
+        for (const session of season.data) {
+          total +=
+            session.points +
+            session.staking_points +
+            session.referral_points +
+            session.swap_points;
+        }
+        s1Total = total;
+        continue;
+      }
+
+      if (season.season_type === "season_2") {
+        if (s2Total !== undefined) continue; // keep first match like find()
+        let total = 0;
+        for (const session of season.data) {
+          total +=
+            session.points +
+            session.staking_points +
+            session.referral_points +
+            session.swap_points;
+        }
+        s2Total = total;
+      }
+    }
+
     return {
-      "S2 Points": season2?.data.reduce(
-        (acc, session) =>
-          acc +
-          session.points +
-          session.staking_points +
-          session.referral_points +
-          session.swap_points,
-        0
-      ),
-      "S1 Points": season1?.data.reduce(
-        (acc, session) =>
-          acc +
-          session.points +
-          session.staking_points +
-          session.referral_points +
-          session.swap_points,
-        0
-      ),
+      "S2 Points": s2Total,
+      "S1 Points": s1Total,
     };
   },
   claimable: (data: { points: POINTS_TYPE[] }) => {
-    const season1 = data.points.find(
-      (season) => season.season_type === "season_1"
-    );
-    return season1?.data.some((session) => session.points > 0) ?? false;
+    for (const season of data.points) {
+      if (season.season_type !== "season_1") continue;
+      for (const session of season.data) {
+        if (session.points > 0) return true;
+      }
+      return false;
+    }
+    return false;
   },
   deprecated: () => ({
     "S1 Points": 1738367999, // 31st January 2025

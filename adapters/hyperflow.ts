@@ -68,8 +68,9 @@ export default {
     );
     const data = await response.json();
 
+    const targetAddress = address.toLowerCase();
     return data.items.find(
-      (user: UserData) => getAddress(user.user) === address
+      (user: UserData) => user.user.toLowerCase() === targetAddress
     );
   },
   data: (data: UserData) => {

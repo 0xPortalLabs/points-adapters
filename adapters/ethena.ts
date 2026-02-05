@@ -30,15 +30,14 @@ export default {
   data: (data: Record<string, number | string | null>) => {
     if (!data) return {};
 
-    const filtered = Object.fromEntries(
-      Object.entries(data).filter(
-        ([_, value]) =>
-          value !== null &&
-          value !== undefined &&
-          typeof value !== "object" &&
-          !Array.isArray(value),
-      ),
-    ) as Record<string, number | string>;
+    const filtered: Record<string, number | string> = {};
+
+    for (const key in data) {
+      const value = data[key];
+      if (value == null) continue;
+      if (typeof value === "object") continue;
+      filtered[key] = value;
+    }
 
     return convertKeysToStartCase(convertValuesToNormal(filtered));
   },
