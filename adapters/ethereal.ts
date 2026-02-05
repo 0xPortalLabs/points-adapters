@@ -33,15 +33,17 @@ export default {
   data: (apiData: { data: API_RESPONSE[] }) => {
     const data = apiData.data;
 
-    if (!data || data.length === 0) {
+    if (!data || !Array.isArray(data)) {
       return {};
     }
 
-    // Dynamically create keys based on available seasons (non-brittle)
     const groups: Record<string, Record<string, number>> = {};
 
-    for (const item of data) {
+    // Dynamically load fields from API response
+    data.forEach((item) => {
       const seasonKey = `S${item.season} Points`;
+
+      // Dynamically create keys from the API fields
       groups[seasonKey] = {
         "Total Points": Number(item.totalPoints),
         "Previous Total Points": Number(item.previousTotalPoints),
@@ -52,32 +54,32 @@ export default {
         "Tier": item.tier,
         "Points": Number(item.totalPoints) + Number(item.referralPoints),
       };
-    }
+    });
 
     return groups;
   },
   total: (apiData: { data: API_RESPONSE[] }) => {
     const data = apiData.data;
 
-    if (!data || data.length === 0) {
+    if (!data || !Array.isArray(data)) {
       return {};
     }
 
-    // Dynamically calculate total points for each season (matches data() structure)
+    // Dynamically calculate totals
     const totals: Record<string, number> = {};
 
-    for (const item of data) {
+    data.forEach((item) => {
       const seasonKey = `S${item.season} Points`;
       totals[seasonKey] = Number(item.totalPoints) +
         Number(item.referralPoints);
-    }
+    });
 
     return totals;
   },
   rank: (apiData: { data: API_RESPONSE[] }) => {
     const data = apiData.data;
 
-    if (!data || data.length === 0) {
+    if (!data || !Array.isArray(data)) {
       return 0;
     }
 
