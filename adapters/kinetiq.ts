@@ -2,7 +2,7 @@ import type { AdapterExport } from "../utils/adapter.ts";
 
 // API now requires wallet signature
 export default {
-  fetch: async (address) => await Promise.resolve({}),
+  fetch: async () => await Promise.resolve({}),
   data: () => ({ kPoints: {} }),
   total: () => ({ kPoints: 0 }),
   claimable: () => false,

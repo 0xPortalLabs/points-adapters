@@ -21,7 +21,7 @@ type API_RESPONSE = {
 
 export default {
   fetch: async (address: string) => {
-    address = checksumAddress(address);
+    address = checksumAddress(address as `0x${string}`);
     const res = await fetch(API_URL.replace("{address}", address), {
       headers: {
         "User-Agent": "Checkpoint API (https://checkpoint.exchange)",
@@ -49,10 +49,10 @@ export default {
         "Previous Total Points": Number(item.previousTotalPoints),
         "Referral Points": Number(item.referralPoints),
         "Previous Referral Points": Number(item.previousReferralPoints),
-        "Rank": item.rank,
+        Rank: item.rank,
         "Previous Rank": item.previousRank,
-        "Tier": item.tier,
-        "Points": Number(item.totalPoints) + Number(item.referralPoints),
+        Tier: item.tier,
+        Points: Number(item.totalPoints) + Number(item.referralPoints),
       };
     });
 
@@ -70,8 +70,8 @@ export default {
 
     data.forEach((item) => {
       const seasonKey = `S${item.season} Points`;
-      totals[seasonKey] = Number(item.totalPoints) +
-        Number(item.referralPoints);
+      totals[seasonKey] =
+        Number(item.totalPoints) + Number(item.referralPoints);
     });
 
     return totals;

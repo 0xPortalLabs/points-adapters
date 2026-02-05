@@ -1,7 +1,7 @@
 import { getAddress } from "viem";
+import { titleCase } from "text-case";
 import type { AdapterExport } from "../utils/adapter.ts";
 import { maybeWrapCORSProxy } from "../utils/cors.ts";
-import { convertKeysToStartCase } from "../utils/object.ts";
 
 const API_URL = await maybeWrapCORSProxy(
   "https://basearoundtheworld.vercel.app/api/player?address={address}&_t={timestamp}",
@@ -46,20 +46,25 @@ export default {
     return data;
   },
   data: (data: API_RESPONSE) => {
-    const progressData = data.progress.reduce(
-      (acc, obj, index) => {
-        const convertedObj = convertKeysToStartCase(obj);
-        Object.entries(convertedObj).forEach(([key, value]) => {
-          if (key === "Completed At") {
-            acc[`Level ${index + 1} ${key}`] = new Date(value).toLocaleString();
-          } else {
-            acc[`Level ${index + 1} ${key}`] = value;
-          }
-        });
-        return acc;
-      },
-      {} as Record<string, string | number>,
-    );
+    const progressData: Record<string, string | number> = {};
+    const { progress } = data;
+
+    for (let index = 0; index < progress.length; index++) {
+      const obj = progress[index];
+      const levelPrefix = `Level ${index + 1} `;
+
+      for (const rawKey in obj) {
+        const titledKey = titleCase(rawKey);
+        const rawValue = obj[rawKey];
+        const outputKey = `${levelPrefix}${titledKey}`;
+
+        if (titledKey === "Completed At") {
+          progressData[outputKey] = new Date(rawValue).toLocaleString();
+        } else {
+          progressData[outputKey] = rawValue;
+        }
+      }
+    }
 
     return {
       Name: data.player.name,

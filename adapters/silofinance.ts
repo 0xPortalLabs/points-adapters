@@ -38,17 +38,22 @@ const LEADERBOARD_URL = await maybeWrapCORSProxy(
 // {"account":"0xf4fe75926d607d43b074f8de38a49258773090f7","userPoints":502.22421864787,"totalPoints":26484612396.44205}
 export default {
   fetch: async (address: string) => {
-    const headers = { "User-Agent": "Checkpoint API (https://checkpoint.exchange)" };
+    const headers = {
+      "User-Agent": "Checkpoint API (https://checkpoint.exchange)",
+    };
 
-    const [points, leaderboard] = await Promise.all([
-      (await fetch(POINTS_URL.replace("{address}", address), { headers })).json(),
-      (await fetch(LEADERBOARD_URL.replace("{address}", address), { headers })).json(),
+    const [pointsRes, leaderboardRes] = await Promise.all([
+      fetch(POINTS_URL.replace("{address}", address), { headers }),
+      fetch(LEADERBOARD_URL.replace("{address}", address), { headers }),
     ]);
 
+    const points = await pointsRes.json();
+    const leaderboard = await leaderboardRes.json();
+
+    const targetAddress = address.toLowerCase();
     const position =
       leaderboard.topAccounts.find(
-        (x: { account: string }) =>
-          x.account.toLowerCase() === address.toLowerCase()
+        (x: { account: string }) => x.account.toLowerCase() === targetAddress
       )?.rank ?? 0;
 
     return { points, position };

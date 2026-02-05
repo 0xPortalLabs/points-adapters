@@ -11,24 +11,30 @@ export default {
     const response = await fetch(
       API_URL.replace("{address}", getAddress(address)),
       {
-        headers: { "User-Agent": "Checkpoint API (https://checkpoint.exchange)" },
+        headers: {
+          "User-Agent": "Checkpoint API (https://checkpoint.exchange)",
+        },
       }
     );
     return await response.json();
   },
   data: (data) => {
     if (!data || !Array.isArray(data)) return {};
-    let epochObj: Record<string, number> = {};
-    data.forEach((entry) => {
+    const epochObj: Record<string, number> = {};
+    for (const entry of data) {
       if (entry.epochNumber && entry.pointsEarned) {
         const epochKey = `Epoch #${entry.epochNumber}`;
         epochObj[epochKey] = entry.pointsEarned;
       }
-    });
+    }
     return epochObj;
   },
   total: (data) => {
     if (!data || !Array.isArray(data)) return 0;
-    return data.reduce((total, entry) => total + (entry.pointsEarned || 0), 0);
+    let total = 0;
+    for (const entry of data) {
+      total += entry.pointsEarned || 0;
+    }
+    return total;
   },
 } as AdapterExport;

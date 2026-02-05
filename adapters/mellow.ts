@@ -3,7 +3,7 @@ import { maybeWrapCORSProxy } from "../utils/cors.ts";
 import { convertKeysToStartCase } from "../utils/object.ts";
 
 const API_URL = await maybeWrapCORSProxy(
-  "https://points.mellow.finance/v1/users/{address}",
+  "https://points.mellow.finance/v1/users/{address}"
 );
 
 type DATA_TYPE = {
@@ -23,7 +23,13 @@ type DATA_TYPE = {
 
 export default {
   fetch: async (address: string) => {
-    const res = await fetch(API_URL.replace("{address}", address), { headers: { Host: "points.mellow.finance", Accept: "*/*", "User-Agent": "Checkpoint API (https://checkpoint.exchange)" } });
+    const res = await fetch(API_URL.replace("{address}", address), {
+      headers: {
+        Host: "points.mellow.finance",
+        Accept: "*/*",
+        "User-Agent": "Checkpoint API (https://checkpoint.exchange)",
+      },
+    });
     if (!res.ok)
       throw new Error(`Failed to retrieve mellow data: ${await res.text()}`);
     return await res.json();
@@ -52,8 +58,8 @@ export default {
           user_kalypso_points: 0,
           user_primev_points: 0,
           user_merits_points: 0,
-        },
-      ),
+        }
+      )
     ),
   total: (data: DATA_TYPE[]) =>
     data.reduce((acc, curr) => (acc += Number(curr.user_mellow_points)), 0),
