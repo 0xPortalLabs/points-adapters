@@ -21,7 +21,7 @@ type API_RESPONSE = {
 
 export default {
   fetch: async (address: string) => {
-    address = checksumAddress(address as `${0x${string}}`);
+    address = checksumAddress(address);
     const res = await fetch(API_URL.replace("{address}", address));
 
     return await res.json();
@@ -62,8 +62,8 @@ export default {
     return info;
   },
   total: (apiData: { data: API_RESPONSE[] }) => {
-    const s1Data = data.find((item) => item.season === 1);
-    const s0Data = data.find((item) => item.season === 0);
+    const s1Data = apiData.data.find((item) => item.season === 1);
+    const s0Data = apiData.data.find((item) => item.season === 0);
 
     return {
       "S1 Points": Number(s1Data?.totalPoints ?? 0),
@@ -71,7 +71,7 @@ export default {
     };
   },
   rank: (apiData: { data: API_RESPONSE[] }) => {
-    const s1Data = data.find((item) => item.season === 1);
+    const s1Data = apiData.data.find((item) => item.season === 1);
 
     return s1Data?.rank ?? 0;
   },
