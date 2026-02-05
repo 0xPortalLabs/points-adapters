@@ -13,11 +13,13 @@ export default {
       headers: { "User-Agent": "Checkpoint API (https://checkpoint.exchange)" },
     });
     const data = await res.json();
-    const targetAddress = address.toLowerCase();
-    return data.filter(
-      (obj: { evm_address: string }) =>
-        obj.evm_address.toLowerCase() === targetAddress
-    )[0];
+    const target = address.toLowerCase();
+    return (
+      data.find(
+        (obj: { evm_address?: string }) =>
+          obj?.evm_address?.toLowerCase() === target
+      ) ?? null
+    );
   },
   data: (data: {
     points: number;
