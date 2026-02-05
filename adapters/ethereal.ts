@@ -1,94 +1,101 @@
 import type { AdapterExport } from "../utils/adapter.ts";
-
 import { checksumAddress } from "viem";
+import { convertKeysToStartCase } from "../utils/object.ts";
 
-const API_URL = "https://deposit-api.ethereal.trade/v1/account/{address}";
+const API_URL = "https://api.ethereal.trade/v1/points/summary?address={address}";
 
-const getPoints = ({ points }: { points: string }) => {
-  const divisor = BigInt(1e18);
-  const whole = BigInt(points) / divisor;
-  const remainder = BigInt(points) % divisor;
-
-  return parseFloat(`${whole}.${remainder.toString().padStart(18, "0")}`);
+type API_RESPONSE = {
+  id: string;
+  address: string;
+  season: number;
+  totalPoints: string;
+  previousTotalPoints: string;
+  referralPoints: string;
+  previousReferralPoints: string;
+  rank: number;
+  previousRank: number;
+  tier: number;
+  createdAt: number;
+  updatedAt: number;
 };
 
-/*
-{
-  "accounts": [
-    {
-      "address": "0x4142C8D0319B28b1cbd189E2e98a482999BF030B",
-      "blockNumber": "22141820",
-      "points": "321681447373127189419",
-      "balance": "6024268933621",
-      "lastCalculatedAt": "2025-03-29T21:31:44.761Z",
-      "assetAddress": "0x90D2af7d622ca3141efA4d8f1F24d86E5974Cc8F"
-    },
-    {
-      "address": "0x4142C8D0319B28b1cbd189E2e98a482999BF030B",
-      "blockNumber": "22155289",
-      "points": "56388972768965554059391",
-      "balance": "93507930597765227586000",
-      "lastCalculatedAt": "2025-03-29T21:36:59.000Z",
-      "assetAddress": "0x708dD9B344dDc7842f44C7b90492CF0e1E3eb868"
-    },
-    {
-      "address": "0x4142C8D0319B28b1cbd189E2e98a482999BF030B",
-      "blockNumber": "22155289",
-      "points": "67684684557511913952046",
-      "balance": "524116703465475323795553",
-      "lastCalculatedAt": "2025-03-29T21:36:59.000Z",
-      "assetAddress": "0x85667e484a32d884010Cf16427D90049CCf46e97"
-    }
-  ],
-    "refereeAccounts": [],
-    "leaderboardPosition": {
-        "address": "0x4142C8D0319B28b1cbd189E2e98a482999BF030B",
-        "lastCalculatedAt": "2025-11-10T20:07:35.364Z",
-        "rank": 439,
-        "totalPoints": "578312831352287139739603"
-    },
-    "leaderboardPositionS0": {
-        "address": "0x4142C8D0319B28b1cbd189E2e98a482999BF030B",
-        "lastCalculatedAt": "2025-10-03T23:39:07.162Z",
-        "rank": 377,
-        "totalPoints": "578312827053433376520606"
-    }
-}
- */
 export default {
   fetch: async (address: string) => {
-    address = checksumAddress(address as `0x${string}`);
-    const res = await fetch(API_URL.replace("{address}", address), {
-      headers: {
-          "User-Agent": "Checkpoint API (https://checkpoint.exchange)",
-      },
-    });
+    address = checksumAddress(address as `${0x${string}}`);
+    const res = await fetch(API_URL.replace("{address}", address));
 
-    if (res.status === 404)
-      return { accounts: [], leaderboardPosition: { rank: 0 } };
+    if (res.status === 404) {
+      return { data: [] };
+    }
 
-    return await res.json();
+    if (!res.ok) {
+      throw new Error(`Ethereal API error (${res.status}): ${res.statusText}`);
+    }
+
+    try {
+      const json = await res.json();
+      if (!json || !json.data || !Array.isArray(json.data)) {
+        throw new Error("Invalid response from ethereal API: not an array");
+      }
+      return json;
+    } catch (e) {
+      throw new Error(`Failed to parse ethereal API response: ${e}`);
+    }
   },
-  data: ({
-    accounts,
-    leaderboardPosition,
-  }: {
-    accounts: Array<{ assetAddress: string; points: string }>;
-    leaderboardPosition: { rank: number };
-  }) => {
+  data: (apiData: { data: API_RESPONSE[] }) => {
+    const data = apiData.data;
+
+    if (!data || data.length === 0) {
+      return {};
+    }
+
+    const info = data.reduce((acc, season) => {
+      const {
+        season: seasonNum,
+        address,
+        id,
+        updatedAt,
+        createdAt,
+        ...rest
+      } = season;
+      const seasonObj = {
+        ...rest,
+        points: Number(season.totalPoints) + Number(season.referralPoints),
+      };
+
+      return {
+        ...acc,
+        ...convertKeysToStartCase(
+          Object.fromEntries(
+            Object.entries(seasonObj).map(([key, value]) => [
+              `S${seasonNum}${key.charAt(0).toUpperCase() + key.slice(1)}`,
+              value,
+            ])
+          )
+        ),
+      };
+    }, {});
+    return info;
+  },
+  total: (apiData: { data: API_RESPONSE[] }) => {
+    const data = apiData.data;
+
+    if (!data || data.length === 0) {
+      return { "S1 Points": 0, "S0 Points": 0 };
+    }
+
     return {
-      rank: leaderboardPosition.rank,
-      ...Object.fromEntries(
-        accounts.map((account) => [
-          `Asset: ${account.assetAddress}`,
-          getPoints(account),
-        ])
-      ),
+      "S1 Points": Number(data[0]?.totalPoints),
+      "S0 Points": Number(data[1]?.totalPoints),
     };
   },
-  total: ({ accounts }: { accounts: Array<{ points: string }> }) =>
-    accounts.reduce((total, account) => total + getPoints(account), 0),
-  rank: (data: { leaderboardPosition: { rank: number } }) => {
-    return data.leaderboardPosition.rank;
+  rank: (apiData: { data: API_RESPONSE[] }) => {
+    const data = apiData.data;
+
+    if (!data || data.length === 0) {
+      return 0;
+    }
+
+    return data[0]?.rank;
   },
 } as AdapterExport;
