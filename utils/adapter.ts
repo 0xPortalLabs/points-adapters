@@ -51,7 +51,7 @@ const runAdapter = async (adapter: AdapterExport, address: string) => {
   ret.claimable = Boolean(ret.claimable);
   ret.rank = Number(ret.rank) || 0;
   ret.deprecated = ret.deprecated ? convertValuesToInt(ret.deprecated) : {};
-
+  ret.reward = typeof ret.reward !== "object" || !ret.reward ? {} : ret.reward;
   return ret;
 };
 
