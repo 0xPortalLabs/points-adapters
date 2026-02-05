@@ -37,28 +37,51 @@ export default {
       return {};
     }
 
-    const s1Data = data.find((item) => item.season === 1);
-    const s0Data = data.find((item) => item.season === 0);
+    // Dynamically create keys based on available seasons (non-brittle)
+    const groups: Record<string, Record<string, number>> = {};
 
-    return {
-      "S1 Points": Number(s1Data?.totalPoints ?? 0) +
-        Number(s1Data?.referralPoints ?? 0),
-      "S0 Points": Number(s0Data?.totalPoints ?? 0) +
-        Number(s0Data?.referralPoints ?? 0),
-    };
+    for (const item of data) {
+      const seasonKey = `S${item.season} Points`;
+      groups[seasonKey] = {
+        "Total Points": Number(item.totalPoints),
+        "Previous Total Points": Number(item.previousTotalPoints),
+        "Referral Points": Number(item.referralPoints),
+        "Previous Referral Points": Number(item.previousReferralPoints),
+        "Rank": item.rank,
+        "Previous Rank": item.previousRank,
+        "Tier": item.tier,
+        "Points": Number(item.totalPoints) + Number(item.referralPoints),
+      };
+    }
+
+    return groups;
   },
   total: (apiData: { data: API_RESPONSE[] }) => {
-    const s1Data = apiData.data.find((item) => item.season === 1);
-    const s0Data = apiData.data.find((item) => item.season === 0);
+    const data = apiData.data;
 
-    return {
-      "S1 Points": Number(s1Data?.totalPoints ?? 0),
-      "S0 Points": Number(s0Data?.totalPoints ?? 0),
-    };
+    if (!data || data.length === 0) {
+      return {};
+    }
+
+    // Dynamically calculate total points for each season (matches data() structure)
+    const totals: Record<string, number> = {};
+
+    for (const item of data) {
+      const seasonKey = `S${item.season} Points`;
+      totals[seasonKey] = Number(item.totalPoints) +
+        Number(item.referralPoints);
+    }
+
+    return totals;
   },
   rank: (apiData: { data: API_RESPONSE[] }) => {
-    const s1Data = apiData.data.find((item) => item.season === 1);
+    const data = apiData.data;
 
-    return s1Data?.rank ?? 0;
+    if (!data || data.length === 0) {
+      return 0;
+    }
+
+    // Use S1 (current) rank by default
+    return data.find((item) => item.season === 1)?.rank ?? 0;
   },
 } as AdapterExport;
