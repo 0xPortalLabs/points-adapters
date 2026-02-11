@@ -27,7 +27,7 @@ export default {
       headers: {
         "Content-Type": "application/json",
         Authorization: "Bearer cYTvNiT7WQaQXCXVsbBn7H9cyxboFCQ3",
-          "User-Agent": "Checkpoint API (https://checkpoint.exchange)",
+        "User-Agent": "Checkpoint API (https://checkpoint.exchange)",
       },
       method: "POST",
       body: JSON.stringify({
@@ -83,4 +83,5 @@ export default {
   total: (data: API_RESPONSE) => Number(data.earnings.total),
   rank: (data: API_RESPONSE) =>
     data.stats.position.unranked ? 0 : data.stats.position.current,
+  claimable: (data: API_RESPONSE) => Number(data.earnings.total) > 0,
 } as AdapterExport;
