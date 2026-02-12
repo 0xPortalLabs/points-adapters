@@ -46,9 +46,7 @@ Edit `config.json`:
 
 ```json
 {
-  "addresses": [
-    "0x3c2573b002cf51e64ab6d051814648eb3a305363"
-  ],
+  "addresses": ["0x3c2573b002cf51e64ab6d051814648eb3a305363"],
   "disabledAdapters": [],
   "discordWebhookUrl": "https://discord.com/api/webhooks/...",
   "timeout": 30000
@@ -143,6 +141,18 @@ The third export is `total` which gives us the aggregate points for a wallet. Th
 ```
 
 The fourth export is `rank` which gives the user rank for the protocol's points program. This is displayed on the "leaderboard" info on a protocol.
+
+```ts
+reward: () => ({
+  "eip155:1/erc20:0x6B175474E89094C44Da98b954EedeAC495271d0F": {
+    amount: 1500000000000000000n,
+    symbol: "DAI",
+    decimals: 18,
+  },
+});
+```
+
+The fifth export is `reward` which returns the total pending (or claimable) rewards the user has accumulated via the protocol's incentive program, expressed as a map of [CAIP-19](https://eip.directory/caips/caip-19) asset identifiers to raw token amounts and metadata. For example, the above data indicates a claimable reward of `1.5 DAI`.
 
 #### Points Terminology
 
