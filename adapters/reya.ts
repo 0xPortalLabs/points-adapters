@@ -41,4 +41,5 @@ export default {
   }),
   total: (data: API_RESPONSE) => data.points.total.totalPoints,
   rank: (data: API_RESPONSE) => data.points.total.rank,
+  supportedAddressTypes: ["evm"],
 } as AdapterExport;

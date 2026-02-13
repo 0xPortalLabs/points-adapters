@@ -27,4 +27,5 @@ export default {
   total: (data: Record<string, string>) => ({
     Diamonds: parseFloat(data.totalPoint) || 0,
   }),
+  supportedAddressTypes: ["evm"],
 } as AdapterExport;

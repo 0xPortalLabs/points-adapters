@@ -62,4 +62,5 @@ export default {
     if (!data || !data.results || data.results.length === 0) return 0;
     return data.results[0].rank;
   },
+  supportedAddressTypes: ["evm"],
 } as AdapterExport;

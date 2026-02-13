@@ -29,4 +29,5 @@ export default {
     Karma: data.score,
   }),
   rank: (data: { position: number; score: number }) => data.position,
+  supportedAddressTypes: ["evm"],
 } as AdapterExport;

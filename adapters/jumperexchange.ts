@@ -59,4 +59,5 @@ export default {
   }),
   rank: ({ leaderboard }: { leaderboard: { data?: { position?: string } } }) =>
     leaderboard.data?.position ? parseInt(leaderboard.data.position) : 0,
+  supportedAddressTypes: ["evm", "svm"],
 } as AdapterExport;

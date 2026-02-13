@@ -33,4 +33,5 @@ export default {
     data.leaderboard.points,
   rank: (data: { leaderboard: Record<string, number | string> }) =>
     data.leaderboard.rank,
+  supportedAddressTypes: ["evm"],
 } as AdapterExport;

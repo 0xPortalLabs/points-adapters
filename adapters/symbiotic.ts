@@ -62,7 +62,7 @@ export default {
     return (
       await fetch(API_URL.replace("{address}", address), {
         headers: {
-            "User-Agent": "Checkpoint API (https://checkpoint.exchange)",
+          "User-Agent": "Checkpoint API (https://checkpoint.exchange)",
         },
       })
     ).json();
@@ -84,4 +84,5 @@ export default {
       0
     ),
   }),
+  supportedAddressTypes: ["evm"],
 } as AdapterExport;

@@ -46,9 +46,7 @@ Edit `config.json`:
 
 ```json
 {
-  "addresses": [
-    "0x3c2573b002cf51e64ab6d051814648eb3a305363"
-  ],
+  "addresses": ["0x3c2573b002cf51e64ab6d051814648eb3a305363"],
   "disabledAdapters": [],
   "discordWebhookUrl": "https://discord.com/api/webhooks/...",
   "timeout": 30000
@@ -89,6 +87,7 @@ export default {
   }),
   total: (data: Record<string, number>) => data.sonic_points,
   rank: (data: { rank: number }) => data.rank,
+  supportedAddressTypes: ["evm"],
 } as AdapterExport;
 ```
 
@@ -139,10 +138,32 @@ The second export is `data` which returns a `Record<string, string | number>` of
 The third export is `total` which gives us the aggregate points for a wallet. This can also be a `Record<string, number>` to give aggregate season points as done in the [ether.fi adapter](./adapters/etherfi.ts). This is displayed on "total" info on a protocol.
 
 ```ts
-  rank: (data: { rank: number }) => data.rank,
+rank: (data: { rank: number }) => data.rank,
 ```
 
 The fourth export is `rank` which gives the user rank for the protocol's points program. This is displayed on the "leaderboard" info on a protocol.
+
+#### Address Support (EVM + SVM)
+
+Adapters now support two wallet address families:
+
+- `evm` - Hex format `0x...`
+- `svm` - Solana-style base58 addresses
+
+All adapter entrypoints should auto-detect the input address type. If an address is
+neither `evm` nor `svm`, the adapter should fail with a validation error.
+
+Every adapter must explicitly declare supported address families:
+
+```ts
+export default {
+  // ...
+  supportedAddressTypes: ["evm", "svm"],
+} as AdapterExport;
+```
+
+- `supportedAddressTypes` is required on every adapter export.
+- `runAdapter` throws if the adapter does not support the detected address type.
 
 #### Points Terminology
 

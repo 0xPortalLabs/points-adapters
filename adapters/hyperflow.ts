@@ -94,4 +94,5 @@ export default {
     const points = data ? data.total.point : 0;
     return { FlowXP: points };
   },
+  supportedAddressTypes: ["evm"],
 } as AdapterExport;

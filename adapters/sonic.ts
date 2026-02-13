@@ -20,7 +20,11 @@ const API_URL = await maybeWrapCORSProxy(
 export default {
   fetch: async (address: string) => {
     return await (
-      await fetch(API_URL.replace("{address}", address), { headers: { "User-Agent": "Checkpoint API (https://checkpoint.exchange)" } })
+      await fetch(API_URL.replace("{address}", address), {
+        headers: {
+          "User-Agent": "Checkpoint API (https://checkpoint.exchange)",
+        },
+      })
     ).json();
   },
   data: (data: Record<string, number>) => ({
@@ -36,4 +40,5 @@ export default {
   }),
   total: (data: Record<string, number>) => data.sonic_points,
   rank: (data: { rank: number }) => data.rank,
+  supportedAddressTypes: ["evm"],
 } as AdapterExport;

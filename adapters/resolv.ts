@@ -72,4 +72,5 @@ export default {
       ? rankData.rows[rankData.requestedAddressIndex].rank
       : 0;
   },
+  supportedAddressTypes: ["evm"],
 } as AdapterExport;

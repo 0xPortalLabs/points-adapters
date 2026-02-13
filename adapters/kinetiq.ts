@@ -9,4 +9,5 @@ export default {
   deprecated: () => ({
     kPoints: 1760572800, // October 16th 2025 GMT
   }),
+  supportedAddressTypes: ["evm"],
 } as AdapterExport;

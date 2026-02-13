@@ -3,7 +3,7 @@ import { maybeWrapCORSProxy } from "../utils/cors.ts";
 import { convertKeysToStartCase } from "../utils/object.ts";
 
 const API_URL = await maybeWrapCORSProxy(
-  "https://eth-api.infinifi.xyz/api/points/v2/user/{address}",
+  "https://eth-api.infinifi.xyz/api/points/v2/user/{address}"
 );
 
 type V2_POINTS = {
@@ -16,7 +16,9 @@ type V2_POINTS = {
 
 export default {
   fetch: async (address) => {
-    const res = await fetch(API_URL.replace("{address}", address), { headers: { "User-Agent": "Checkpoint API (https://checkpoint.exchange)" } });
+    const res = await fetch(API_URL.replace("{address}", address), {
+      headers: { "User-Agent": "Checkpoint API (https://checkpoint.exchange)" },
+    });
     return (await res.json()).data;
   },
   data: (data: {
@@ -32,7 +34,7 @@ export default {
     return {
       ...convertKeysToStartCase({ ...rest, ...data.stats }),
       "Last Updated Time": new Date(
-        lastUpdateTimestampSec * 1000,
+        lastUpdateTimestampSec * 1000
       ).toISOString(),
       "V2 Points": s2_points,
     };
@@ -50,4 +52,5 @@ export default {
   deprecated: () => ({
     "V1 Points": 1764547200, // December 1st 2025
   }),
+  supportedAddressTypes: ["evm"],
 } as AdapterExport;

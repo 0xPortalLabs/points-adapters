@@ -12,7 +12,9 @@ type API_RESPONSE = {
 
 export default {
   fetch: async (address: string) => {
-    const res = await fetch(API_URL.replace("{address}", address), { headers: { "User-Agent": "Checkpoint API (https://checkpoint.exchange)" } });
+    const res = await fetch(API_URL.replace("{address}", address), {
+      headers: { "User-Agent": "Checkpoint API (https://checkpoint.exchange)" },
+    });
 
     const data = await res.json();
     if (data.error === "User not found") return { pointsTotal: 0, rank: 0 };
@@ -28,4 +30,5 @@ export default {
   },
   total: (data: API_RESPONSE) => data.pointsTotal,
   rank: (data: API_RESPONSE) => data.rank,
+  supportedAddressTypes: ["evm"],
 } as AdapterExport;

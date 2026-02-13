@@ -86,4 +86,5 @@ export default {
     // Use S1 (current) rank by default
     return data.find((item) => item.season === 1)?.rank ?? 0;
   },
+  supportedAddressTypes: ["evm"],
 } as AdapterExport;

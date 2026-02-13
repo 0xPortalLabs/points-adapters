@@ -7,6 +7,7 @@ export default {
   total: () => 0,
   claimable: () => true, // Airdrop ends on 12th January 2026
   deprecated: () => ({
-    Points: 1762359104 // Wednesday 5th November 2025 16:11 GMT
-  })
+    Points: 1762359104, // Wednesday 5th November 2025 16:11 GMT
+  }),
+  supportedAddressTypes: ["evm"],
 } as AdapterExport;

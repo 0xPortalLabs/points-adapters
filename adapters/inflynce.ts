@@ -29,4 +29,5 @@ export default {
     IP: data.totalPoints,
   }),
   total: (data: { totalPoints: number }) => ({ IP: data.totalPoints }),
+  supportedAddressTypes: ["evm"],
 } as AdapterExport;

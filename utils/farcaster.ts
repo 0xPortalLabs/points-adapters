@@ -1,6 +1,5 @@
-import { createPublicClient, http, parseAbi, fallback } from "viem";
+import { createPublicClient, fallback, http, parseAbi } from "viem";
 import { optimism } from "viem/chains";
-import { maybeWrapCORSProxy } from "../utils/cors.ts";
 
 const idRegistryAbi = parseAbi([
   "function idOf(address owner) view returns (uint256 fid)",
@@ -17,7 +16,6 @@ const client = createPublicClient({
     [
       http("https://public-op-mainnet.fastnode.io", options),
       http("https://optimism-rpc.publicnode.com", options),
-      http("https://endpoints.omniatech.io/v1/op/mainnet/public", options),
     ],
     {
       rank: false,

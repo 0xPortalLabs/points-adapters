@@ -23,10 +23,14 @@ const S1_API_URL =
 */
 export default {
   fetch: async (address: string) => {
-    const headers = { "User-Agent": "Checkpoint API (https://checkpoint.exchange)" };
+    const headers = {
+      "User-Agent": "Checkpoint API (https://checkpoint.exchange)",
+    };
 
     const [s1, s2] = await Promise.all([
-      (await fetch(S1_API_URL.replace("{address}", address), { headers })).json(),
+      (
+        await fetch(S1_API_URL.replace("{address}", address), { headers })
+      ).json(),
       (await fetch(API_URL.replace("{address}", address), { headers })).json(),
     ]);
 
@@ -69,4 +73,5 @@ export default {
       "S2 Weekly Points": s2?.total_points_accrued,
     };
   },
+  supportedAddressTypes: ["evm"],
 } as AdapterExport;

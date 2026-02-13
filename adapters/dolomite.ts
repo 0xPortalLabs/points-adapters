@@ -29,17 +29,18 @@ export default {
   }) => {
     return {
       Minerals: {
-        "Airdrop Amount": airdrop ? (parseFloat(airdrop.amount) ?? 0) : 0,
+        "Airdrop Amount": airdrop ? parseFloat(airdrop.amount) ?? 0 : 0,
         "Level Snapshot": airdrop?.level_snapshot ?? 0,
       },
     };
   },
   total: ({ airdrop }: { airdrop?: { amount: string } }) => ({
-    Minerals: airdrop ? (parseFloat(airdrop.amount) ?? 0) : 0,
+    Minerals: airdrop ? parseFloat(airdrop.amount) ?? 0 : 0,
   }),
   // If they have airdrop data then it is probably claimable.
   claimable: ({ airdrop }: { airdrop?: unknown }) => Boolean(airdrop),
   deprecated: () => ({
     Minerals: 1736467200, // Jan 10th 00:00 UTC
   }),
+  supportedAddressTypes: ["evm"],
 } as AdapterExport;

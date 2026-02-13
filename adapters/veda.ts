@@ -38,7 +38,7 @@ export default {
         if (vaults && typeof vaults === "object") {
           return Object.values(vaults).map(({ name, totalPoints }) => [
             `${chain}#${name}`,
-            totalPoints
+            totalPoints,
           ]);
         }
 
@@ -47,5 +47,6 @@ export default {
     );
   },
   total: (data: { userTotalVedaPointsSum: number }) =>
-    data.userTotalVedaPointsSum
+    data.userTotalVedaPointsSum,
+  supportedAddressTypes: ["evm"],
 } as AdapterExport;

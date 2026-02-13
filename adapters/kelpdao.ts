@@ -9,7 +9,14 @@ const API_URL = "https://common.kelpdao.xyz/km-el-points/user/{address}";
 
 export default {
   fetch: async (address: string) => {
-    const res = await fetch(API_URL.replace("{address}", address.toLowerCase()), { headers: { "User-Agent": "Checkpoint API (https://checkpoint.exchange)" } });
+    const res = await fetch(
+      API_URL.replace("{address}", address.toLowerCase()),
+      {
+        headers: {
+          "User-Agent": "Checkpoint API (https://checkpoint.exchange)",
+        },
+      }
+    );
     return (await res.json()).value;
   },
   data: (data: Record<string, string>) => ({
@@ -20,4 +27,5 @@ export default {
   }),
   claimable: ({ kelpMiles }: { kelpMiles: string }) =>
     parseFloat(kelpMiles) > 0,
+  supportedAddressTypes: ["evm"],
 } as AdapterExport;

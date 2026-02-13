@@ -37,4 +37,5 @@ export default {
   total: (data: Record<string, string>) => ({
     Gacha: parseFloat(data.rewards_in_ether),
   }),
+  supportedAddressTypes: ["evm"],
 } as AdapterExport;

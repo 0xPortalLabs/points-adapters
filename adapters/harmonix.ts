@@ -33,7 +33,9 @@ type TIER_TYPE = {
 
 export default {
   fetch: async (address) => {
-    const headers = { headers: { "User-Agent": "Checkpoint API (https://checkpoint.exchange)" } };
+    const headers = {
+      headers: { "User-Agent": "Checkpoint API (https://checkpoint.exchange)" },
+    };
     const pointsData = await fetch(
       POINTS_URL.replace("{address}", address),
       headers
@@ -147,4 +149,5 @@ export default {
   deprecated: () => ({
     "S1 Points": 1738367999, // 31st January 2025
   }),
+  supportedAddressTypes: ["evm"],
 } as AdapterExport;

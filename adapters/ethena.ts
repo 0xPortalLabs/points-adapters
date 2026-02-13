@@ -9,7 +9,7 @@ import {
 import { maybeWrapCORSProxy } from "../utils/cors.ts";
 
 const API_URL = await maybeWrapCORSProxy(
-  "https://app.ethena.fi/api/referral/get-referree?address={address}",
+  "https://app.ethena.fi/api/referral/get-referree?address={address}"
 );
 
 // { queryWallet: [{ accumulatedTotalShardsEarned: 11.55 }] };
@@ -19,7 +19,7 @@ export default {
 
     const res = await fetch(API_URL.replace("{address}", address), {
       headers: {
-          "User-Agent": "Checkpoint API (https://checkpoint.exchange)",
+        "User-Agent": "Checkpoint API (https://checkpoint.exchange)",
       },
     });
 
@@ -46,4 +46,5 @@ export default {
   }),
   claimable: (data: { accumulatedTotalShardsEarned?: number }) =>
     (data?.accumulatedTotalShardsEarned ?? 0) > 0,
+  supportedAddressTypes: ["evm"],
 } as AdapterExport;

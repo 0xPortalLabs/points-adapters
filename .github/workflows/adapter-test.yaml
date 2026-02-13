@@ -30,6 +30,18 @@ jobs:
           PR_BODY: ${{ github.event.pull_request.body }}
           EVENT_NAME: ${{ github.event_name }}
         run: |
+          is_evm_address() {
+            echo "$1" | grep -qE '^0x[a-fA-F0-9]{40}$'
+          }
+
+          is_svm_address() {
+            echo "$1" | grep -qE '^[1-9A-HJ-NP-Za-km-z]{32,44}$'
+          }
+
+          is_valid_address() {
+            is_evm_address "$1" || is_svm_address "$1"
+          }
+
           # Default address
           ADDRESS="0x69155e7ca2e688ccdc247f6c4ddf374b3ae77bd6"
           CUSTOM_FILE=""
@@ -40,19 +52,24 @@ jobs:
             if echo "$COMMENT_BODY" | grep -q "^/test\s"; then
               echo "Detected /test command"
               IS_TEST_COMMAND=true
-              
+
               # Parse /test <address> [file]
               TEST_PARAMS=$(echo "$COMMENT_BODY" | sed -n 's/^\/test\s\+//p')
-              
+
               # Split parameters by whitespace
               PARAM1=$(echo "$TEST_PARAMS" | awk '{print $1}')
               PARAM2=$(echo "$TEST_PARAMS" | awk '{print $2}')
-              
+
               if [ -n "$PARAM1" ]; then
                 # First parameter is always treated as address
-                ADDRESS="$PARAM1"
-                echo "Using address from /test command: $ADDRESS"
-                
+                if is_valid_address "$PARAM1"; then
+                  ADDRESS="$PARAM1"
+                  echo "Using address from /test command: $ADDRESS"
+                else
+                  echo "Error: /test command address is invalid. Must be EVM (0x...) or SVM (base58)."
+                  exit 1
+                fi
+
                 # Second parameter is optional file
                 if [ -n "$PARAM2" ]; then
                   # Validate file format (must be file.ts with no path traversal)
@@ -79,22 +96,22 @@ jobs:
               echo "Parsing PR template for test address..."
               echo "PR Body preview:"
               echo "$PR_BODY" | head -20
-              
+
               # Look for address in "**Test Address (with points):**" section
               ADDRESS_SECTION=$(echo "$PR_BODY" | sed -n '/\*\*Test Address (with points):\*\*/,/```.*```/p')
-              
+
               if [ -n "$ADDRESS_SECTION" ]; then
                 echo "Found address section:"
                 echo "$ADDRESS_SECTION"
-                
+
                 # Extract content between backticks (inside the code block)
                 CODE_BLOCK_CONTENT=$(echo "$ADDRESS_SECTION" | sed -n '/```/,/```/p' | sed '1d;$d')
                 echo "Code block content: '$CODE_BLOCK_CONTENT'"
-                
-                # Extract 0x address from the code block content, ignoring placeholder text
-                PR_ADDRESS=$(echo "$CODE_BLOCK_CONTENT" | grep -oE '0x[a-fA-F0-9]{40}' | head -n1)
-                
-                if [ -n "$PR_ADDRESS" ] && [ "$PR_ADDRESS" != "0x..." ]; then
+
+                # Extract EVM or SVM address from the code block content, ignoring placeholder text
+                PR_ADDRESS=$(echo "$CODE_BLOCK_CONTENT" | grep -oE '(0x[a-fA-F0-9]{40}|[1-9A-HJ-NP-Za-km-z]{32,44})' | head -n1)
+
+                if [ -n "$PR_ADDRESS" ] && [ "$PR_ADDRESS" != "0x..." ] && [ "$PR_ADDRESS" != "<address>" ]; then
                   ADDRESS="$PR_ADDRESS"
                   echo "Found valid address in PR template: $ADDRESS"
                 else
@@ -201,34 +218,42 @@ jobs:
           POINTS_ADDRESS: ${{ steps.parse.outputs.address }}
           IS_TEST_COMMAND: ${{ steps.parse.outputs.is_test_command }}
         run: |
+          is_evm_address() {
+            echo "$1" | grep -qE '^0x[a-fA-F0-9]{40}$'
+          }
+
           # Initialize results
-          NO_POINTS_ADDRESS="0x9999999999999999999999999999999999999999"
+          if is_evm_address "$POINTS_ADDRESS"; then
+            NO_POINTS_ADDRESS="0x9999999999999999999999999999999999999999"
+          else
+            NO_POINTS_ADDRESS="7YWHMfk9JZe0LM0g1ZauHuiSxhI9L8u7PhzQ7M1x6t8v"
+          fi
 
           # Process each changed adapter file
           file_count=0
           while IFS= read -r CHANGED_FILE; do
             [ -z "$CHANGED_FILE" ] && continue
-            
+
             # Validate file format
             if [[ ! "$CHANGED_FILE" =~ ^adapters/.+\.ts$ ]]; then
               echo "Error: Invalid file path format: $CHANGED_FILE"
               continue
             fi
-            
+
             file_count=$((file_count + 1))
             echo "**$CHANGED_FILE**" >> test_output.txt
             echo "" >> test_output.txt
-            
+
             if [ "$IS_TEST_COMMAND" = "true" ]; then
               # Custom /test command - only test the specified address
               echo "<details>" >> test_output.txt
               echo "<summary>$POINTS_ADDRESS</summary>" >> test_output.txt
               echo "" >> test_output.txt
               echo "\`\`\`\`" >> test_output.txt
-              
+
               # Capture both stdout and stderr
               custom_test_output=$(timeout 10m deno run --allow-net --allow-read=adapters --allow-env test.ts "$CHANGED_FILE" "$POINTS_ADDRESS" 2>&1 || true)
-              
+
               echo "$custom_test_output" >> test_output.txt
               echo "\`\`\`\`" >> test_output.txt
               echo "" >> test_output.txt
@@ -240,33 +265,33 @@ jobs:
               echo "<summary>$POINTS_ADDRESS</summary>" >> test_output.txt
               echo "" >> test_output.txt
               echo "\`\`\`\`" >> test_output.txt
-              
+
               # Capture both stdout and stderr
               test1_output=$(timeout 10m deno run --allow-net --allow-read=adapters --allow-env test.ts "$CHANGED_FILE" "$POINTS_ADDRESS" 2>&1 || true)
-              
+
               echo "$test1_output" >> test_output.txt
               echo "\`\`\`\`" >> test_output.txt
               echo "" >> test_output.txt
               echo "</details>" >> test_output.txt
               echo "" >> test_output.txt
-              
+
               # Test 2: Address likely to have no points
               echo "<details>" >> test_output.txt
               echo "<summary>$NO_POINTS_ADDRESS</summary>" >> test_output.txt
               echo "" >> test_output.txt
               echo "\`\`\`\`" >> test_output.txt
-              
+
               # Capture both stdout and stderr
               test2_output=$(timeout 10m deno run --allow-net --allow-read=adapters --allow-env test.ts "$CHANGED_FILE" "$NO_POINTS_ADDRESS" 2>&1 || true)
-              
+
               echo "$test2_output" >> test_output.txt
               echo "\`\`\`\`" >> test_output.txt
               echo "" >> test_output.txt
               echo "</details>" >> test_output.txt
             fi
-            
+
             echo "" >> test_output.txt
-            
+
           done <<< "$CHANGED_FILES"
 
           echo "Tested $file_count adapter file(s)"
@@ -321,8 +346,8 @@ jobs:
             const fileCount = process.env.FILE_COUNT || '0';
 
             // Format the list of changed files
-            const fileList = changedFiles === 'No files detected' 
-              ? 'No files detected' 
+            const fileList = changedFiles === 'No files detected'
+              ? 'No files detected'
               : changedFiles.split('\n').filter(f => f.trim()).map(f => `\`${f}\``).join(', ');
 
             const comment = `
@@ -333,7 +358,9 @@ jobs:
 
             Use the \`/test\` command:
             - \`/test 0x1234567890123456789012345678901234567890\` - Test with custom address
-            - \`/test 0x1234567890123456789012345678901234567890 filename.ts\` - Test specific file with custom address`;
+            - \`/test 11111111111111111111111111111111\` - Test with custom SVM address
+            - \`/test 0x1234567890123456789012345678901234567890 filename.ts\` - Test specific file with custom address
+            - \`/test 11111111111111111111111111111111 filename.ts\` - Test specific file with custom SVM address`;
 
             github.rest.issues.createComment({
               issue_number: context.issue.number,
