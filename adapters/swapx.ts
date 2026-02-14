@@ -26,11 +26,16 @@ const API_URL =
 export default {
   fetch: async (address: string) => {
     const data = await (
-      await fetch(API_URL.replace("{address}", address.toLowerCase()), { headers: { "User-Agent": "Checkpoint API (https://checkpoint.exchange)" } })
+      await fetch(API_URL.replace("{address}", address.toLowerCase()), {
+        headers: {
+          "User-Agent": "Checkpoint API (https://checkpoint.exchange)",
+        },
+      })
     ).json();
 
-    if (!data.success || typeof data.message === "string")
+    if (!data.success || typeof data.message === "string") {
       return { lockedSwpxUSD: 0, EpochUserStatsXX: [] };
+    }
 
     return data.message;
   },
@@ -51,4 +56,5 @@ export default {
     return { lockedSwpxUSD, ...epochData };
   },
   total: ({ lockedSwpxUSD }: { lockedSwpxUSD: number }) => lockedSwpxUSD,
+  supportedAddressTypes: ["evm"],
 } as AdapterExport;

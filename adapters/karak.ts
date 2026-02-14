@@ -30,7 +30,9 @@ const API_URL =
 export default {
   fetch: async (address: string) => {
     address = getAddress(address);
-    const res = await fetch(API_URL.replace("{address}", address), { headers: { "User-Agent": "Checkpoint API (https://checkpoint.exchange)" } });
+    const res = await fetch(API_URL.replace("{address}", address), {
+      headers: { "User-Agent": "Checkpoint API (https://checkpoint.exchange)" },
+    });
     return (await res.json())[0]?.result?.data;
   },
   data: (data: { xpByPhase?: Record<string, number> }) => {
@@ -38,4 +40,5 @@ export default {
     return { XP: convertKeysToStartCase(xp) };
   },
   total: (data: { xp: number }) => ({ XP: data?.xp }),
+  supportedAddressTypes: ["evm"],
 } as AdapterExport;

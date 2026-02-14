@@ -2,7 +2,7 @@ import type { AdapterExport } from "../utils/adapter.ts";
 import { maybeWrapCORSProxy } from "../utils/cors.ts";
 
 const API_URL = await maybeWrapCORSProxy(
-  "https://points-api-td.debridge.finance/api/Points/{address}/summary",
+  "https://points-api-td.debridge.finance/api/Points/{address}/summary"
 );
 
 const headers = {
@@ -50,4 +50,5 @@ export default {
     "Season 1": 1729113600, // Thursday 17th October 2024 08:00 UTC
     "Season 2": 1763554128, // Wednesday 19th November 2025 12:08 UTC
   }),
+  supportedAddressTypes: ["evm", "svm"],
 } as AdapterExport;

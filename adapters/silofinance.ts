@@ -68,4 +68,5 @@ export default {
   }),
   total: ({ points }: { points: { userPoints: number } }) => points.userPoints,
   rank: ({ position }: { position: string }) => parseInt(position),
+  supportedAddressTypes: ["evm"],
 } as AdapterExport;

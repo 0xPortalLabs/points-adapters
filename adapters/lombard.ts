@@ -56,4 +56,5 @@ export default {
     };
   },
   total: (data: API_RESPONSE) => data.total,
+  supportedAddressTypes: ["evm"],
 } as AdapterExport;

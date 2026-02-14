@@ -2,7 +2,7 @@ import type { AdapterExport } from "../utils/adapter.ts";
 import { maybeWrapCORSProxy } from "../utils/cors.ts";
 
 const API_URL = await maybeWrapCORSProxy(
-  "https://persephone.superform.xyz/v1/rewards/summary/{address}?epoch={epoch}",
+  "https://persephone.superform.xyz/v1/rewards/summary/{address}?epoch={epoch}"
 );
 
 const CHECKPOINT_USER_AGENT = "Checkpoint API (https://checkpoint.exchange)";
@@ -30,7 +30,7 @@ export default {
     const fetchSummary = async (epoch: number): Promise<SuperformSummary> => {
       const url = API_URL.replace("{address}", address).replace(
         "{epoch}",
-        String(epoch),
+        String(epoch)
       );
 
       return await (
@@ -65,4 +65,5 @@ export default {
     "S3 Points": epoch2.user.points,
   }),
   rank: ({ epoch2 }: SuperformFetchResponse) => Number(epoch2.user.rank),
+  supportedAddressTypes: ["evm"],
 } as AdapterExport;

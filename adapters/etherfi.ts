@@ -44,7 +44,10 @@ export default {
     };
 
     if (TotalPointsSummary && typeof TotalPointsSummary === "object") {
-      const summary = TotalPointsSummary as Record<string, Record<string, number>>;
+      const summary = TotalPointsSummary as Record<
+        string,
+        Record<string, number>
+      >;
       for (const category in summary) {
         const points = summary[category];
         if (!points || typeof points !== "object") continue;
@@ -64,7 +67,10 @@ export default {
     let totalCurrentPoints = 0;
 
     if (TotalPointsSummary && typeof TotalPointsSummary === "object") {
-      const summary = TotalPointsSummary as Record<string, Record<string, number>>;
+      const summary = TotalPointsSummary as Record<
+        string,
+        Record<string, number>
+      >;
       for (const category in summary) {
         const points = summary[category];
         if (!points || typeof points !== "object") continue;
@@ -74,4 +80,5 @@ export default {
 
     return totalCurrentPoints;
   },
+  supportedAddressTypes: ["evm"],
 } as AdapterExport;

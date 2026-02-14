@@ -50,4 +50,5 @@ export default {
   },
   total: (data: { totalPoints?: number } | null) => data?.totalPoints ?? 0,
   rank: (data: { rank?: string }) => parseInt(data?.rank || "0"),
+  supportedAddressTypes: ["evm"],
 } as AdapterExport;

@@ -24,7 +24,9 @@ export default {
   fetch: async (address: string) => {
     return (
       await fetch(API_URL.replace("{address}", address), {
-        headers: { "User-Agent": "Checkpoint API (https://checkpoint.exchange)" },
+        headers: {
+          "User-Agent": "Checkpoint API (https://checkpoint.exchange)",
+        },
       })
     ).json();
   },
@@ -36,13 +38,10 @@ export default {
   ) => {
     const { address: _x, rewards_total, ...rest } = data;
     const rewards =
-      rewards_total?.reduce(
-        (acc, reward) => {
-          acc[reward.id] = parseFloat(reward.amount);
-          return acc;
-        },
-        {} as Record<string, number>
-      ) || {};
+      rewards_total?.reduce((acc, reward) => {
+        acc[reward.id] = parseFloat(reward.amount);
+        return acc;
+      }, {} as Record<string, number>) || {};
 
     return convertKeysToStartCase(
       convertValuesToNormal({ ...rest, ...rewards })
@@ -53,4 +52,5 @@ export default {
     return x ? parseFloat(x.amount) : 0;
   },
   rank: (data: { rank: number }) => data.rank,
+  supportedAddressTypes: ["evm"],
 } as AdapterExport;

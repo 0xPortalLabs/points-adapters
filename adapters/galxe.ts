@@ -27,7 +27,7 @@ import { maybeWrapCORSProxy } from "../utils/cors.ts";
 // }
 
 const API_URL = await maybeWrapCORSProxy(
-  "https://graphigo.prd.galaxy.eco/query",
+  "https://graphigo.prd.galaxy.eco/query"
 );
 
 type API_RESPONSE = {
@@ -76,4 +76,5 @@ export default {
   total: (data: API_RESPONSE) => ({
     XP: data.addressInfo.userLevel.exp,
   }),
+  supportedAddressTypes: ["evm"],
 } as AdapterExport;

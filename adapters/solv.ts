@@ -59,7 +59,10 @@ export default {
       await fetch(API_URL.replace("{address}", address), {
         method: "POST",
         body: JSON.stringify(req),
-        headers: { Authorization: API_KEY, "User-Agent": "Checkpoint API (https://checkpoint.exchange)" },
+        headers: {
+          Authorization: API_KEY,
+          "User-Agent": "Checkpoint API (https://checkpoint.exchange)",
+        },
       })
     ).json();
     return res.data.phase2PointSysAccountInfo;
@@ -74,4 +77,5 @@ export default {
     );
   },
   total: (data: Record<string, string>) => parseFloat(data.totalPointsEarned),
+  supportedAddressTypes: ["evm"],
 } as AdapterExport;

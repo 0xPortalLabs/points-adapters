@@ -29,7 +29,7 @@ export default {
         body: JSON.stringify(req),
         headers: {
           "content-type": "application/json",
-            "User-Agent": "Checkpoint API (https://checkpoint.exchange)",
+          "User-Agent": "Checkpoint API (https://checkpoint.exchange)",
         },
       })
     ).json();
@@ -42,4 +42,5 @@ export default {
     },
   }),
   total: (data: { dripsEarned: number }) => ({ Drips: data.dripsEarned }),
+  supportedAddressTypes: ["evm"],
 } as AdapterExport;

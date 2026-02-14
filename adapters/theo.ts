@@ -41,4 +41,5 @@ export default {
     }, 0),
     "S1 Points": data.season1,
   }),
+  supportedAddressTypes: ["evm"],
 } as AdapterExport;

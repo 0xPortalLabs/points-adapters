@@ -4,7 +4,7 @@
 globalThis.document = {};
 const { isGoodCORS } = await import("./utils/cors.ts");
 import { type AdapterExport } from "./utils/adapter.ts";
-import { runAdapter } from "./utils/adapter.ts";
+import { runAdapter, detectAddressType } from "./utils/adapter.ts";
 
 // Import all additional files which adapters may use.
 import * as _ from "./utils/farcaster.ts";
@@ -14,8 +14,6 @@ import * as path from "@std/path";
 import { checksumAddress } from "viem";
 import { isEqual } from "lodash-es";
 
-const isValidAddress = (address: string) => /^0x[a-fA-F0-9]{40}$/.test(address);
-
 // ref: https://stackoverflow.com/a/39466341
 const nth = (n: number) => {
   return (
@@ -24,14 +22,17 @@ const nth = (n: number) => {
   );
 };
 
-const showErrorAndExit = (err: string) => {
+const showErrorAndExit = (err: string): never => {
   console.error(err);
   Deno.exit(1);
 };
 
-if (Deno.args.length < 2)
-  showErrorAndExit(`Missing argument for adapter, provide the filename in the format:
-        Deno run adapters/file.ts 0x1234...`);
+if (Deno.args.length < 2) {
+  showErrorAndExit(
+    `Missing argument for adapter, provide the filename in the format:
+        Deno run adapters/file.ts 0x1234...`
+  );
+}
 
 console.log(`Running adapter '${Deno.args[0]}'`);
 const adapter: AdapterExport = (
@@ -39,8 +40,19 @@ const adapter: AdapterExport = (
 ).default;
 
 const address = Deno.args[1];
-if (!isValidAddress(address))
-  showErrorAndExit(`${address} is not a valid EVM address format 0xabcdef..`);
+const addressType = detectAddressType(address);
+if (addressType === null) {
+  showErrorAndExit("Could not identify this address type!");
+  throw new Error("TS linter is stupid");
+}
+
+const supported = adapter.supportedAddressTypes;
+if (!supported.includes(addressType)) {
+  showErrorAndExit(
+    `Adapter does not support "${addressType}" addresses.` +
+      `Supported types are: ${supported.join(", ")}.`
+  );
+}
 
 const skipAddressCheck =
   Deno.args.includes("--skip-address-check") || Deno.args.includes("-sac");
@@ -136,7 +148,7 @@ if (res.deprecated && Object.keys(res.deprecated).length > 0) {
   );
 }
 
-if (!skipAddressCheck) {
+if (!skipAddressCheck && addressType === "evm") {
   const addressNoPrefix = address.substring(2);
   const addressFormats = {
     lowercase: "0x" + addressNoPrefix.toLowerCase(),
@@ -244,6 +256,10 @@ Make sure to normalize addresses in your adapter's fetch function.
 `
     );
   }
+} else if (!skipAddressCheck && addressType === "svm") {
+  console.log(
+    "\nSkipping EVM-specific address format checks for SVM address input."
+  );
 }
 
 console.log("\nDoes the adapter work in the browser?");

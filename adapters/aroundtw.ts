@@ -74,4 +74,5 @@ export default {
     };
   },
   total: (data: API_RESPONSE) => data.player.totalScore,
+  supportedAddressTypes: ["evm"],
 } as AdapterExport;

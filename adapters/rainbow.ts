@@ -84,4 +84,5 @@ export default {
   rank: (data: API_RESPONSE) =>
     data.stats.position.unranked ? 0 : data.stats.position.current,
   claimable: (data: API_RESPONSE) => Number(data.earnings.total) > 0,
+  supportedAddressTypes: ["evm"],
 } as AdapterExport;

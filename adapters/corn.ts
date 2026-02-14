@@ -10,4 +10,5 @@ export default {
   deprecated: () => ({
     Kernels: 1743120000, // March 28th 2025 00:00 UTC
   }),
+  supportedAddressTypes: ["evm"],
 } as AdapterExport;

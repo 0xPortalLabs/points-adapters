@@ -18,9 +18,12 @@ type API_RESPONSE = {
 
 export default {
   fetch: async (address) => {
-    const res = await fetch(API_URL.replace("{address}", address), { headers: { "User-Agent": "Checkpoint API (https://checkpoint.exchange)" } });
-    if (!res.ok)
+    const res = await fetch(API_URL.replace("{address}", address), {
+      headers: { "User-Agent": "Checkpoint API (https://checkpoint.exchange)" },
+    });
+    if (!res.ok) {
       throw new Error(`Failed to fetch hypersurface data ${await res.text()}`);
+    }
     const data = await res.json();
     if (data.rank == null || data.state == null) {
       return {
@@ -42,4 +45,5 @@ export default {
   }),
   total: (data: API_RESPONSE) => data.state.value,
   rank: (data: API_RESPONSE) => data.rank.place,
+  supportedAddressTypes: ["evm"],
 } as AdapterExport;

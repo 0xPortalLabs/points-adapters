@@ -67,4 +67,5 @@ export default {
     XP: data.xpState.totalXp,
   }),
   rank: (data: API_RESPONSE) => data.xpState.rank,
+  supportedAddressTypes: ["evm"],
 } as AdapterExport;

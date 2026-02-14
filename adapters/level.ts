@@ -5,5 +5,6 @@ export default {
   fetch: async () => await Promise.resolve({}),
   data: () => ({}),
   total: () => 0,
-  claimable: () => false
+  claimable: () => false,
+  supportedAddressTypes: ["evm"],
 } as AdapterExport;

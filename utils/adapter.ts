@@ -1,4 +1,7 @@
+import type { AddressType } from "./address.ts";
+
 import { convertValuesToInt, convertValuesToNormal } from "./object.ts";
+import { detectAddressType } from "./address.ts";
 
 type LabelledPoints = { [label: string]: number };
 type DetailedData = { [key: string]: string | number };
@@ -13,6 +16,7 @@ type AdapterExport<T = object> = {
   claimable?: (data: T) => boolean;
   rank?: (data: T) => number;
   deprecated?: (data: T) => DeprecatedLabels;
+  supportedAddressTypes: AddressType[];
 };
 
 type AdapterResult<T = object> = {
@@ -22,15 +26,33 @@ type AdapterResult<T = object> = {
   claimable?: boolean;
   rank?: number;
   deprecated?: DeprecatedLabels;
+  supportedAddressTypes: AddressType[];
 };
 
 const runAdapter = async (adapter: AdapterExport, address: string) => {
+  const addressType = detectAddressType(address);
+  if (!addressType) {
+    throw new Error(
+      `Invalid address "${address}".` +
+        "Only EVM (0x...) and SVM (base58) addresses are supported."
+    );
+  }
+
+  const supported = adapter.supportedAddressTypes;
+  if (!supported.includes(addressType)) {
+    throw new Error(
+      `Adapter does not support "${addressType}" addresses.` +
+        `Supported types are: ${supported.join(", ")}.`
+    );
+  }
+
   const data = await adapter.fetch(address);
 
   const ret: AdapterResult = {
     __data: data,
     data: adapter.data(data),
     total: adapter.total(data),
+    supportedAddressTypes: adapter.supportedAddressTypes,
   };
 
   if (adapter.claimable) ret.claimable = adapter.claimable(data);
@@ -49,28 +71,6 @@ const runAdapter = async (adapter: AdapterExport, address: string) => {
   return ret;
 };
 
-const runAllAdapters = async (
-  adapters: Record<string, AdapterExport>,
-  address: string
-) => {
-  const results = await Promise.allSettled(
-    Object.values(adapters).map((x) => runAdapter(x, address))
-  );
-
-  return Object.fromEntries(
-    Object.keys(adapters).map((k, i) => {
-      const res = results[i];
-
-      if (res.status === "fulfilled") {
-        return [k, res.value];
-      } else {
-        console.log(`${k} adapter failed with: ${res.reason}`);
-        return [k, undefined];
-      }
-    })
-  );
-};
-
 // gravity 0xbd3603df246658369c707c30e041a89feb6ee153
 // 0x0a66d5927ffc0ee2e38a15f16f8949e697c4f439
 // 0x3c2573b002cf51e64ab6d051814648eb3a305363
@@ -82,12 +82,13 @@ const x = Object.fromEntries(
 console.log(x); */
 
 export {
+  type LabelledDetailedData,
+  type DeprecatedLabels,
+  type LabelledPoints,
   type AdapterExport,
   type AdapterResult,
   type DetailedData,
-  type LabelledDetailedData,
-  type LabelledPoints,
-  type DeprecatedLabels,
+  type AddressType,
   runAdapter,
-  runAllAdapters,
+  detectAddressType,
 };

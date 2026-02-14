@@ -71,4 +71,5 @@ export default {
   },
   total: ({ totalScore }: Record<string, number>) => totalScore,
   rank: ({ rank }: Record<string, number>) => rank,
+  supportedAddressTypes: ["evm"],
 } as AdapterExport;

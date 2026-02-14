@@ -30,8 +30,9 @@ export default {
         "User-Agent": "Checkpoint API (https://checkpoint.exchange)",
       },
     });
-    if (!res.ok)
+    if (!res.ok) {
       throw new Error(`Failed to retrieve mellow data: ${await res.text()}`);
+    }
     return await res.json();
   },
   data: (data: DATA_TYPE[]) =>
@@ -63,4 +64,5 @@ export default {
     ),
   total: (data: DATA_TYPE[]) =>
     data.reduce((acc, curr) => (acc += Number(curr.user_mellow_points)), 0),
+  supportedAddressTypes: ["evm"],
 } as AdapterExport;

@@ -9,7 +9,7 @@ export default {
   fetch: async (address: string) => {
     const res = await fetch(API_URL.replace("{address}", address), {
       headers: {
-          "User-Agent": "Checkpoint API (https://checkpoint.exchange)",
+        "User-Agent": "Checkpoint API (https://checkpoint.exchange)",
       },
     });
     return await res.json();
@@ -23,4 +23,5 @@ export default {
     return { Caps: points };
   },
   rank: (data: { rank: number }) => data.rank,
+  supportedAddressTypes: ["evm"],
 } as AdapterExport;

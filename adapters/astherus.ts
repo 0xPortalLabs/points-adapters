@@ -6,4 +6,5 @@ export default {
   data: () => ({}),
   total: () => 0,
   claimable: () => false,
+  supportedAddressTypes: ["evm"],
 } as AdapterExport;

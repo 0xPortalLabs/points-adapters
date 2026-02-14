@@ -3,8 +3,8 @@
 ### Before Submitting:
 
 - [ ] Enable "Allow edits by maintainers" on this PR
-- [ ] Test your adapter locally with a valid address and an invalid address
-- [ ] Ensure your adapter works with different address formats (checksummed, lowercase, uppercase)
+- [ ] Test your adapter locally with a valid address (EVM or SVM) and an invalid address
+- [ ] If EVM-supported, ensure your adapter works with different EVM address formats (checksummed, lowercase, uppercase)
 - [ ] Do NOT edit/push `package.json` or any lockfile
 
 ---
@@ -25,7 +25,7 @@
 **Test Address (with points):**
 
 ```
-0x...
+0x... or SVM base58...
 ```
 
 **Expected Output:**
@@ -51,11 +51,11 @@ deno run --allow-net --allow-read=adapters --allow-env test.ts adapters/your-ada
 **Important Features:**
 
 - [ ] Supports multiple address formats (lowercase, uppercase, checksummed)
+- [ ] If SVM-supported, works with valid Solana base58 addresses
 - [ ] CORS-friendly API calls
 - [ ] Fails fast on errors
 - [ ] Adapter result is 100% truth
 
 ---
 
-**Notes:**
-(Any additional context for this PR)
+**Notes:** (Any additional context for this PR)

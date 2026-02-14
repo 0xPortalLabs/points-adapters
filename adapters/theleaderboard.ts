@@ -35,4 +35,5 @@ export default {
   total: (data: { points: number }) => data.points,
   rank: (data: { rank: number | string }) =>
     data.rank === "1000+" ? 0 : data.rank,
+  supportedAddressTypes: ["evm"],
 } as AdapterExport;

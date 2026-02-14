@@ -37,4 +37,5 @@ export default {
     }
     return total;
   },
+  supportedAddressTypes: ["evm"],
 } as AdapterExport;
