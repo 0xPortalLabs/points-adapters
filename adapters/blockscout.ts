@@ -1,7 +1,11 @@
 import type { AdapterExport } from "../utils/adapter.ts";
-import { convertKeysToStartCase } from "../utils/object.ts";
 
-const API_URL = "https://merits.blockscout.com/api/v1/leaderboard/users/{address}";
+import { convertKeysToStartCase } from "../utils/object.ts";
+import { maybeWrapCORSProxy } from "../utils/cors.ts";
+
+const API_URL = await maybeWrapCORSProxy(
+  "https://merits.blockscout.com/api/v1/leaderboard/users/{address}"
+);
 
 type API_RESPONSE = {
   total_balance: string;
@@ -31,12 +35,10 @@ export default {
     return data;
   },
   data: (data: API_RESPONSE) => {
-    const { total_balance, address, ...rest } = data;
-    return {
-      Merits: total_balance,
-      ...convertKeysToStartCase(rest),
-    };
+    const { address, ...rest } = data;
+    return { Merits: convertKeysToStartCase(rest) };
   },
   total: (data: API_RESPONSE) => ({ Merits: Number(data.total_balance) }),
   rank: (data: API_RESPONSE) => Number(data.rank),
+  supportedAddressTypes: ["evm"],
 } as AdapterExport;

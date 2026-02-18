@@ -199,6 +199,8 @@ export default {
 
 Just simply wrap the `data` and `total` data with the label you want to use. It is case sensitive. This will be reflected on the frontend.
 
+When `total` returns a single custom labelled object (for example `{ Minerals: 123 }`), `data` must include the same top-level key (for example `{ Minerals: { ... } }`) so exports stay consistent.
+
 #### Deprecated Points
 
 Using the example of the [dolomite adapter](./adapters/dolomite.ts), Minerals expired on Jan 10th according to their [docs](https://docs.dolomite.io/minerals). To reflect this on the adapter add an export called `deprecated`.
