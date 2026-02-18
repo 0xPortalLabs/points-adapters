@@ -49,7 +49,7 @@ export default {
   },
   data: ({ xpState }: API_RESPONSE) => {
     return {
-      ...convertKeysToStartCase({
+      XP: convertKeysToStartCase({
         ...xpState.xp,
         totalXp: xpState.totalXp,
         icoXp: xpState.icoXp,

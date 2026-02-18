@@ -28,7 +28,7 @@ export default {
     return data.queryWallet[0];
   },
   data: (data: Record<string, number | string | null>) => {
-    if (!data) return {};
+    if (!data) return { Shards: {} };
 
     const filtered: Record<string, number | string> = {};
 
@@ -39,7 +39,7 @@ export default {
       filtered[key] = value;
     }
 
-    return convertKeysToStartCase(convertValuesToNormal(filtered));
+    return { Shards: convertKeysToStartCase(convertValuesToNormal(filtered)) };
   },
   total: (data: { accumulatedTotalShardsEarned?: number }) => ({
     Shards: data?.accumulatedTotalShardsEarned ?? 0,

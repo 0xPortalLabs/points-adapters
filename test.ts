@@ -110,6 +110,23 @@ typeof res.total === "object"
 if (res.rank) console.log(`User Rank: ${nth(res.rank)}`);
 if (res.claimable) console.log(`Is there an airdrop? ${res.claimable}`);
 
+if (typeof res.total === "object" && res.total) {
+  const totalKeys = Object.keys(res.total);
+
+  // Custom points terminology is expected to use one non-default aggregate key
+  // mirrored in `data` as the top-level key (e.g. XP, Minerals, Drips).
+  if (totalKeys.length === 1 && totalKeys[0] !== "Points") {
+    const dataKeys = Object.keys(res.data);
+    if (!dataKeys.includes(totalKeys[0])) {
+      console.error(
+        `
+Invalid total key found: ${totalKeys[0]}
+Custom total keys must also exist in the data export keys.`
+      );
+    }
+  }
+}
+
 if (res.deprecated && Object.keys(res.deprecated).length > 0) {
   const labels = Object.keys(res.data);
 
