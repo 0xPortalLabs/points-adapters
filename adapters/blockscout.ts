@@ -1,8 +1,7 @@
 import type { AdapterExport } from "../utils/adapter.ts";
 import { convertKeysToStartCase } from "../utils/object.ts";
 
-const API_URL =
-  "https://merits-staging.blockscout.com/api/v1/leaderboard/users/{address}";
+const API_URL = "https://merits.blockscout.com/api/v1/leaderboard/users/{address}";
 
 type API_RESPONSE = {
   total_balance: string;
