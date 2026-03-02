@@ -34,9 +34,13 @@ export default {
       )
     ) as Record<string, string | number>;
 
-    return { XP: convertKeysToStartCase(convertValuesToNormal(filtered)) };
+    return {
+      "Plume Points": convertKeysToStartCase(convertValuesToNormal(filtered)),
+    };
   },
-  total: (stats: PlumeStats) => ({ XP: Number(stats.totalXp ?? 0) }),
+  total: (stats: PlumeStats) => ({
+    "Plume Points": Number(stats.totalXp ?? 0),
+  }),
   rank: (stats: PlumeStats) => Number(stats.xpRank ?? 0),
   supportedAddressTypes: ["evm"],
 } as AdapterExport;
