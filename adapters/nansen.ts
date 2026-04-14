@@ -1,52 +1,31 @@
 import { AdapterExport } from "../utils/adapter.ts";
 import { maybeWrapCORSProxy } from "../utils/cors.ts";
 import { convertKeysToStartCase } from "../utils/object.ts";
-import { requireAddressType } from "../utils/address.ts";
 
 const API_URL = await maybeWrapCORSProxy(
-  "https://app.nansen.ai/api/points-leaderboard"
+  "https://app.nansen.ai/api/points-leaderboard/{address}"
 );
 
 // 0x6E93Ebc8302890fF1D1BeFd779D1DB131eF30D4d - Testing address
+// { tier: "star", points: 1540069 }
 export default {
   fetch: async (address: string) => {
-    const res = await fetch(API_URL, {
+    const res = await fetch(API_URL.replace("{address}", address), {
       headers: { "User-Agent": "Checkpoint API (https://checkpoint.exchange)" },
     });
-    const data = await res.json();
 
-    const addressType = requireAddressType(address);
-    const target = addressType === "evm" ? address.toLowerCase() : address;
-
-    return (
-      data.find((obj: { evm_address?: string; solana_address?: string }) =>
-        addressType === "svm"
-          ? obj?.solana_address === target
-          : obj?.evm_address?.toLowerCase() === target
-      ) ?? null
-    );
+    return await res.json();
   },
-  data: (data: {
-    points: number;
-    rank: number;
-    tier: string;
-    is_eligible: boolean;
-  }) => {
+  data: (data: { points: number; tier: string }) => {
     if (!data) return {};
     return convertKeysToStartCase({
       points: data.points,
-      rank: data.rank,
       tier: data.tier,
-      is_eligible: data.is_eligible ? "Yes" : "No",
     });
   },
   total: (data: { points: number }) => {
     if (!data) return 0;
     return data.points;
-  },
-  rank: (data: { rank: number }) => {
-    if (!data) return 0;
-    return data.rank;
   },
   supportedAddressTypes: ["evm", "svm"],
 } as AdapterExport;
