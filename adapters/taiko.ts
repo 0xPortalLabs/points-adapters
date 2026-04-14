@@ -5,7 +5,7 @@ export default {
   fetch: async () => await Promise.resolve({}),
   data: () => ({}),
   total: () => 0,
-  claimable: () => true,
+  claimable: () => false,
   deprecated: () => ({
     Points: 1765756800, // Dec 15th 2025
   }),
