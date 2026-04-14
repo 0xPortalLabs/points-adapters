@@ -1,33 +1,14 @@
 import type { AdapterExport } from "../utils/adapter.ts";
-import { getFidFromCustodyAddress } from "../utils/farcaster.ts";
-import { maybeWrapCORSProxy } from "../utils/cors.ts";
-import { getAddress } from "viem";
 
-const API_URL = await maybeWrapCORSProxy(
-  "https://miniapp.inflynce.com/api/graphql"
-);
-
+// Inflynce has shut down on April 9th.
+// ref: https://farcaster.xyz/inflynce/0x3844263a
 export default {
-  fetch: async (address) => {
-    const res = await fetch(API_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "User-Agent": "Checkpoint API (https://checkpoint.exchange)",
-      },
-      body: JSON.stringify({
-        operationName: "GetPointsByFid",
-        query:
-          "query GetPointsByFid($fid: String!) {user_points_by_pk(fid: $fid) {fid totalPoints} }",
-        variables: { fid: await getFidFromCustodyAddress(getAddress(address)) },
-      }),
-    });
-    const data = (await res.json()).data.user_points_by_pk;
-    return data ?? { totalPoints: 0 };
-  },
-  data: (data: { totalPoints: number }) => ({
-    IP: data.totalPoints,
+  fetch: async () => await Promise.resolve({}),
+  data: () => ({}),
+  total: () => 0,
+  claimable: () => false,
+  deprecated: () => ({
+    Points: 1775692800, // April 19th 2026
   }),
-  total: (data: { totalPoints: number }) => ({ IP: data.totalPoints }),
   supportedAddressTypes: ["evm"],
 } as AdapterExport;

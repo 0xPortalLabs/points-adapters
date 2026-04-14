@@ -4,10 +4,10 @@ import type { AdapterExport } from "../utils/adapter.ts";
 export default {
   fetch: async () => await Promise.resolve({}),
   data: () => ({}),
-  total: ({ totalScore }: Record<string, number>) => totalScore,
-  rank: ({ rank }: Record<string, number>) => rank,
+  total: () => 0,
+  claimable: () => true,
   deprecated: () => ({
-    Points: 1765756800,
+    Points: 1765756800, // Dec 15th 2025
   }),
   supportedAddressTypes: ["evm"],
 } as AdapterExport;
