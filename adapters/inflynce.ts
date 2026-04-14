@@ -8,7 +8,8 @@ export default {
   total: () => 0,
   claimable: () => false,
   deprecated: () => ({
-    Points: 1775692800, // April 19th 2026
+    Points: 1775692800, // April 9th 2026
+  }),
   }),
   supportedAddressTypes: ["evm"],
 } as AdapterExport;
