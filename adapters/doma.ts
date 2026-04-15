@@ -17,9 +17,9 @@ export default {
       },
       body: JSON.stringify({
         query:
-          "query LeaderboardByAddress($walletAddress: AddressCAIP10!) {\n  leaderboard(walletAddress: $walletAddress) {\n    liquidAmountUsd\n    liquidityProvidedUsd\n    stakingAmountUsd\n    points\n    rank\n    totalDomains\n    totalSubdomains\n    tradingVolumeUsd\n    walletAddress\n  }\n}",
+          "query LeaderboardByAddress($walletAddress: AddressCAIP10!, $weekNumber: Int, $season: LeaderboardSeason, $scope: LeaderboardScope) {  leaderboard(    walletAddress: $walletAddress    weekNumber: $weekNumber    season: $season    scope: $scope  ) {    points    rank    referralCount    referralPoints    referralBonusLimit    referralBonusesAwarded    tradingVolumeUsd    walletAddress    totalEntries    weekNumber    currentLevelThreshold    level    nextLevel    userMultiplier    nextThreshold    pointsMultiplier    closingDomaLevel    bonusPointsAwarded    seasonPoints    pointsByType {      TRADING      REFERRAL      QUEST      LEVEL_UP_BONUS      WEEKLY_REWARD      SNAPSHOT    }  }}",
         variables: {
-          walletAddress: `eip155:1:${getAddress(address)}`,
+          walletAddress: `eip155:_:${getAddress(address)}`,
         },
       }),
     });
@@ -33,5 +33,6 @@ export default {
     data.leaderboard.points,
   rank: (data: { leaderboard: Record<string, number | string> }) =>
     data.leaderboard.rank,
+  // TODO: The API supports SVM but cant find any SVM addresses in their leaderboard.
   supportedAddressTypes: ["evm"],
 } as AdapterExport;
