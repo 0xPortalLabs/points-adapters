@@ -10,6 +10,5 @@ export default {
   deprecated: () => ({
     Points: 1775692800, // April 9th 2026
   }),
-  }),
   supportedAddressTypes: ["evm"],
 } as AdapterExport;
