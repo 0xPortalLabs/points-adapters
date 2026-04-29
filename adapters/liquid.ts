@@ -31,21 +31,37 @@ type API_RESPONSE = {
   rank: RANK_RESPONSE;
 };
 
+const headers = {
+  "User-Agent": "Checkpoint API (https://checkpoint.exchange)",
+};
+
 export default {
   fetch: async (address) => {
     const checksumAddress = getAddress(address);
-    const headers = {
-      headers: { "User-Agent": "Checkpoint API (https://checkpoint.exchange)" },
-    };
+
+    const [userStatsResponse, rankResponse] = await Promise.all([
+      fetch(USER_STATS_URL.replace("{address}", checksumAddress), { headers }),
+      fetch(RANK_URL.replace("{address}", checksumAddress), { headers }),
+    ]);
+
+    if (!userStatsResponse.ok) {
+      throw new Error(
+        `liquid user stats api error: ${userStatsResponse.statusText}`
+      );
+    }
+
+    if (!rankResponse.ok) {
+      throw new Error(`liquid rank api error: ${rankResponse.statusText}`);
+    }
 
     const [userStats, rank] = await Promise.all([
-      fetch(USER_STATS_URL.replace("{address}", checksumAddress), headers),
-      fetch(RANK_URL.replace("{address}", checksumAddress), headers),
+      userStatsResponse.json() as Promise<USER_STATS_RESPONSE>,
+      rankResponse.json() as Promise<RANK_RESPONSE>,
     ]);
 
     return {
-      userStats: await userStats.json(),
-      rank: await rank.json(),
+      userStats,
+      rank,
     };
   },
   data: (data: API_RESPONSE) => ({
@@ -53,8 +69,12 @@ export default {
     Rank: data.rank.rank ?? 0,
     Volume: data.userStats.total_volume,
     "Current Streak": data.userStats.trading_streak?.current_streak ?? 0,
-    Long: data.userStats.directional_bias?.long_percentage ?? 0,
-    Short: data.userStats.directional_bias?.short_percentage ?? 0,
+    "Long Directional Bias": `${
+      data.userStats.directional_bias?.long_percentage ?? 0
+    }%`,
+    "Short Directional Bias": `${
+      data.userStats.directional_bias?.short_percentage ?? 0
+    }%`,
   }),
   total: (data: API_RESPONSE) => data.userStats.total_points,
   rank: (data: API_RESPONSE) => data.rank.rank ?? 0,

@@ -29,42 +29,37 @@ type API_RESPONSE = {
   allTime?: LeaderboardEntry;
 };
 
-const emptyResponse = (address: string): API_RESPONSE => ({
-  address,
-});
-
 const parseLeaderboardEntries = (html: string): LeaderboardEntries => {
   const unescaped = html.replace(/\\"/g, '"').replace(/\\n/g, " ");
   const match = unescaped.match(
     /"entries":\{"weekly":(\[.*?\]),"all":(\[.*?\])\}/s
   );
 
-  if (!match) {
-    return { weekly: [], all: [] };
-  }
+  if (!match) throw new Error("failed to parse megaeth leaderboard data");
 
-  return JSON.parse(`{"weekly":${match[1]},"all":${match[2]}}`) as LeaderboardEntries;
+  return JSON.parse(
+    `{"weekly":${match[1]},"all":${match[2]}}`
+  ) as LeaderboardEntries;
 };
 
-const findEntry = (entries: LeaderboardEntry[], address: string) =>
+const findEntry = (entries: LeaderboardEntry[], lowerCaseAddress: string) =>
   entries.find(
-    (entry) => entry.mainWalletAddress.toLowerCase() === address.toLowerCase()
+    (entry) => entry.mainWalletAddress.toLowerCase() === lowerCaseAddress
   );
 
 export default {
   fetch: async (address) => {
     const res = await fetch(LEADERBOARD_URL, { headers });
 
-    if (!res.ok) {
-      return emptyResponse(address);
-    }
+    if (!res.ok) throw new Error("megaeth api error: " + res.statusText);
 
+    const lowerCaseAddress = address.toLowerCase();
     const entries = parseLeaderboardEntries(await res.text());
 
     return {
       address,
-      weekly: findEntry(entries.weekly, address),
-      allTime: findEntry(entries.all, address),
+      weekly: findEntry(entries.weekly, lowerCaseAddress),
+      allTime: findEntry(entries.all, lowerCaseAddress),
     };
   },
   data: (data: API_RESPONSE) => ({
