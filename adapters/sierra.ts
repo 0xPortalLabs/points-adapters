@@ -71,7 +71,7 @@ export default {
     }
 
     return {
-      PEAKS: {
+      Peaks: {
         Total: entry.newBalance ?? 0,
         "Previous Balance": entry.previousBalance ?? 0,
         "This Week": entry.pointsThisWeek ?? 0,
@@ -92,7 +92,7 @@ export default {
     };
   },
   total: (data: API_RESPONSE) => ({
-    PEAKS: getEntry(data).newBalance ?? 0,
+    Peaks: getEntry(data).newBalance ?? 0,
   }),
   rank: (data: API_RESPONSE) => getEntry(data).overallRank ?? 0,
   supportedAddressTypes: ["evm"],
