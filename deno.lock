@@ -5,7 +5,7 @@
     "jsr:@std/path@*": "1.0.8",
     "jsr:@std/path@^1.0.8": "1.0.8",
     "npm:@types/node@*": "22.13.1",
-    "npm:lodash-es@^4.17.21": "4.17.21",
+    "npm:lodash-es@^4.18.1": "4.18.1",
     "npm:text-case@^1.2.4": "1.2.4",
     "npm:viem@^2.23.5": "2.23.5_ws@8.18.0"
   },
@@ -69,8 +69,8 @@
         "ws"
       ]
     },
-    "lodash-es@4.17.21": {
-      "integrity": "sha512-mKnC+QJ9pWVzv+C4/U3rRsHapFfHvQFoFB92e52xeyGMcX6/OlIl78je1u8vePzYZSkkogMPJ2yjxxsb89cxyw=="
+    "lodash-es@4.18.1": {
+      "integrity": "sha512-J8xewKD/Gk22OZbhpOVSwcs60zhd95ESDwezOFuA3/099925PdHJ7OFHNTGtajL3AlZkykD32HykiMo+BIBI8A=="
     },
     "ox@0.6.7": {
       "integrity": "sha512-17Gk/eFsFRAZ80p5eKqv89a57uXjd3NgIf1CaXojATPBuujVc/fQSVhBeAU9JCRB+k7J50WQAyWTxK19T9GgbA==",
@@ -232,7 +232,7 @@
     ],
     "packageJson": {
       "dependencies": [
-        "npm:lodash-es@^4.17.21",
+        "npm:lodash-es@^4.18.1",
         "npm:text-case@^1.2.4",
         "npm:viem@^2.23.5"
       ]
