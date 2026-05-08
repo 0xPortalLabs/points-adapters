@@ -29,7 +29,7 @@ const emptyEntry = (address: string): LeaderboardEntry => ({
 
 const getSeason = (entry: LeaderboardEntry): Record<string, number> => {
   return {
-    Points: Number(entry.points ?? 0),
+    Peaks: Number(entry.points ?? 0),
     "Quest Points": Number(entry.quest_points ?? 0),
     Rank: Number(entry.rank ?? 0),
   };
