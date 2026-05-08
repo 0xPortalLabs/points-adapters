@@ -55,11 +55,6 @@ export default {
       }
     );
 
-    const contentType = res.headers.get("content-type") ?? "";
-    if (!contentType.includes("application/json")) {
-      throw new Error("Sierra PEAKS endpoint returned a non-JSON response");
-    }
-
     return await res.json();
   },
   data: (data: API_RESPONSE) => {
