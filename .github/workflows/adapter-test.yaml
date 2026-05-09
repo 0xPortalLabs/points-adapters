@@ -53,16 +53,12 @@ jobs:
 
           if [ "$EVENT_NAME" = "issue_comment" ]; then
             # Check if comment is a /test command
-            if echo "$COMMENT_BODY" | grep -q "^/test\s"; then
+            TEST_COMMAND=$(printf '%s\n' "$COMMENT_BODY" | head -n1 | tr -d '\r')
+            read -r COMMAND PARAM1 PARAM2 _ <<< "$TEST_COMMAND"
+
+            if [ "$COMMAND" = "/test" ]; then
               echo "Detected /test command"
               IS_TEST_COMMAND=true
-
-              # Parse /test <address> [file]
-              TEST_PARAMS=$(echo "$COMMENT_BODY" | sed -n 's/^\/test\s\+//p')
-
-              # Split parameters by whitespace
-              PARAM1=$(echo "$TEST_PARAMS" | awk '{print $1}')
-              PARAM2=$(echo "$TEST_PARAMS" | awk '{print $2}')
 
               if [ -n "$PARAM1" ]; then
                 # First parameter is always treated as address or FID
