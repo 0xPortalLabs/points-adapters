@@ -3,11 +3,8 @@
 // @ts-ignore emulate a browser env.
 globalThis.document = {};
 const { isGoodCORS } = await import("./utils/cors.ts");
-import { type AdapterExport } from "./utils/adapter.ts";
+import type { AdapterExport, AddressType } from "./utils/adapter.ts";
 import { runAdapter, detectAddressType } from "./utils/adapter.ts";
-
-// Import all additional files which adapters may use.
-import * as _ from "./utils/farcaster.ts";
 
 import * as path from "@std/path";
 
@@ -46,7 +43,7 @@ if (addressType === null) {
   throw new Error("TS linter is stupid");
 }
 
-const supported = adapter.supportedAddressTypes;
+const supported: AddressType[] = adapter.supportedAddressTypes;
 if (!supported.includes(addressType)) {
   showErrorAndExit(
     `Adapter does not support "${addressType}" addresses.` +
@@ -70,6 +67,7 @@ globalThis.fetch = async (input, init) => {
     CORSstatus[input] = await CORSstatus[input];
   }
 
+  // @ts-ignore Overload..
   return _fetch(input, init);
 };
 

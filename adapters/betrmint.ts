@@ -1,16 +1,18 @@
-import { getAddress } from "viem";
 import type { AdapterExport } from "../utils/adapter.ts";
 import { maybeWrapCORSProxy } from "../utils/cors.ts";
-import { getFidByAddress } from "../utils/farcaster.ts";
 
 const API_URL = await maybeWrapCORSProxy(
   "https://betrmint.fun/leaderboard/{fid}"
 );
 
+type BetrmintData = {
+  position: number;
+  score: number;
+};
+
 export default {
-  fetch: async (address) => {
-    const fid = await getFidByAddress(getAddress(address));
-    const res = await fetch(API_URL.replace("{fid}", fid), {
+  fetch: async (fid: number) => {
+    const res = await fetch(API_URL.replace("{fid}", String(fid)), {
       headers: {
         "User-Agent": "Checkpoint API (https://checkpoint.exchange)",
       },
@@ -19,15 +21,15 @@ export default {
     const data = await res.json();
     return data;
   },
-  data: (data: { position: number; score: number }) => ({
+  data: (data: BetrmintData) => ({
     Karma: {
       Points: data.score,
       Position: data.position,
     },
   }),
-  total: (data: { position: number; score: number }) => ({
+  total: (data: BetrmintData) => ({
     Karma: data.score,
   }),
-  rank: (data: { position: number; score: number }) => data.position,
-  supportedAddressTypes: ["evm"],
-} as AdapterExport;
+  rank: (data: BetrmintData) => data.position,
+  supportedAddressTypes: ["fid"],
+} satisfies AdapterExport<BetrmintData>;

@@ -143,15 +143,19 @@ rank: (data: { rank: number }) => data.rank,
 
 The fourth export is `rank` which gives the user rank for the protocol's points program. This is displayed on the "leaderboard" info on a protocol.
 
-#### Address Support (EVM + SVM)
+#### Address Support (EVM + SVM + FID)
 
-Adapters now support two wallet address families:
+Adapters now support two wallet address families plus Farcaster IDs:
 
 - `evm` - Hex format `0x...`
 - `svm` - Solana-style base58 addresses
+- `fid` - Farcaster ID as a positive integer
 
-All adapter entrypoints should auto-detect the input address type. If an address is
-neither `evm` nor `svm`, the adapter should fail with a validation error.
+`runAdapter()` auto-detects and validates the input type centrally. It dispatches
+to adapter `fetch(address)` for wallet inputs and `fetch(fid)` for Farcaster ID
+inputs, converting FIDs to numbers before calling the adapter. Adapters should
+implement only the entrypoint for the types they support and should not perform
+address type detection or FID conversion themselves.
 
 Every adapter must explicitly declare supported address families:
 

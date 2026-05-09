@@ -3,7 +3,7 @@
 ### Before Submitting:
 
 - [ ] Enable "Allow edits by maintainers" on this PR
-- [ ] Test your adapter locally with a valid address (EVM or SVM) and an invalid address
+- [ ] Test your adapter locally with a valid address/FID (EVM, SVM, or FID) and an invalid address/FID
 - [ ] If EVM-supported, ensure your adapter works with different EVM address formats (checksummed, lowercase, uppercase)
 - [ ] Do NOT edit/push `package.json` or any lockfile
 
@@ -25,7 +25,7 @@
 **Test Address (with points):**
 
 ```
-0x... or SVM base58...
+EVM address, SVM address, or FID integer...
 ```
 
 **Expected Output:**
@@ -36,7 +36,7 @@
 **How to Test Locally:**
 
 ```bash
-deno run --allow-net --allow-read=adapters --allow-env test.ts adapters/your-adapter.ts <address>
+deno run --allow-net --allow-read=adapters --allow-env test.ts adapters/your-adapter.ts <address-or-fid>
 ```
 
 ---
