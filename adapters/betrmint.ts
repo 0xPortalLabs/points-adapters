@@ -36,6 +36,6 @@ export default {
   total: (data: BetrmintData) => ({
     Karma: data.score ?? 0,
   }),
-  rank: (data: BetrmintData) => data.position || null,
+  rank: (data: BetrmintData) => (data.position > 0 ? data.position : null),
   supportedAddressTypes: ["evm"],
 } satisfies AdapterExport<BetrmintData>;
