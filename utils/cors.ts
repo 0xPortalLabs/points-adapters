@@ -47,4 +47,4 @@ const maybeWrapCORSProxy = async (url: string): Promise<string> => {
   return (await isGoodCORS(url)) ? url : wrapCORSProxy(url);
 };
 
-export { CORS_PROXY_URL, isGoodCORS, maybeWrapCORSProxy, wrapCORSProxy };
+export { CORS_PROXY_URL, isGoodCORS, maybeReadEnv, maybeWrapCORSProxy, wrapCORSProxy };

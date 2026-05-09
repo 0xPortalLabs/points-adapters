@@ -1,13 +1,13 @@
 import { createPublicClient, fallback, http, parseAbi } from "viem";
 import { optimism } from "viem/chains";
-import { maybeWrapCORSProxy } from "./cors.ts";
+import { maybeReadEnv, maybeWrapCORSProxy } from "./cors.ts";
 
 const idRegistryAbi = parseAbi([
   "function idOf(address owner) view returns (uint256 fid)",
 ]);
 
 const ID_REGISTRY = "0x00000000fc6c5f01fc30151999387bb99a9f489b";
-const NEYNAR_API_KEY = "6DBA6F85-B88D-4DE5-8729-BDA3D7F22C81";
+const NEYNAR_API_KEY = maybeReadEnv("NEYNAR_API_KEY", "");
 const NEYNAR_BULK_BY_ADDRESS_RAW_URL =
   "https://api.neynar.com/v2/farcaster/user/bulk-by-address?addresses={address}";
 let neynarBulkByAddressUrl: Promise<string> | null = null;
@@ -49,6 +49,10 @@ const getFidFromIdRegistry = async (
 const getFidByAddress = async (address: `0x${string}`): Promise<string> => {
   try {
     const normalized = address.toLowerCase();
+    if (!NEYNAR_API_KEY) {
+      return getFidFromIdRegistry(address);
+    }
+
     const neynarUrl = await getNeynarBulkByAddressUrl();
     const res = await fetch(
       neynarUrl.replace("{address}", normalized),

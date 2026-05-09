@@ -215,6 +215,8 @@ export default {
 }
 ```
 
+The function returns a record of `label`: `timestamp` which is in [UNIX time format](https://en.wikipedia.org/wiki/Unix_time). The labels are the same labels used in the adapter, if no labels are used by your other functions then use the label `Points`, which indicates that the points program has completely been deprecated.
+
 #### Changing CORS Proxy
 
 To change the CORS proxy used by the adapters in local development, use the env variable `CORS_PROXY_URL`.
@@ -223,4 +225,16 @@ To change the CORS proxy used by the adapters in local development, use the env 
 $ CORS_PROXY_URL="https://..." deno run ...
 ```
 
-The function returns a record of `label`: `timestamp` which is in [UNIX time format](https://en.wikipedia.org/wiki/Unix_time). The labels are the same labels used in the adapter, if no labels are used by your other functions then use the label `Points`, which indicates that the points program has completely been deprecated.
+#### Farcaster Neynar API Key
+
+Farcaster adapters that need to resolve a verified wallet address to an FID can
+use Neynar when an API key is configured. In Deno or Node runtimes, set
+`NEYNAR_API_KEY`:
+
+```sh
+$ NEYNAR_API_KEY="..." deno run ...
+```
+
+When adapters are bundled into a Vite browser app, set `VITE_NEYNAR_API_KEY`
+in the build environment. If no Neynar key is configured, the Farcaster helper
+falls back to the onchain custody-address lookup.
