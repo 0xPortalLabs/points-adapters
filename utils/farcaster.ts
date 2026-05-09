@@ -50,6 +50,9 @@ const getFidByAddress = async (address: `0x${string}`): Promise<string> => {
   try {
     const normalized = address.toLowerCase();
     if (!NEYNAR_API_KEY) {
+      console.warn(
+        "NEYNAR_API_KEY not configured, falling back to onchain Farcaster ID lookup"
+      );
       return getFidFromIdRegistry(address);
     }
 
