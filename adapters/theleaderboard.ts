@@ -2,7 +2,7 @@ import { getAddress } from "viem";
 import type { AdapterExport } from "../utils/adapter.ts";
 import { maybeWrapCORSProxy } from "../utils/cors.ts";
 
-import { getFidFromCustodyAddress } from "../utils/farcaster.ts";
+import { getFidByAddress } from "../utils/farcaster.ts";
 const API_URL = await maybeWrapCORSProxy(
   "https://mini.frm.lol/api/mini/leaderboard/rank/{fid}"
 );
@@ -12,7 +12,7 @@ export default {
     const res = await fetch(
       API_URL.replace(
         "{fid}",
-        await getFidFromCustodyAddress(getAddress(address))
+        await getFidByAddress(getAddress(address))
       ),
       {
         headers: {

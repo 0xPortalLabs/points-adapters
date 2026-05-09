@@ -1,7 +1,7 @@
 import { getAddress } from "viem";
 import type { AdapterExport } from "../utils/adapter.ts";
 import { maybeWrapCORSProxy } from "../utils/cors.ts";
-import { getFidFromCustodyAddress } from "../utils/farcaster.ts";
+import { getFidByAddress } from "../utils/farcaster.ts";
 
 const API_URL = await maybeWrapCORSProxy(
   "https://betrmint.fun/leaderboard/{fid}"
@@ -9,7 +9,7 @@ const API_URL = await maybeWrapCORSProxy(
 
 export default {
   fetch: async (address) => {
-    const fid = await getFidFromCustodyAddress(getAddress(address));
+    const fid = await getFidByAddress(getAddress(address));
     const res = await fetch(API_URL.replace("{fid}", fid), {
       headers: {
         "User-Agent": "Checkpoint API (https://checkpoint.exchange)",
