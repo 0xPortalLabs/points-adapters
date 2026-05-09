@@ -7,17 +7,41 @@ type LabelledPoints = { [label: string]: number };
 type DetailedData = { [key: string]: string | number };
 type LabelledDetailedData = { [label: string]: DetailedData };
 type DeprecatedLabels = { [label: string]: number };
-// An adapter exporting a points function (address: string) -> number
-// or exporting function (address: string): {label1: number, label2: number, ...}
-type AdapterExport<T = object> = {
-  fetch: (address: string) => Promise<T>;
+
+type WalletAddressType = Exclude<AddressType, "fid">;
+
+type AdapterBase<T> = {
   data: (data: T) => DetailedData | LabelledDetailedData;
   total: (data: T) => number | LabelledPoints;
   claimable?: (data: T) => boolean;
   rank?: (data: T) => number;
   deprecated?: (data: T) => DeprecatedLabels;
+};
+
+// Only accepts `address`.
+type WalletAdapterExport<T> = AdapterBase<T> & {
+  fetch: (address: string) => Promise<T>;
+  supportedAddressTypes: WalletAddressType[];
+};
+
+// Only accepts `fid`.
+type FidAdapterExport<T> = AdapterBase<T> & {
+  fetch: <TFid extends number>(fid: TFid) => Promise<T>;
+  supportedAddressTypes: ["fid"];
+};
+
+// Accepts both `address` + `fid`.
+type MixedAdapterExport<T> = AdapterBase<T> & {
+  fetch: (address: string | number) => Promise<T>;
   supportedAddressTypes: AddressType[];
 };
+
+// An adapter exporting a points function (address: string) -> number
+// or exporting function (address: string): {label1: number, label2: number, ...}
+type AdapterExport<T = object> =
+  | WalletAdapterExport<T>
+  | FidAdapterExport<T>
+  | MixedAdapterExport<T>;
 
 type AdapterResult<T = object> = {
   __data: T;
@@ -34,11 +58,11 @@ const runAdapter = async (adapter: AdapterExport, address: string) => {
   if (!addressType) {
     throw new Error(
       `Invalid address "${address}".` +
-        "Only EVM (0x...) and SVM (base58) addresses are supported."
+        "Only EVM (0x...), SVM (base58), and FID (integer) inputs are supported."
     );
   }
 
-  const supported = adapter.supportedAddressTypes;
+  const supported: AddressType[] = adapter.supportedAddressTypes;
   if (!supported.includes(addressType)) {
     throw new Error(
       `Adapter does not support "${addressType}" addresses.` +
@@ -46,7 +70,12 @@ const runAdapter = async (adapter: AdapterExport, address: string) => {
     );
   }
 
-  const data = await adapter.fetch(address);
+  const data =
+    addressType === "fid"
+      ? await (adapter.fetch as (fid: number) => Promise<object>)(
+          Number(address)
+        )
+      : await (adapter.fetch as (address: string) => Promise<object>)(address);
 
   const ret: AdapterResult = {
     __data: data,

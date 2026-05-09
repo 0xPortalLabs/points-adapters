@@ -1,16 +1,13 @@
-import { getFidByAddress } from "../utils/farcaster.ts";
 import type { AdapterExport } from "../utils/adapter.ts";
 import { maybeWrapCORSProxy } from "../utils/cors.ts";
-import { getAddress } from "viem";
 
 const API_URL = await maybeWrapCORSProxy(
   "https://rips.app/api/users/{fid}/stats"
 );
 
 export default {
-  fetch: async (address) => {
-    const fid = await getFidByAddress(getAddress(address));
-    const res_stats = await fetch(API_URL.replace("{fid}", fid), {
+  fetch: async (fid: number) => {
+    const res_stats = await fetch(API_URL.replace("{fid}", String(fid)), {
       headers: { "User-Agent": "Checkpoint API (https://checkpoint.exchange)" },
     });
     const data = await res_stats.json();
@@ -25,5 +22,5 @@ export default {
   total: (stats: Record<string, number>) => ({
     Rips: stats.totalRips,
   }),
-  supportedAddressTypes: ["evm"],
-} as AdapterExport;
+  supportedAddressTypes: ["fid"],
+} satisfies AdapterExport<Record<string, number>>;
