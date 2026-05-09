@@ -25,7 +25,7 @@
 **Test Address (with points):**
 
 ```
-0x..., SVM base58, or FID integer...
+EVM address, SVM address, or FID integer...
 ```
 
 **Expected Output:**

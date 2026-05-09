@@ -112,8 +112,15 @@ jobs:
                 CODE_BLOCK_CONTENT=$(echo "$ADDRESS_SECTION" | sed -n '/```/,/```/p' | sed '1d;$d')
                 echo "Code block content: '$CODE_BLOCK_CONTENT'"
 
-                # Extract EVM, SVM, or FID from the code block content, ignoring placeholder text
-                PR_ADDRESS=$(echo "$CODE_BLOCK_CONTENT" | grep -oE '(0x[a-fA-F0-9]{40}|[1-9A-HJ-NP-Za-km-z]{32,44}|[1-9][0-9]*)' | head -n1)
+                # Extract EVM, SVM, or FID from whole lines only, ignoring placeholder text.
+                PR_ADDRESS=""
+                while IFS= read -r candidate; do
+                  candidate=$(echo "$candidate" | xargs)
+                  if is_valid_address "$candidate"; then
+                    PR_ADDRESS="$candidate"
+                    break
+                  fi
+                done <<< "$CODE_BLOCK_CONTENT"
 
                 if [ -n "$PR_ADDRESS" ] && [ "$PR_ADDRESS" != "0x..." ] && [ "$PR_ADDRESS" != "<address>" ]; then
                   ADDRESS="$PR_ADDRESS"

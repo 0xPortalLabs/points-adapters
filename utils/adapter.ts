@@ -73,12 +73,21 @@ const runAdapter = async <T>(
     );
   }
 
-  const data =
-    addressType === "fid"
-      ? await (adapter.fetch as (fid: number) => Promise<T>)(
-          Number(addressOrFid)
-        )
-      : await (adapter.fetch as (address: string) => Promise<T>)(addressOrFid);
+  let data: T;
+  if (addressType === "fid") {
+    const fid = Number(addressOrFid);
+    if (!Number.isSafeInteger(fid) || fid <= 0) {
+      throw new Error(
+        `Invalid FID "${addressOrFid}". FID must be a positive safe integer.`
+      );
+    }
+
+    data = await (adapter.fetch as (fid: number) => Promise<T>)(fid);
+  } else {
+    data = await (adapter.fetch as (address: string) => Promise<T>)(
+      addressOrFid
+    );
+  }
 
   const ret: AdapterResult<T> = {
     __data: data,

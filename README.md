@@ -151,9 +151,11 @@ Adapters now support two wallet address families plus Farcaster IDs:
 - `svm` - Solana-style base58 addresses
 - `fid` - Farcaster ID as a positive integer
 
-All adapter entrypoints should auto-detect the input address type. If an address
-is neither `evm`, `svm`, nor `fid`, the adapter should fail with a validation
-error.
+`runAdapter()` auto-detects and validates the input type centrally. It dispatches
+to adapter `fetch(address)` for wallet inputs and `fetch(fid)` for Farcaster ID
+inputs, converting FIDs to numbers before calling the adapter. Adapters should
+implement only the entrypoint for the types they support and should not perform
+address type detection or FID conversion themselves.
 
 Every adapter must explicitly declare supported address families:
 
