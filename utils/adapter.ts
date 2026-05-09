@@ -53,11 +53,14 @@ type AdapterResult<T = object> = {
   supportedAddressTypes: AddressType[];
 };
 
-const runAdapter = async (adapter: AdapterExport, address: string) => {
-  const addressType = detectAddressType(address);
+const runAdapter = async <T>(
+  adapter: AdapterExport<T>,
+  addressOrFid: string
+): Promise<AdapterResult<T>> => {
+  const addressType = detectAddressType(addressOrFid);
   if (!addressType) {
     throw new Error(
-      `Invalid address "${address}".` +
+      `Invalid address "${addressOrFid}".` +
         "Only EVM (0x...), SVM (base58), and FID (integer) inputs are supported."
     );
   }
@@ -72,12 +75,12 @@ const runAdapter = async (adapter: AdapterExport, address: string) => {
 
   const data =
     addressType === "fid"
-      ? await (adapter.fetch as (fid: number) => Promise<object>)(
-          Number(address)
+      ? await (adapter.fetch as (fid: number) => Promise<T>)(
+          Number(addressOrFid)
         )
-      : await (adapter.fetch as (address: string) => Promise<object>)(address);
+      : await (adapter.fetch as (address: string) => Promise<T>)(addressOrFid);
 
-  const ret: AdapterResult = {
+  const ret: AdapterResult<T> = {
     __data: data,
     data: adapter.data(data),
     total: adapter.total(data),

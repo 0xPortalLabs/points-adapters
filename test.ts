@@ -67,6 +67,7 @@ globalThis.fetch = async (input, init) => {
     CORSstatus[input] = await CORSstatus[input];
   }
 
+  // @ts-ignore Overload..
   return _fetch(input, init);
 };
 
