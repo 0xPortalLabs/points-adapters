@@ -6,7 +6,7 @@ import { convertKeysToStartCase } from "../utils/object.ts";
 const API_URL = await maybeWrapCORSProxy("https://api.doma.xyz/graphql");
 
 export default {
-  fetch: async (address) => {
+  fetch: async (address: string) => {
     const res = await fetch(API_URL, {
       method: "POST",
       headers: {
@@ -17,7 +17,7 @@ export default {
       },
       body: JSON.stringify({
         query:
-          "query LeaderboardByAddress($walletAddress: AddressCAIP10!, $weekNumber: Int, $season: LeaderboardSeason, $scope: LeaderboardScope) {  leaderboard(    walletAddress: $walletAddress    weekNumber: $weekNumber    season: $season    scope: $scope  ) {    points    rank    referralCount    referralPoints    referralBonusLimit    referralBonusesAwarded    tradingVolumeUsd    walletAddress    totalEntries    weekNumber    currentLevelThreshold    level    nextLevel    userMultiplier    nextThreshold    pointsMultiplier    closingDomaLevel    bonusPointsAwarded    seasonPoints    pointsByType {      TRADING      REFERRAL      QUEST      LEVEL_UP_BONUS      WEEKLY_REWARD      SNAPSHOT    }  }}",
+          "query LeaderboardByAddress($walletAddress: AddressCAIP10!, $weekNumber: Int, $season: LeaderboardSeason, $scope: LeaderboardScope) {  leaderboard(    walletAddress: $walletAddress    weekNumber: $weekNumber    season: $season    scope: $scope  ) {    points    rank    referralCount    referralPoints    walletAddress    totalEntries    weekNumber    currentLevelThreshold    level    nextLevel    userMultiplier    nextThreshold    pointsMultiplier    closingDomaLevel    bonusPointsAwarded    seasonPoints    pointsByType {      TRADING      REFERRAL      QUEST      LEVEL_UP_BONUS      WEEKLY_REWARD      SNAPSHOT    }  }}",
         variables: {
           walletAddress: `eip155:_:${getAddress(address)}`,
         },

@@ -3,26 +3,21 @@ import { maybeWrapCORSProxy } from "../utils/cors.ts";
 import { formatEther } from "viem";
 
 const API_URL = await maybeWrapCORSProxy(
-  "https://metadata.p.rainbow.me/v1/graph"
+  "https://metadata.p.rainbow.me/v1/graph",
 );
 
 type API_RESPONSE = {
   earnings: { total: number };
-  rewards: {
-    total: string;
-    claimable: number | string;
-    claimed: string;
-  };
-  stats: {
-    position: {
-      unranked: boolean;
-      current: number;
-    };
-  };
+  meta: { rewards: { total: string } };
+};
+
+const DEFAULT_RESPONSE: API_RESPONSE = {
+  earnings: { total: 0 },
+  meta: { rewards: { total: "0" } },
 };
 
 export default {
-  fetch: async (address) => {
+  fetch: async (address: string) => {
     const res = await fetch(API_URL, {
       headers: {
         "Content-Type": "application/json",
@@ -32,31 +27,11 @@ export default {
       method: "POST",
       body: JSON.stringify({
         query: `query getPointsDataForWallet($address: String!) {
-    points(address: $address) {
+    claimablePoints(address: $address) {
       error { message type }
-      meta { distribution { next } status rewards { total } }
-      leaderboard {
-        stats { total_users total_points rank_cutoff }
-        accounts { address earnings { total } ens avatarURL }
-      }
+      meta { rewards { total } }
       user {
-        referralCode
-        earnings_by_type { type earnings { total } }
         earnings { total }
-        rewards { total claimable claimed }
-        stats {
-          position { unranked current }
-          referral { total_referees qualified_referees }
-          last_airdrop {
-            position { unranked current }
-            earnings { total }
-            differences { type group_id earnings { total } }
-          }
-          last_period {
-            position { unranked current }
-            earnings { total }
-          }
-        }
       }
     }
   }`,
@@ -64,25 +39,22 @@ export default {
       }),
     });
     const data = await res.json();
-    return data.data.points.user;
+    const points = data.data?.claimablePoints;
+    if (!points) return DEFAULT_RESPONSE;
+
+    return { ...points.user, meta: points.meta };
   },
   data: (data: API_RESPONSE) => {
-    const isUnranked = data.stats.position.unranked;
-    const rank = isUnranked ? 0 : data.stats.position.current;
     const points = data.earnings.total;
-    const claimable = data.rewards.claimable;
+    const rewards = data.meta.rewards.total || "0";
 
     return {
       Points: points,
-      Rank: rank,
-      Unranked: isUnranked ? "Yes" : "No",
-      Claimable: claimable && claimable !== "0" ? "Yes" : "No",
-      Rewards: `${formatEther(BigInt(claimable))} ETH`,
+      Claimable: rewards !== "0" ? "Yes" : "No",
+      Rewards: `${formatEther(BigInt(rewards))} ETH`,
     };
   },
   total: (data: API_RESPONSE) => Number(data.earnings.total),
-  rank: (data: API_RESPONSE) =>
-    data.stats.position.unranked ? 0 : data.stats.position.current,
-  claimable: (data: API_RESPONSE) => Number(data.earnings.total) > 0,
+  claimable: (data: API_RESPONSE) => (data.meta.rewards.total || "0") !== "0",
   supportedAddressTypes: ["evm"],
 } as AdapterExport;

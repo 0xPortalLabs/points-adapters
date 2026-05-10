@@ -50,7 +50,9 @@ export default {
       {
         headers: {
           Accept: "application/json",
-          "User-Agent": "Checkpoint API (https://checkpoint.exchange)",
+          // FIXME: They dont let use `Checkpoint API (https://checkpoint.exchange)` :(
+          "User-Agent":
+            "Mozilla/5.0 Checkpoint API (https://checkpoint.exchange/) Gecko",
         },
       }
     );
@@ -62,7 +64,8 @@ export default {
     const sourceBreakdown: Record<string, number> = {};
     for (const source of entry.breakdown ?? []) {
       const label = sourceLabel(source);
-      sourceBreakdown[label] = (sourceBreakdown[label] ?? 0) + (source.points ?? 0);
+      sourceBreakdown[label] =
+        (sourceBreakdown[label] ?? 0) + (source.points ?? 0);
     }
 
     return {
