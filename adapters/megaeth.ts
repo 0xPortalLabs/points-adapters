@@ -18,58 +18,85 @@ type LeaderboardEntry = {
   weeklyPointsChange: number;
 };
 
-type LeaderboardEntries = {
-  weekly: LeaderboardEntry[];
-  all: LeaderboardEntry[];
-};
-
-type API_RESPONSE = {
+type AdapterResponse = {
   address: string;
   weekly?: LeaderboardEntry;
   allTime?: LeaderboardEntry;
 };
 
-const parseLeaderboardEntries = (html: string): LeaderboardEntries => {
-  const unescaped = html.replace(/\\"/g, '"').replace(/\\n/g, " ");
-  const match = unescaped.match(
-    /"entries":\{"weekly":(\[.*?\]),"all":(\[.*?\])\}/s
-  );
-
-  if (!match) throw new Error("failed to parse megaeth leaderboard data");
-
-  return JSON.parse(
-    `{"weekly":${match[1]},"all":${match[2]}}`
-  ) as LeaderboardEntries;
+type LeaderboardBounds = {
+  weeklyStart: number;
+  allStart: number;
 };
 
-const findEntry = (entries: LeaderboardEntry[], lowerCaseAddress: string) =>
-  entries.find(
-    (entry) => entry.mainWalletAddress.toLowerCase() === lowerCaseAddress
-  );
+// The leaderboard data is embedded in the HTML as escaped JSON. Only parse the
+// two entries we need instead of materializing both full leaderboard arrays.
+const findLeaderboardBounds = (html: string): LeaderboardBounds => {
+  const weeklyStart = html.indexOf('\\"weekly\\":[');
+  const allStart = html.indexOf('\\"all\\":[', weeklyStart);
+
+  if (weeklyStart === -1 || allStart === -1) {
+    throw new Error("failed to parse megaeth leaderboard data");
+  }
+
+  return { weeklyStart, allStart };
+};
+
+const findEntryInSection = (
+  html: string,
+  lowerCaseAddress: string,
+  sectionStart: number,
+  searchEnd: number
+): LeaderboardEntry | undefined => {
+  const addressStart = html.indexOf(lowerCaseAddress, sectionStart);
+
+  if (addressStart === -1 || addressStart > searchEnd) return undefined;
+
+  const entryStart = html.lastIndexOf('{\\"rank\\":', addressStart);
+  const entryEnd = html.indexOf("}", addressStart);
+  if (entryStart === -1 || entryEnd === -1 || entryStart < sectionStart) {
+    throw new Error("failed to parse megaeth leaderboard entry");
+  }
+
+  const entry = html.slice(entryStart, entryEnd + 1).replace(/\\"/g, '"');
+  return JSON.parse(entry) as LeaderboardEntry;
+};
+
+const readLeaderboardEntries = async (
+  res: Response,
+  lowerCaseAddress: string
+): Promise<Pick<AdapterResponse, "weekly" | "allTime">> => {
+  const html = await res.text();
+  const { weeklyStart, allStart } = findLeaderboardBounds(html);
+
+  return {
+    weekly: findEntryInSection(html, lowerCaseAddress, weeklyStart, allStart),
+    allTime: findEntryInSection(html, lowerCaseAddress, allStart, html.length),
+  };
+};
 
 export default {
-  fetch: async (address) => {
+  fetch: async (address: string) => {
     const res = await fetch(LEADERBOARD_URL, { headers });
 
     if (!res.ok) throw new Error("megaeth api error: " + res.statusText);
 
     const lowerCaseAddress = address.toLowerCase();
-    const entries = parseLeaderboardEntries(await res.text());
+    const entries = await readLeaderboardEntries(res, lowerCaseAddress);
 
     return {
       address,
-      weekly: findEntry(entries.weekly, lowerCaseAddress),
-      allTime: findEntry(entries.all, lowerCaseAddress),
+      ...entries,
     };
   },
-  data: (data: API_RESPONSE) => ({
+  data: (data: AdapterResponse) => ({
     "Total Points": data.allTime?.totalPoints ?? data.weekly?.totalPoints ?? 0,
     Rank: data.allTime?.rank ?? 0,
     "Weekly Points": data.weekly?.weeklyPointsChange ?? 0,
     "Weekly Rank": data.weekly?.rank ?? 0,
   }),
-  total: (data: API_RESPONSE) =>
+  total: (data: AdapterResponse) =>
     data.allTime?.totalPoints ?? data.weekly?.totalPoints ?? 0,
-  rank: (data: API_RESPONSE) => data.allTime?.rank ?? 0,
+  rank: (data: AdapterResponse) => data.allTime?.rank ?? 0,
   supportedAddressTypes: ["evm"],
 } as AdapterExport;
