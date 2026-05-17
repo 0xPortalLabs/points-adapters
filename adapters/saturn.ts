@@ -50,13 +50,16 @@ export default {
     );
   },
   total: (data: API_RESPONSE) => {
-    return getRewards(data).reduce((totals, x) => {
-      totals[POINTS_NAME] =
-        (totals[POINTS_NAME] ?? 0) +
-        toAmount(x.amount, x.token.decimals) +
-        toAmount(x.pending, x.token.decimals);
-      return totals;
-    }, {} as Record<string, number>);
+    return getRewards(data).reduce(
+      (totals, x) => {
+        totals[POINTS_NAME] =
+          (totals[POINTS_NAME] ?? 0) +
+          toAmount(x.amount, x.token.decimals) +
+          toAmount(x.pending, x.token.decimals);
+        return totals;
+      },
+      { "Gravity Points": 0 }
+    );
   },
   supportedAddressTypes: ["evm"],
 } satisfies AdapterExport<API_RESPONSE>;
