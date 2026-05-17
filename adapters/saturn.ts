@@ -14,15 +14,21 @@ type Reward = {
   };
 };
 
-type API_RESPONSE = { rewards: Reward[] }[];
-
-const getRewards = (data: API_RESPONSE) =>
-  data
-    .flatMap((chain) => chain.rewards)
-    .filter((x) => x.token.address.toLowerCase() === GRAVITY_POINTS_ADDRESS);
+type API_RESPONSE = Reward[];
 
 const toAmount = (value: string, decimals: number) =>
   Number(value) / 10 ** decimals;
+
+const getDetails = (data: API_RESPONSE) =>
+  data.reduce(
+    (totals, x) => {
+      totals.Amount += toAmount(x.amount, x.token.decimals);
+      totals.Claimed += toAmount(x.claimed, x.token.decimals);
+      totals.Pending += toAmount(x.pending, x.token.decimals);
+      return totals;
+    },
+    { Amount: 0, Claimed: 0, Pending: 0 }
+  );
 
 export default {
   fetch: async (address: string) => {
@@ -33,33 +39,17 @@ export default {
       },
     });
 
-    return await res.json();
+    // Filter for only Gravity Points.
+    return ((await res.json()) as { rewards: Reward[] }[])
+      .flatMap((chain) => chain.rewards)
+      .filter((x) => x.token.address.toLowerCase() === GRAVITY_POINTS_ADDRESS);
   },
-  data: (data: API_RESPONSE) => {
-    return Object.fromEntries(
-      getRewards(data).map((x) => {
-        return [
-          POINTS_NAME,
-          {
-            Amount: toAmount(x.amount, x.token.decimals),
-            Claimed: toAmount(x.claimed, x.token.decimals),
-            Pending: toAmount(x.pending, x.token.decimals),
-          },
-        ];
-      })
-    );
-  },
+  data: (data: API_RESPONSE) => ({ [POINTS_NAME]: getDetails(data) }),
   total: (data: API_RESPONSE) => {
-    return getRewards(data).reduce(
-      (totals, x) => {
-        totals[POINTS_NAME] =
-          (totals[POINTS_NAME] ?? 0) +
-          toAmount(x.amount, x.token.decimals) +
-          toAmount(x.pending, x.token.decimals);
-        return totals;
-      },
-      { "Gravity Points": 0 }
-    );
+    const details = getDetails(data);
+    return {
+      [POINTS_NAME]: details.Amount + details.Pending,
+    };
   },
   supportedAddressTypes: ["evm"],
 } satisfies AdapterExport<API_RESPONSE>;
