@@ -3,16 +3,6 @@ import type { AdapterExport } from "../utils/adapter.ts";
 import { maybeWrapCORSProxy } from "../utils/cors.ts";
 
 const ARCHIVE_URL = await maybeWrapCORSProxy("https://archive.prod.nado.xyz/v1");
-const FUUL_API_BASE_URL = await maybeWrapCORSProxy("https://api.fuul.xyz/api/v1");
-
-const FUUL_API_KEY =
-  "777a33c4c76c8a5fc22093bb7f83fa63dd428cd90e07fc603f2f87a5fd43e8ff";
-
-const fuulHeaders = {
-  accept: "application/json",
-  authorization: `Bearer ${FUUL_API_KEY}`,
-  "User-Agent": "Checkpoint API (https://checkpoint.exchange)",
-};
 
 type PointsEpoch = {
   epoch: number;
@@ -36,18 +26,7 @@ type PointsResponse = {
   all_time_points: PointsTotal;
 };
 
-type ReferralStatusResponse = {
-  referred?: boolean;
-  code?: string;
-  referrer_identifier?: string;
-  referrer_identifier_type?: string;
-  referred_at?: string;
-};
-
-type API_RESPONSE = {
-  points: PointsResponse;
-  referralStatus: ReferralStatusResponse;
-};
+type API_RESPONSE = PointsResponse;
 
 const toPointsNumber = (value: string | undefined): number => {
   if (!value) return 0;
@@ -73,29 +52,6 @@ const fetchPoints = async (address: string): Promise<PointsResponse> => {
   return await res.json() as PointsResponse;
 };
 
-const fetchReferralStatus = async (
-  address: string
-): Promise<ReferralStatusResponse> => {
-  const params = new URLSearchParams({
-    user_identifier: address,
-    user_identifier_type: "evm_address",
-  });
-  const res = await fetch(
-    `${FUUL_API_BASE_URL}/referral_codes/status?${params}`,
-    { headers: fuulHeaders }
-  );
-
-  if (res.status === 404) {
-    return { referred: false };
-  }
-
-  if (!res.ok) {
-    throw new Error(`Nado referral status request failed with status ${res.status}`);
-  }
-
-  return await res.json() as ReferralStatusResponse;
-};
-
 const getCurrentEpoch = (response: PointsResponse): PointsEpoch | undefined =>
   [...response.points_per_epoch].reverse().find((epoch) => epoch.points !== "0");
 
@@ -116,26 +72,19 @@ const buildEpochBreakdown = (epochs: PointsEpoch[]) =>
 export default {
   fetch: async (address: string) => {
     const normalizedAddress = getAddress(address).toLowerCase();
-    const [points, referralStatus] = await Promise.all([
-      fetchPoints(normalizedAddress),
-      fetchReferralStatus(normalizedAddress).catch(() => ({ referred: false })),
-    ]);
-
-    return { points, referralStatus };
+    return await fetchPoints(normalizedAddress);
   },
   data: (response: API_RESPONSE) => {
-    const currentEpoch = getCurrentEpoch(response.points);
+    const currentEpoch = getCurrentEpoch(response);
 
     return {
-      Points: toPointsNumber(response.points.all_time_points.points),
-      Rank: response.points.all_time_points.rank,
-      Tier: response.points.all_time_points.tier,
+      Points: toPointsNumber(response.all_time_points.points),
+      Rank: response.all_time_points.rank,
+      Tier: response.all_time_points.tier,
       Summary: {
-        "All Time Points": toPointsNumber(response.points.all_time_points.points),
-        "All Time Rank": response.points.all_time_points.rank,
-        Tier: response.points.all_time_points.tier,
-        Referred: response.referralStatus.referred ? "Yes" : "No",
-        "Referral Code": response.referralStatus.code ?? "",
+        "All Time Points": toPointsNumber(response.all_time_points.points),
+        "All Time Rank": response.all_time_points.rank,
+        Tier: response.all_time_points.tier,
       },
       ...(currentEpoch
         ? {
@@ -147,11 +96,11 @@ export default {
             },
           }
         : {}),
-      "Distribution History": buildEpochBreakdown(response.points.points_per_epoch),
+      "Distribution History": buildEpochBreakdown(response.points_per_epoch),
     };
   },
   total: (response: API_RESPONSE) =>
-    toPointsNumber(response.points.all_time_points.points),
-  rank: (response: API_RESPONSE) => response.points.all_time_points.rank,
+    toPointsNumber(response.all_time_points.points),
+  rank: (response: API_RESPONSE) => response.all_time_points.rank,
   supportedAddressTypes: ["evm"],
 } as AdapterExport;

@@ -1,9 +1,6 @@
 import type { AdapterExport } from "../utils/adapter.ts";
-import { maybeWrapCORSProxy } from "../utils/cors.ts";
 
-const API_URL = await maybeWrapCORSProxy(
-  "https://api.merkl.xyz/v4/users/{address}/rewards?chainId=1"
-);
+const API_URL = "https://api.merkl.xyz/v4/users/{address}/rewards?chainId=1";
 const GRAVITY_POINTS_ADDRESS = "0xd223bbdd0421e394c0df9dffe568f1dadffd6f85";
 const POINTS_NAME = "Gravity Points";
 
