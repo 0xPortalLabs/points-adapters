@@ -24,6 +24,9 @@ export default {
     });
 
     const data = await res.json();
+    if (data.info === "valid address is required" && data.status === 400) {
+      return {};
+    }
 
     return data.queryWallet[0];
   },
