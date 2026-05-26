@@ -17,7 +17,7 @@ export default {
       },
       body: JSON.stringify({
         query:
-          "query LeaderboardByAddress($walletAddress: AddressCAIP10!, $weekNumber: Int, $season: LeaderboardSeason, $scope: LeaderboardScope) {  leaderboard(    walletAddress: $walletAddress    weekNumber: $weekNumber    season: $season    scope: $scope  ) {    points    rank    referralCount    referralPoints    walletAddress    totalEntries    weekNumber    currentLevelThreshold    level    nextLevel    userMultiplier    nextThreshold    pointsMultiplier    closingDomaLevel    bonusPointsAwarded    seasonPoints    pointsByType {      TRADING      REFERRAL      QUEST      LEVEL_UP_BONUS      WEEKLY_REWARD      SNAPSHOT    }  }}",
+          "query LeaderboardByAddress($walletAddress: AddressCAIP10!, $weekNumber: Int, $seasonNumber: Int, $scope: LeaderboardScope) {  leaderboard(    walletAddress: $walletAddress    weekNumber: $weekNumber    seasonNumber: $seasonNumber    scope: $scope  ) {    points    rank    previousDayRank    referralCount    referralPoints    walletAddress    totalEntries    weekNumber    seasonNumber    currentLevelThreshold    level    nextLevel    userMultiplier    nextThreshold    nextRank    nextRankThreshold    pointsMultiplier    closingDomaLevel    bonusPointsAwarded    seasonPoints    pointsByType {      TRADING      REFERRAL      QUEST      LEVEL_UP_BONUS      WEEKLY_REWARD      SNAPSHOT    }  }}",
         variables: {
           walletAddress: `eip155:_:${getAddress(address)}`,
         },
@@ -30,7 +30,7 @@ export default {
     return convertKeysToStartCase(rest);
   },
   total: (data: { leaderboard: Record<string, number | string> }) =>
-    data.leaderboard.points,
+    data.leaderboard.seasonPoints,
   rank: (data: { leaderboard: Record<string, number | string> }) =>
     data.leaderboard.rank,
   // TODO: The API supports SVM but cant find any SVM addresses in their leaderboard.
