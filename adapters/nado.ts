@@ -69,8 +69,8 @@ export default {
     return await fetchPoints(normalizedAddress);
   },
   data: (response: API_RESPONSE) => ({
-    "All Time": buildPointsBreakdown(response.all_time_points),
     ...buildEpochBreakdown(response.points_per_epoch),
+    "All Time": buildPointsBreakdown(response.all_time_points),
   }),
   total: (response: API_RESPONSE) =>
     toPointsNumber(response.all_time_points.points),
