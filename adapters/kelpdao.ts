@@ -15,7 +15,7 @@ export default {
         headers: {
           "User-Agent": "Checkpoint API (https://checkpoint.exchange)",
         },
-      }
+      },
     );
     return (await res.json()).value;
   },
@@ -27,5 +27,8 @@ export default {
   }),
   claimable: ({ kelpMiles }: { kelpMiles: string }) =>
     parseFloat(kelpMiles) > 0,
+  deprecated: () => ({
+    "Kernel Points": 1772236800, // February 28th 2026 00:00 UTC
+  }),
   supportedAddressTypes: ["evm"],
 } as AdapterExport;

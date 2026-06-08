@@ -2,7 +2,7 @@ import type { AdapterExport } from "../utils/adapter.ts";
 import { maybeWrapCORSProxy } from "../utils/cors.ts";
 
 const API_URL = await maybeWrapCORSProxy(
-  "https://www.data-openblocklabs.com/sonic/user-points-stats?wallet_address={address}"
+  "https://www.data-openblocklabs.com/sonic/user-points-stats?wallet_address={address}",
 );
 
 /**
@@ -29,7 +29,7 @@ export default {
   },
   data: (data: Record<string, number>) => ({
     "User Activity Last Detected": new Date(
-      data.user_activity_last_detected
+      data.user_activity_last_detected,
     ).toString(),
     "Sonic Points": data.sonic_points,
     "Loyalty Multiplier": data.loyalty_multiplier,
@@ -40,5 +40,8 @@ export default {
   }),
   total: (data: Record<string, number>) => data.sonic_points,
   rank: (data: { rank: number }) => data.rank,
+  deprecated: () => ({
+    Points: 1761955200, // November 1st 2025 00:00 UTC
+  }),
   supportedAddressTypes: ["evm"],
 } as AdapterExport;
