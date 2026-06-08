@@ -6,10 +6,10 @@ import { maybeWrapCORSProxy } from "../utils/cors.ts";
 // NOTE: API for leaderboard
 // https://api.resolv.im/points/leaderboard?page=1
 const API_URL = await maybeWrapCORSProxy(
-  "https://web-api.resolv.xyz/points?address={address}"
+  "https://web-api.resolv.xyz/points?address={address}",
 );
 const RANK_URL = await maybeWrapCORSProxy(
-  "https://web-api.resolv.xyz/points/leaderboard/slice?address={address}"
+  "https://web-api.resolv.xyz/points/leaderboard/slice?address={address}",
 );
 
 /*
@@ -63,6 +63,9 @@ export default {
   data: ({ data }: { data: { dailyActivities: Record<string, number> } }) =>
     convertKeysToStartCase(data.dailyActivities),
   total: ({ data }: { data: { totalPoints: number } }) => data.totalPoints,
+  deprecated: () => ({
+    Points: 1780876800, // June 8th 2026 00:00 UTC
+  }),
   rank: ({
     rankData,
   }: {

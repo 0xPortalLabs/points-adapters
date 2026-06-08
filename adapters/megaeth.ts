@@ -2,13 +2,15 @@ import type { AdapterExport } from "../utils/adapter.ts";
 import { maybeWrapCORSProxy } from "../utils/cors.ts";
 
 const LEADERBOARD_URL = await maybeWrapCORSProxy(
-  "https://terminal.megaeth.com/leaderboard"
+  "https://terminal.megaeth.com/leaderboard",
 );
 
 const headers = {
   "User-Agent": "Checkpoint API (https://checkpoint.exchange)",
   Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
 };
+
+const CLAIM_DEADLINE = 1781049600; // June 10th 2026 00:00 UTC
 
 type LeaderboardEntry = {
   rank: number;
@@ -46,7 +48,7 @@ const findEntryInSection = (
   html: string,
   lowerCaseAddress: string,
   sectionStart: number,
-  searchEnd: number
+  searchEnd: number,
 ): LeaderboardEntry | undefined => {
   const addressStart = html.indexOf(lowerCaseAddress, sectionStart);
 
@@ -64,7 +66,7 @@ const findEntryInSection = (
 
 const readLeaderboardEntries = async (
   res: Response,
-  lowerCaseAddress: string
+  lowerCaseAddress: string,
 ): Promise<Pick<AdapterResponse, "weekly" | "allTime">> => {
   const html = await res.text();
   const { weeklyStart, allStart } = findLeaderboardBounds(html);
@@ -74,6 +76,9 @@ const readLeaderboardEntries = async (
     allTime: findEntryInSection(html, lowerCaseAddress, allStart, html.length),
   };
 };
+
+const getTotalPoints = (data: AdapterResponse) =>
+  data.allTime?.totalPoints ?? data.weekly?.totalPoints ?? 0;
 
 export default {
   fetch: async (address: string) => {
@@ -90,13 +95,14 @@ export default {
     };
   },
   data: (data: AdapterResponse) => ({
-    "Total Points": data.allTime?.totalPoints ?? data.weekly?.totalPoints ?? 0,
+    "Total Points": getTotalPoints(data),
     Rank: data.allTime?.rank ?? 0,
     "Weekly Points": data.weekly?.weeklyPointsChange ?? 0,
     "Weekly Rank": data.weekly?.rank ?? 0,
   }),
-  total: (data: AdapterResponse) =>
-    data.allTime?.totalPoints ?? data.weekly?.totalPoints ?? 0,
+  total: (data: AdapterResponse) => getTotalPoints(data),
   rank: (data: AdapterResponse) => data.allTime?.rank ?? 0,
+  claimable: (data: AdapterResponse) =>
+    Date.now() < CLAIM_DEADLINE * 1000 && getTotalPoints(data) > 0,
   supportedAddressTypes: ["evm"],
 } as AdapterExport;

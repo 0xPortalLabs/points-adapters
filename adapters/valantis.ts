@@ -93,7 +93,7 @@ const fetchMovements = async (address: string): Promise<Movement[]> => {
       page: String(page),
     });
     const response = await fetchJson<MovementsResponse>(
-      `/payouts/movements?${movementParams}`
+      `/payouts/movements?${movementParams}`,
     );
     const pageResults = response.results ?? [];
 
@@ -109,7 +109,10 @@ const fetchMovements = async (address: string): Promise<Movement[]> => {
 };
 
 const getMovementsTotal = (movements: Movement[]): number =>
-  movements.reduce((total, movement) => total + toNumber(movement.total_amount), 0);
+  movements.reduce(
+    (total, movement) => total + toNumber(movement.total_amount),
+    0,
+  );
 
 export default {
   fetch: async (address: string) => {
@@ -137,14 +140,16 @@ export default {
           Points: toNumber(movement.total_amount),
           Status: movement.payout_status,
         },
-      ])
+      ]),
     );
 
     return {
       Summary: {
         Points: totalPoints,
         Rank: Number(response.leaderboard.rank ?? 0),
-        "Total Attributions": Number(response.leaderboard.total_attributions ?? 0),
+        "Total Attributions": Number(
+          response.leaderboard.total_attributions ?? 0,
+        ),
         "Movement Count": response.movements.length,
       },
       ...breakdown,
@@ -152,5 +157,8 @@ export default {
   },
   total: (response: API_RESPONSE) => getMovementsTotal(response.movements),
   rank: (response: API_RESPONSE) => Number(response.leaderboard.rank ?? 0),
+  deprecated: () => ({
+    Points: 1780531200, // June 4th 2026 00:00 UTC
+  }),
   supportedAddressTypes: ["evm"],
 } as AdapterExport;
