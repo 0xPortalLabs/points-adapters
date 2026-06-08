@@ -30,7 +30,10 @@ type API_RESPONSE = {
   epochs: Epoch[];
 };
 
-const postInfo = async (method: string, params: Record<string, string>) => {
+const postInfo = async (
+  method: string,
+  params: Record<string, string>,
+): Promise<API_RESPONSE> => {
   const response = await fetch(API_URL, {
     method: "POST",
     headers,
