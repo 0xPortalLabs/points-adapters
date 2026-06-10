@@ -2,10 +2,10 @@ import type { AdapterExport } from "../utils/adapter.ts";
 import { maybeWrapCORSProxy } from "../utils/cors.ts";
 
 const API_URL = await maybeWrapCORSProxy(
-  "https://api.jumper.exchange/v1/wallets/{address}/rewards"
+  "https://api.jumper.xyz/v1/wallets/{address}/rewards",
 );
 const LEADERBOARD_URL = await maybeWrapCORSProxy(
-  "https://api.jumper.exchange/v1/leaderboard/{address}"
+  "https://api.jumper.xyz/v1/leaderboard/{address}",
 );
 
 export default {
@@ -49,7 +49,7 @@ export default {
         ...Object.fromEntries(
           data.walletRewards
             .filter((reward) => reward.reward !== null)
-            .map(({ reward, points }) => [reward.name, points])
+            .map(({ reward, points }) => [reward.name, points]),
         ),
       },
     };
