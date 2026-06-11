@@ -1,4 +1,5 @@
 import type { AdapterExport } from "../utils/adapter.ts";
+import { maybeWrapCORSProxy } from "../utils/cors.ts";
 
 import {
   concatBytes,
@@ -11,7 +12,7 @@ import {
   toHex,
 } from "viem";
 
-const MERKL_API_URL = "https://api.merkl.xyz/v4";
+const MERKL_API_URL = await maybeWrapCORSProxy("https://api.merkl.xyz/v4");
 const EVENTS_API_URL = "https://ipor.dev";
 
 const GNOSIS_CHAIN_ID = 100;
