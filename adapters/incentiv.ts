@@ -2,6 +2,9 @@ import { getAddress } from "viem";
 import type { AdapterExport } from "../utils/adapter.ts";
 import { maybeWrapCORSProxy } from "../utils/cors.ts";
 
+// Incentiv points are keyed by the Portal/Incentiv account address, which can
+// differ from the user's connected EVM EOA. There is no public EOA -> Incentiv
+// account resolver here, so a regular wallet EOA can legitimately return 0.
 const API_URL = await maybeWrapCORSProxy(
   "https://leaderboard.incentiv.io/xp/{address}",
 );
