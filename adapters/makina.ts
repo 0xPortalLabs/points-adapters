@@ -44,18 +44,14 @@ const getDetails = (data: MakinaData) =>
       const claimed = toPoints(reward.claimed, reward.token.decimals);
       const pending = toPoints(reward.pending, reward.token.decimals);
 
-      totals.Amount += amount;
-      totals.Claimed += claimed;
-      totals.Pending += pending;
+      totals.Total += amount + pending;
       totals["Merkl Amount"] += amount;
       totals["Merkl Claimed"] += claimed;
       totals["Merkl Pending"] += pending;
       return totals;
     },
     {
-      Amount: data.season0Points,
-      Claimed: 0,
-      Pending: 0,
+      Total: data.season0Points,
       "Season 0": data.season0Points,
       "Merkl Amount": 0,
       "Merkl Claimed": 0,
@@ -114,7 +110,7 @@ export default {
   total: (data: MakinaData) => {
     const details = getDetails(data);
     return {
-      [POINTS_NAME]: details.Amount + details.Pending,
+      [POINTS_NAME]: details.Total,
     };
   },
   supportedAddressTypes: ["evm"],
