@@ -63,7 +63,7 @@ const postBedrock = async <T>(
     return undefined;
   }
 
-  return await res.json().catch(() => undefined) as T | undefined;
+  return await res.json() as T;
 };
 
 export default {

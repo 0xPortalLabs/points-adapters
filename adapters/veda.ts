@@ -41,15 +41,19 @@ export default {
       },
     });
 
-    if (!res.ok || !res.headers.get("content-type")?.includes("json")) {
-      return emptyResponse();
+    if (!res.ok) {
+      throw new Error(`Veda points request failed with status ${res.status}`);
     }
 
-    const data = await res.json().catch(() => undefined) as
-      | { Response?: API_RESPONSE; error?: string }
-      | undefined;
-    if (data?.error) return emptyResponse();
-    return data?.Response ?? emptyResponse();
+    const data = await res.json() as {
+      Response?: API_RESPONSE;
+      error?: string;
+    };
+    if (data.error) {
+      throw new Error(`Veda points request returned error: ${data.error}`);
+    }
+
+    return data.Response ?? emptyResponse();
   },
   data: (data: API_RESPONSE) => {
     return Object.fromEntries(

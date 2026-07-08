@@ -38,7 +38,8 @@ export default {
     "S1 Points": data.season1,
   }),
   deprecated: () => ({
-    Points: 1783468800, // July 8th 2026 00:00 UTC
+    "Season 1 Points": 1783468800, // July 8th 2026 00:00 UTC
+    "Season 2 Points": 1783468800, // July 8th 2026 00:00 UTC
   }),
   supportedAddressTypes: ["evm"],
 } as AdapterExport;

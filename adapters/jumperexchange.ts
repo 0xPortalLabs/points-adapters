@@ -10,6 +10,37 @@ const LEADERBOARD_URL = await maybeWrapCORSProxy(
 
 const RANK_TIMEOUT_MS = 1500;
 
+const fetchLeaderboard = async (
+  address: string,
+  headers: Record<string, string>,
+) => {
+  try {
+    const res = await fetch(LEADERBOARD_URL.replace("{address}", address), {
+      headers,
+      signal: typeof AbortSignal.timeout === "function"
+        ? AbortSignal.timeout(RANK_TIMEOUT_MS)
+        : undefined,
+    });
+
+    if (!res.ok) {
+      throw new Error(
+        `Jumper leaderboard request failed with status ${res.status}`,
+      );
+    }
+
+    return await res.json();
+  } catch (error) {
+    if (
+      error instanceof DOMException &&
+      (error.name === "TimeoutError" || error.name === "AbortError")
+    ) {
+      return {};
+    }
+
+    throw error;
+  }
+};
+
 export default {
   fetch: async (address: string) => {
     const headers = {
@@ -21,14 +52,7 @@ export default {
     ).json();
 
     const leaderboard = rewards.data.sum > 0
-      ? await fetch(LEADERBOARD_URL.replace("{address}", address), {
-        headers,
-        signal: typeof AbortSignal.timeout === "function"
-          ? AbortSignal.timeout(RANK_TIMEOUT_MS)
-          : undefined,
-      })
-        .then((res) => res.json())
-        .catch(() => ({}))
+      ? await fetchLeaderboard(address, headers)
       : {};
 
     return {

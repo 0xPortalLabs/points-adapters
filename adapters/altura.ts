@@ -80,11 +80,14 @@ export default {
     };
   },
   data: (response: API_RESPONSE) => {
+    const archivedEntry = emptyEntry(response.season5.user_address ?? "");
+    const archivedSeason = () => getSeason(archivedEntry);
+
     return {
-      "Season 1": getSeason(emptyEntry(response.season5.user_address ?? "")),
-      "Season 2": getSeason(emptyEntry(response.season5.user_address ?? "")),
-      "Season 3": getSeason(emptyEntry(response.season5.user_address ?? "")),
-      "Season 4": getSeason(emptyEntry(response.season5.user_address ?? "")),
+      "Season 1": archivedSeason(),
+      "Season 2": archivedSeason(),
+      "Season 3": archivedSeason(),
+      "Season 4": archivedSeason(),
       "Season 5": getSeason(response.season5),
     };
   },
