@@ -4,10 +4,15 @@ import {
   convertValuesToNormal,
 } from "../utils/object.ts";
 
-import { getAddress } from "viem";
+type API_RESPONSE = {
+  xp?: number;
+  xpByPhase?: Record<string, number>;
+};
 
-const API_URL =
-  'https://restaking-backend.karak.network/getPortfolio?batch=1&input={"0":{"wallet":"{address}"}}';
+const emptyResponse = (): API_RESPONSE => ({
+  xp: 0,
+  xpByPhase: {},
+});
 
 /**
  *  data: {
@@ -28,17 +33,14 @@ const API_URL =
       },
  */
 export default {
-  fetch: async (address: string) => {
-    address = getAddress(address);
-    const res = await fetch(API_URL.replace("{address}", address), {
-      headers: { "User-Agent": "Checkpoint API (https://checkpoint.exchange)" },
-    });
-    return (await res.json())[0]?.result?.data;
-  },
-  data: (data: { xpByPhase?: Record<string, number> }) => {
+  fetch: async () => await Promise.resolve(emptyResponse()),
+  data: (data: API_RESPONSE) => {
     const xp = data?.xpByPhase ? convertValuesToNormal(data.xpByPhase) : {};
     return { XP: convertKeysToStartCase(xp) };
   },
-  total: (data: { xp: number }) => ({ XP: data?.xp }),
+  total: (data: API_RESPONSE) => ({ XP: data?.xp ?? 0 }),
+  deprecated: () => ({
+    XP: 1783468800, // July 8th 2026 00:00 UTC
+  }),
   supportedAddressTypes: ["evm"],
 } as AdapterExport;
