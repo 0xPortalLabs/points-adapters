@@ -2,11 +2,11 @@ import type { AdapterExport } from "../utils/adapter.ts";
 import { maybeWrapCORSProxy } from "../utils/cors.ts";
 
 const USER_POINTS_URL = await maybeWrapCORSProxy(
-  "https://onlypoints.ostium.io/api/points/user/{address}"
+  "https://onlypoints.ostium.io/api/points/user/{address}",
 );
 
 const SEASONS_URL = await maybeWrapCORSProxy(
-  "https://onlypoints.ostium.io/api/seasons"
+  "https://onlypoints.ostium.io/api/seasons",
 );
 
 const headers = {
@@ -67,7 +67,9 @@ const emptyUser = (address: string): UserPointsResponse => ({
 
 const seasonPointsKey = (seasonGroup: number) => `Season ${seasonGroup} Points`;
 
-const deprecatedBySeasonGroup = (seasons: Season[]) => {
+const deprecatedBySeasonGroup = (seasons: Season[] = []) => {
+  if (!Array.isArray(seasons)) return {};
+
   const activeSeason = seasons.find((season) => season.status === "active");
   let currentSeasonGroup = activeSeason?.seasonGroup ?? 0;
 
@@ -117,8 +119,8 @@ const buildSeasonData = (data: RawAPIResponse): SeasonData => {
     totals[key] = (totals[key] ?? 0) + seasonPoint.points;
     grouped[key] ??= { "Total Points": 0 };
     grouped[key]["Total Points"] += seasonPoint.points;
-    grouped[key][season.name] =
-      (grouped[key][season.name] ?? 0) + seasonPoint.points;
+    grouped[key][season.name] = (grouped[key][season.name] ?? 0) +
+      seasonPoint.points;
   }
 
   if (data.user.preSeasonPoints > 0) {
@@ -133,7 +135,7 @@ const buildSeasonData = (data: RawAPIResponse): SeasonData => {
 };
 
 export default {
-  fetch: async (address) => {
+  fetch: async (address: string) => {
     address = address.toLowerCase();
 
     const [userResponse, seasonsResponse] = await Promise.all([
@@ -145,13 +147,13 @@ export default {
 
     if (!userResponse.ok && userResponse.status !== 404) {
       throw new Error(
-        `Ostium user points request failed with status ${userResponse.status}`
+        `Ostium user points request failed with status ${userResponse.status}`,
       );
     }
 
     if (!seasonsResponse.ok) {
       throw new Error(
-        `Ostium seasons request failed with status ${seasonsResponse.status}`
+        `Ostium seasons request failed with status ${seasonsResponse.status}`,
       );
     }
 
@@ -194,6 +196,7 @@ export default {
     return Object.keys(totals).length > 0 ? totals : data.user.totalPoints;
   },
   rank: (data: API_RESPONSE) => data.user.rank,
-  deprecated: (data: API_RESPONSE) => deprecatedBySeasonGroup(data.seasons),
+  deprecated: (data: Partial<API_RESPONSE> = {}) =>
+    deprecatedBySeasonGroup(data.seasons),
   supportedAddressTypes: ["evm"],
 } as AdapterExport;

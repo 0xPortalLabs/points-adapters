@@ -3,10 +3,10 @@ import type { AdapterExport } from "../utils/adapter.ts";
 import { maybeWrapCORSProxy } from "../utils/cors.ts";
 
 const API_URL = await maybeWrapCORSProxy(
-  "https://app.altura.trade/api/leaderboard/search?address={address}&epoch={epoch}"
+  "https://app.altura.trade/api/leaderboard/search?address={address}&epoch={epoch}",
 );
 
-const ACTIVE_EPOCH = 4;
+const ACTIVE_EPOCH = 5;
 
 type LeaderboardEntry = {
   user_address?: string;
@@ -17,7 +17,7 @@ type LeaderboardEntry = {
 };
 
 type API_RESPONSE = {
-  season4: LeaderboardEntry;
+  season5: LeaderboardEntry;
 };
 
 const emptyEntry = (address: string): LeaderboardEntry => ({
@@ -37,7 +37,7 @@ const getSeason = (entry: LeaderboardEntry): Record<string, number> => {
 
 const fetchEpoch = async (
   address: string,
-  epoch: number
+  epoch: number,
 ): Promise<LeaderboardEntry> => {
   const res = await fetch(
     API_URL.replace("{address}", address).replace("{epoch}", String(epoch)),
@@ -46,7 +46,7 @@ const fetchEpoch = async (
         Accept: "application/json",
         "User-Agent": "Checkpoint API (https://checkpoint.exchange)",
       },
-    }
+    },
   );
 
   if (res.status === 404) {
@@ -54,7 +54,9 @@ const fetchEpoch = async (
   }
 
   if (!res.ok) {
-    throw new Error(`Altura leaderboard request failed with status ${res.status}`);
+    throw new Error(
+      `Altura leaderboard request failed with status ${res.status}`,
+    );
   }
 
   const data = await res.json() as LeaderboardEntry & {
@@ -74,25 +76,30 @@ export default {
   fetch: async (address: string) => {
     const normalizedAddress = getAddress(address).toLowerCase();
     return {
-      season4: await fetchEpoch(normalizedAddress, ACTIVE_EPOCH),
+      season5: await fetchEpoch(normalizedAddress, ACTIVE_EPOCH),
     };
   },
   data: (response: API_RESPONSE) => {
+    const archivedEntry = emptyEntry(response.season5.user_address ?? "");
+    const archivedSeason = () => getSeason(archivedEntry);
+
     return {
-      "Season 1": getSeason(emptyEntry(response.season4.user_address ?? "")),
-      "Season 2": getSeason(emptyEntry(response.season4.user_address ?? "")),
-      "Season 3": getSeason(emptyEntry(response.season4.user_address ?? "")),
-      "Season 4": getSeason(response.season4),
+      "Season 1": archivedSeason(),
+      "Season 2": archivedSeason(),
+      "Season 3": archivedSeason(),
+      "Season 4": archivedSeason(),
+      "Season 5": getSeason(response.season5),
     };
   },
   total: (response: API_RESPONSE) => ({
-    "Season 4": Number(response.season4.points ?? 0),
+    "Season 5": Number(response.season5.points ?? 0),
   }),
-  rank: (response: API_RESPONSE) => Number(response.season4.rank ?? 0),
+  rank: (response: API_RESPONSE) => Number(response.season5.rank ?? 0),
   deprecated: () => ({
     "Season 1": 1771545600, // Friday 20th February 2026 00:00 UTC
     "Season 2": 1775174400, // Friday 3rd April 2026 00:00 UTC
     "Season 3": 1777766400, // Sunday 3rd May 2026 00:00 UTC
+    "Season 4": 1783468800, // Wednesday 8th July 2026 00:00 UTC
   }),
   supportedAddressTypes: ["evm"],
 } as AdapterExport;

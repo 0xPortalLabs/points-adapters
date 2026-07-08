@@ -4,7 +4,7 @@ import { convertKeysToStartCase } from "../utils/object.ts";
 import { maybeWrapCORSProxy } from "../utils/cors.ts";
 
 const API_URL = await maybeWrapCORSProxy(
-  "https://spark2-api.blockanalitica.com/api/v1/referrals/{address}"
+  "https://spark2-api.blockanalitica.com/api/v1/referrals/{address}/?season=4",
 );
 
 /**

@@ -1,14 +1,14 @@
 import type { AdapterExport } from "../utils/adapter.ts";
-import { maybeWrapCORSProxy } from "../utils/cors.ts";
-
-const API_URL = await maybeWrapCORSProxy(
-  "https://app.theo.xyz/api/points?userAddress={address}"
-);
 
 type API_RESPONSE = {
   season1: number;
   season2: { points: number }[];
 };
+
+const emptyResponse = (): API_RESPONSE => ({
+  season1: 0,
+  season2: [],
+});
 
 // {
 //         week: 1,
@@ -24,11 +24,7 @@ type API_RESPONSE = {
 //       },
 // .......
 export default {
-  fetch: async (address) => {
-    const res = await fetch(API_URL.replace("{address}", address));
-    const data = await res.json();
-    return data.data;
-  },
+  fetch: async () => await Promise.resolve(emptyResponse()),
   data: (data: API_RESPONSE) => ({
     "Season 1 Points": data.season1,
     "Season 2 Points": data.season2.reduce((acc, curr) => {
@@ -40,6 +36,10 @@ export default {
       return acc + curr.points;
     }, 0),
     "S1 Points": data.season1,
+  }),
+  deprecated: () => ({
+    "Season 1 Points": 1783468800, // July 8th 2026 00:00 UTC
+    "Season 2 Points": 1783468800, // July 8th 2026 00:00 UTC
   }),
   supportedAddressTypes: ["evm"],
 } as AdapterExport;

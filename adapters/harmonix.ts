@@ -2,11 +2,11 @@ import type { AdapterExport } from "../utils/adapter.ts";
 import { maybeWrapCORSProxy } from "../utils/cors.ts";
 
 const POINTS_URL = await maybeWrapCORSProxy(
-  "https://api.harmonix.fi/api/v1/points/users/{address}/points"
+  "https://api.harmonix.fi/api/v1/points/users/{address}/points",
 );
 
 const TIER_URL = await maybeWrapCORSProxy(
-  "https://api.harmonix.fi/api/v1/users/tier?wallet_address={address}"
+  "https://api.harmonix.fi/api/v1/users/tier?wallet_address={address}",
 );
 
 type DATA_TYPE = {
@@ -31,26 +31,51 @@ type TIER_TYPE = {
   silver_fallback_indicator: boolean;
 };
 
+type API_RESPONSE = {
+  points: POINTS_TYPE[];
+  rank?: Partial<TIER_TYPE>;
+};
+
 export default {
-  fetch: async (address) => {
+  fetch: async (address: string): Promise<API_RESPONSE> => {
     const headers = {
       headers: { "User-Agent": "Checkpoint API (https://checkpoint.exchange)" },
     };
-    const pointsData = await fetch(
+    const pointsResponse = await fetch(
       POINTS_URL.replace("{address}", address),
-      headers
-    );
-    const rankData = await fetch(
-      TIER_URL.replace("{address}", address),
-      headers
+      headers,
     );
 
+    if (!pointsResponse.ok) {
+      throw new Error(
+        `Harmonix points request failed with status ${pointsResponse.status}`,
+      );
+    }
+
+    const points = await pointsResponse.json() as POINTS_TYPE[];
+    let rank: Partial<TIER_TYPE> | undefined;
+
+    if (points.length > 0) {
+      const rankResponse = await fetch(
+        TIER_URL.replace("{address}", address),
+        headers,
+      );
+
+      if (rankResponse.ok) {
+        rank = await rankResponse.json();
+      } else if (rankResponse.status !== 404) {
+        throw new Error(
+          `Harmonix tier request failed with status ${rankResponse.status}`,
+        );
+      }
+    }
+
     return {
-      points: await pointsData.json(),
-      rank: await rankData.json(),
+      points,
+      rank,
     };
   },
-  data: (data: { points: POINTS_TYPE[]; rank: TIER_TYPE }) => {
+  data: (data: API_RESPONSE) => {
     const totalsBySeason: Record<
       string,
       { points: number; staking_points: number; referral_points: number }
@@ -98,7 +123,7 @@ export default {
 
     return output;
   },
-  total: (data: { points: POINTS_TYPE[] }) => {
+  total: (data: API_RESPONSE) => {
     let s1Total: number | undefined;
     let s2Total: number | undefined;
 
@@ -107,8 +132,7 @@ export default {
         if (s1Total !== undefined) continue; // keep first match like find()
         let total = 0;
         for (const session of season.data) {
-          total +=
-            session.points +
+          total += session.points +
             session.staking_points +
             session.referral_points +
             session.swap_points;
@@ -121,8 +145,7 @@ export default {
         if (s2Total !== undefined) continue; // keep first match like find()
         let total = 0;
         for (const session of season.data) {
-          total +=
-            session.points +
+          total += session.points +
             session.staking_points +
             session.referral_points +
             session.swap_points;
@@ -136,7 +159,7 @@ export default {
       "S1 Points": s1Total,
     };
   },
-  claimable: (data: { points: POINTS_TYPE[] }) => {
+  claimable: (data: API_RESPONSE) => {
     for (const season of data.points) {
       if (season.season_type !== "season_1") continue;
       for (const session of season.data) {
@@ -146,8 +169,9 @@ export default {
     }
     return false;
   },
-  deprecated: () => ({
-    "S1 Points": 1738367999, // 31st January 2025
-  }),
+  deprecated: (data: API_RESPONSE) =>
+    data.points.some((season) => season.season_type === "season_1")
+      ? { "Season 1 Points": 1738367999 } // 31st January 2025
+      : {},
   supportedAddressTypes: ["evm"],
 } as AdapterExport;
