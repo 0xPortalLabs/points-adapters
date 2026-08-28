@@ -1,9 +1,7 @@
 import type { AdapterExport } from "../utils/adapter.ts";
-import { maybeWrapCORSProxy } from "../utils/cors.ts";
 
-const API_URL = await maybeWrapCORSProxy(
-  "https://points-api-td.debridge.finance/api/Points/{address}/summary"
-);
+const API_URL =
+  "https://points-api-td.debridge.finance/api/Points/{address}/summary";
 
 const headers = {
   "User-Agent": "Checkpoint API (https://checkpoint.exchange)",
