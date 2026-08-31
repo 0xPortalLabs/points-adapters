@@ -72,8 +72,12 @@ export default {
     let data: unknown;
     try {
       data = await res.json();
-    } catch {
-      throw new Error("Superform FTB leaderboard returned invalid JSON");
+    } catch (error) {
+      const details = error instanceof Error ? `: ${error.message}` : "";
+      throw new Error(
+        `Superform FTB leaderboard returned invalid JSON${details}`,
+        { cause: error },
+      );
     }
 
     if (!Array.isArray(data)) {
@@ -100,19 +104,21 @@ export default {
     return { entry };
   },
   data: ({ entry }: API_RESPONSE) => ({
-    "FTB Points": entry?.boosted_score ?? 0,
-    "Base Points": entry?.base_points ?? 0,
-    "Content Points": entry?.content_points ?? 0,
-    "Quest Points": entry?.quest_points ?? 0,
-    "Governance Points": entry?.governance_points ?? 0,
-    "Achievement Points": entry?.achievement_points ?? 0,
-    "Tier Multiplier": entry?.tier_multiplier ?? 0,
-    Tier: entry?.tier ?? "Unranked",
-    Rank: entry?.rank ?? 0,
-    "TVL USD": entry?.tvl_usd ?? 0,
-    "sUP USD": entry?.up_usd ?? 0,
-    "Approved Submissions": entry?.approved_count ?? 0,
-    "Pending Submissions": entry?.pending_count ?? 0,
+    "FTB Points": {
+      "Total Points": entry?.boosted_score ?? 0,
+      "Base Points": entry?.base_points ?? 0,
+      "Content Points": entry?.content_points ?? 0,
+      "Quest Points": entry?.quest_points ?? 0,
+      "Governance Points": entry?.governance_points ?? 0,
+      "Achievement Points": entry?.achievement_points ?? 0,
+      "Tier Multiplier": entry?.tier_multiplier ?? 0,
+      Tier: entry?.tier ?? "Unranked",
+      Rank: entry?.rank ?? 0,
+      "TVL USD": entry?.tvl_usd ?? 0,
+      "sUP USD": entry?.up_usd ?? 0,
+      "Approved Submissions": entry?.approved_count ?? 0,
+      "Pending Submissions": entry?.pending_count ?? 0,
+    },
   }),
   total: ({ entry }: API_RESPONSE) => ({
     "FTB Points": entry?.boosted_score ?? 0,

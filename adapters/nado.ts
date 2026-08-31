@@ -38,11 +38,14 @@ const buildPointsBreakdown = (points: PointsBreakdown) => ({
   Tier: points.tier,
 });
 
+const isIntegerString = (value: unknown): value is string =>
+  typeof value === "string" && /^-?\d+$/.test(value);
+
 const isPointsBreakdown = (value: unknown): value is PointsBreakdown => {
   if (!value || typeof value !== "object") return false;
 
   const points = value as Record<string, unknown>;
-  return typeof points.points === "string" &&
+  return isIntegerString(points.points) &&
     typeof points.rank === "number" &&
     typeof points.tier === "number";
 };
@@ -76,8 +79,11 @@ const fetchPoints = async (address: string): Promise<PointsResponse> => {
   let data: unknown;
   try {
     data = await res.json();
-  } catch {
-    throw new Error("Nado points request returned invalid JSON");
+  } catch (error) {
+    const details = error instanceof Error ? `: ${error.message}` : "";
+    throw new Error(`Nado points request returned invalid JSON${details}`, {
+      cause: error,
+    });
   }
 
   if (!isPointsResponse(data)) {

@@ -45,11 +45,19 @@ const getLockedDiamonds = (quests: Quest[]): number =>
 const getTotalDiamonds = (data: API_RESPONSE): number =>
   data.earnedDiamonds ?? getCompletedDiamonds(data.quests);
 
-const postBedrock = async <T>(
+const isObject = (value: unknown): value is Record<string, unknown> =>
+  value !== null && typeof value === "object" && !Array.isArray(value);
+
+const isQuest = (value: unknown): value is Quest =>
+  isObject(value) &&
+  (value.tasks === undefined ||
+    (Array.isArray(value.tasks) && value.tasks.every(isObject)));
+
+const postBedrock = async (
   url: string,
   address: string,
   requestName: string,
-): Promise<T> => {
+): Promise<unknown> => {
   const res = await fetch(url, {
     method: "POST",
     body: JSON.stringify({ address: address.toLowerCase() }),
@@ -71,7 +79,7 @@ const postBedrock = async <T>(
   }
 
   try {
-    return await res.json() as T;
+    return await res.json();
   } catch {
     throw new Error(`Bedrock ${requestName} request returned invalid JSON`);
   }
@@ -80,15 +88,17 @@ const postBedrock = async <T>(
 export default {
   fetch: async (address: string): Promise<API_RESPONSE> => {
     const [earnedResponse, questsResponse] = await Promise.all([
-      postBedrock<{ data?: { diamonds?: string | number } }>(
-        EARNED_URL,
-        address,
-        "earned Diamonds",
-      ),
-      postBedrock<{ data?: Quest[] }>(QUESTS_URL, address, "quests"),
+      postBedrock(EARNED_URL, address, "earned Diamonds"),
+      postBedrock(QUESTS_URL, address, "quests"),
     ]);
 
-    const earnedDiamonds = earnedResponse.data?.diamonds;
+    if (!isObject(earnedResponse) || !isObject(earnedResponse.data)) {
+      throw new Error(
+        "Bedrock earned Diamonds request returned malformed data",
+      );
+    }
+
+    const earnedDiamonds = earnedResponse.data.diamonds;
     if (
       typeof earnedDiamonds !== "string" &&
       typeof earnedDiamonds !== "number"
@@ -104,14 +114,18 @@ export default {
       );
     }
 
-    if (!Array.isArray(questsResponse.data)) {
+    if (!isObject(questsResponse)) {
+      throw new Error("Bedrock quests request returned malformed data");
+    }
+    const quests = questsResponse.data;
+    if (!Array.isArray(quests) || !quests.every(isQuest)) {
       throw new Error("Bedrock quests request returned malformed data");
     }
 
     return {
       ...emptyResponse(),
       earnedDiamonds: earnedDiamondsNumber,
-      quests: questsResponse.data,
+      quests,
     };
   },
   data: (data: API_RESPONSE) => ({

@@ -4,7 +4,7 @@ import type { AdapterExport } from "../utils/adapter.ts";
 // Lombard has not published its incentives details or a supported points API.
 export default {
   fetch: async () => await Promise.resolve({}),
-  data: () => ({}),
+  data: () => ({ Lux: {} }),
   total: () => ({ Lux: 0 }),
   claimable: () => true,
   deprecated: () => ({
