@@ -48,7 +48,8 @@ const getTotalDiamonds = (data: API_RESPONSE): number =>
 const postBedrock = async <T>(
   url: string,
   address: string,
-): Promise<T | undefined> => {
+  requestName: string,
+): Promise<T> => {
   const res = await fetch(url, {
     method: "POST",
     body: JSON.stringify({ address: address.toLowerCase() }),
@@ -59,11 +60,21 @@ const postBedrock = async <T>(
     },
   });
 
-  if (!res.ok || !res.headers.get("content-type")?.includes("json")) {
-    return undefined;
+  if (!res.ok) {
+    throw new Error(
+      `Bedrock ${requestName} request failed with status ${res.status}`,
+    );
   }
 
-  return await res.json() as T;
+  if (!res.headers.get("content-type")?.includes("json")) {
+    throw new Error(`Bedrock ${requestName} request returned non-JSON content`);
+  }
+
+  try {
+    return await res.json() as T;
+  } catch {
+    throw new Error(`Bedrock ${requestName} request returned invalid JSON`);
+  }
 };
 
 export default {
@@ -72,16 +83,35 @@ export default {
       postBedrock<{ data?: { diamonds?: string | number } }>(
         EARNED_URL,
         address,
+        "earned Diamonds",
       ),
-      postBedrock<{ data?: Quest[] }>(QUESTS_URL, address),
+      postBedrock<{ data?: Quest[] }>(QUESTS_URL, address, "quests"),
     ]);
+
+    const earnedDiamonds = earnedResponse.data?.diamonds;
+    if (
+      typeof earnedDiamonds !== "string" &&
+      typeof earnedDiamonds !== "number"
+    ) {
+      throw new Error(
+        "Bedrock earned Diamonds request returned malformed data",
+      );
+    }
+    const earnedDiamondsNumber = Number(earnedDiamonds);
+    if (!Number.isFinite(earnedDiamondsNumber)) {
+      throw new Error(
+        "Bedrock earned Diamonds request returned malformed data",
+      );
+    }
+
+    if (!Array.isArray(questsResponse.data)) {
+      throw new Error("Bedrock quests request returned malformed data");
+    }
 
     return {
       ...emptyResponse(),
-      earnedDiamonds: earnedResponse?.data?.diamonds === undefined
-        ? undefined
-        : toNumber(earnedResponse.data.diamonds),
-      quests: questsResponse?.data ?? [],
+      earnedDiamonds: earnedDiamondsNumber,
+      quests: questsResponse.data,
     };
   },
   data: (data: API_RESPONSE) => ({

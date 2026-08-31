@@ -1,8 +1,7 @@
 import { formatUnits, getAddress } from "viem";
 import type { AdapterExport } from "../utils/adapter.ts";
-import { maybeWrapCORSProxy } from "../utils/cors.ts";
 
-const MERKL_API_URL = await maybeWrapCORSProxy("https://api.merkl.xyz/v4");
+const MERKL_API_URL = "https://api.merkl.xyz/v4";
 
 const MONAD_CHAIN_ID = 143;
 const SHMON_POINTS_ADDRESS = "0xCdEF0ED16c5800025B26908b3Be9e6Ad4Ef187a5";

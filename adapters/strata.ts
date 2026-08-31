@@ -1,9 +1,7 @@
 import type { AdapterExport } from "../utils/adapter.ts";
-import { maybeWrapCORSProxy } from "../utils/cors.ts";
 
-const API_URL = await maybeWrapCORSProxy(
-  "https://api.strata.money/points/stats?accountAddress={address}&season=1&chainId=1"
-);
+const API_URL =
+  "https://api.strata.money/points/stats?accountAddress={address}&season=1&chainId=1";
 
 type PointBucket = number | number[] | Record<string, number>;
 

@@ -1,9 +1,7 @@
 import type { AdapterExport } from "../utils/adapter.ts";
-import { maybeWrapCORSProxy } from "../utils/cors.ts";
 
-const API_URL = await maybeWrapCORSProxy(
-  "https://api.symbiotic.fi/api/v1/points/receiver/{address}/current",
-);
+const API_URL =
+  "https://api.symbiotic.fi/api/v1/points/receiver/{address}/current";
 
 interface PointsData {
   points_type: string;

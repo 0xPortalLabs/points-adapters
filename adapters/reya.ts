@@ -1,12 +1,9 @@
 import { getAddress } from "viem";
 import type { AdapterExport } from "../utils/adapter.ts";
 
-import { maybeWrapCORSProxy } from "../utils/cors.ts";
 import { convertKeysToStartCase } from "../utils/object.ts";
 
-const API_URL = await maybeWrapCORSProxy(
-  "https://api.reya.xyz/api/incentives/wallet/{address}"
-);
+const API_URL = "https://api.reya.xyz/api/incentives/wallet/{address}";
 // 0xefcbfd73d67f92b37713e7eb9284e813b8f0e49a
 type API_RESPONSE = {
   points: {
