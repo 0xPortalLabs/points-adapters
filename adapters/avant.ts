@@ -1,10 +1,7 @@
 import { getAddress } from "viem";
 import type { AdapterExport } from "../utils/adapter.ts";
-import { maybeWrapCORSProxy } from "../utils/cors.ts";
 
-const API_URL = await maybeWrapCORSProxy(
-  "https://app.avantprotocol.com/api/rewards/merkl/{address}"
-);
+const API_URL = "https://app.avantprotocol.com/api/rewards/merkl/{address}";
 
 type CampaignBreakdown = {
   campaignId?: string;

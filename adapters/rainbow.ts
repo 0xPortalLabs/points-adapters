@@ -1,10 +1,7 @@
 import type { AdapterExport } from "../utils/adapter.ts";
-import { maybeWrapCORSProxy } from "../utils/cors.ts";
 import { formatEther } from "viem";
 
-const API_URL = await maybeWrapCORSProxy(
-  "https://metadata.p.rainbow.me/v1/graph",
-);
+const API_URL = "https://metadata.p.rainbow.me/v1/graph";
 
 type API_RESPONSE = {
   earnings: { total: number };

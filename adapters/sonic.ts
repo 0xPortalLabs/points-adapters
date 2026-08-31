@@ -1,9 +1,7 @@
 import type { AdapterExport } from "../utils/adapter.ts";
-import { maybeWrapCORSProxy } from "../utils/cors.ts";
 
-const API_URL = await maybeWrapCORSProxy(
-  "https://www.data-openblocklabs.com/sonic/user-points-stats?wallet_address={address}",
-);
+const API_URL =
+  "https://www.data-openblocklabs.com/sonic/user-points-stats?wallet_address={address}";
 
 /**
  * {

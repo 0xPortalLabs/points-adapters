@@ -3,7 +3,6 @@ import type { AdapterExport } from "../utils/adapter.ts";
 import { getAddress } from "viem";
 
 import { convertValuesToNormal } from "../utils/object.ts";
-import { maybeWrapCORSProxy } from "../utils/cors.ts";
 
 // Working wallet: 0x5Db201AE15f9702f0a0Ff9F00b8c1c18355373d0
 
@@ -51,9 +50,8 @@ interface UserData {
   };
 }
 
-const API_URL = await maybeWrapCORSProxy(
-  "https://api.hyperflow.fun/v1/point/leaderboard?from=1751367600&user={address}"
-);
+const API_URL =
+  "https://api.hyperflow.fun/v1/point/leaderboard?from=1751367600&user={address}";
 
 export default {
   fetch: async (address: string): Promise<UserData> => {

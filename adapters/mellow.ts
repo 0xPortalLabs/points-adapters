@@ -1,10 +1,7 @@
 import type { AdapterExport } from "../utils/adapter.ts";
-import { maybeWrapCORSProxy } from "../utils/cors.ts";
 import { convertKeysToStartCase } from "../utils/object.ts";
 
-const API_URL = await maybeWrapCORSProxy(
-  "https://points.mellow.finance/v1/users/{address}"
-);
+const API_URL = "https://points.mellow.finance/v1/users/{address}";
 
 type DATA_TYPE = {
   chain_id: number;

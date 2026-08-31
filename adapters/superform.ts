@@ -1,70 +1,123 @@
 import type { AdapterExport } from "../utils/adapter.ts";
 import { maybeWrapCORSProxy } from "../utils/cors.ts";
 
-const API_URL = await maybeWrapCORSProxy(
-  "https://persephone.superform.xyz/v1/rewards/summary/{address}?epoch={epoch}",
+const FTB_LEADERBOARD_URL = await maybeWrapCORSProxy(
+  "https://app.superform.xyz/api/leaderboard",
 );
 
-const CHECKPOINT_USER_AGENT = "Checkpoint API (https://checkpoint.exchange)";
-
-type SuperformSummary = {
-  user: {
-    points: number;
-    points_per_day: number;
-    referrals_direct: number;
-    referrals_indirect: number;
-    rank: string;
-  };
-  season_1?: { user_points: number };
-  season_2?: { user_points: number };
+type FTBLeaderboardEntry = {
+  wallet_address: string;
+  tier: string;
+  tvl_usd: number;
+  up_usd: number;
+  approved_count: number;
+  pending_count: number;
+  content_points: number;
+  quest_points: number;
+  governance_points: number;
+  achievement_points: number;
+  base_points: number;
+  tier_multiplier: number;
+  boosted_score: number;
+  rank: number;
 };
 
-type SuperformFetchResponse = {
-  epoch2: SuperformSummary;
-  epoch1: SuperformSummary;
-  epoch0: SuperformSummary;
+type API_RESPONSE = {
+  entry?: FTBLeaderboardEntry;
+};
+
+const isLeaderboardEntry = (value: unknown): value is FTBLeaderboardEntry => {
+  if (!value || typeof value !== "object") return false;
+
+  const entry = value as Record<string, unknown>;
+  const numericKeys = [
+    "tvl_usd",
+    "up_usd",
+    "approved_count",
+    "pending_count",
+    "content_points",
+    "quest_points",
+    "governance_points",
+    "achievement_points",
+    "base_points",
+    "tier_multiplier",
+    "boosted_score",
+    "rank",
+  ];
+
+  return typeof entry.wallet_address === "string" &&
+    typeof entry.tier === "string" &&
+    numericKeys.every((key) => {
+      const numericValue = entry[key];
+      return typeof numericValue === "number" &&
+        Number.isFinite(numericValue);
+    });
 };
 
 export default {
-  fetch: async (address: string): Promise<SuperformFetchResponse> => {
-    const fetchSummary = async (epoch: number): Promise<SuperformSummary> => {
-      const url = API_URL.replace("{address}", address).replace(
-        "{epoch}",
-        String(epoch),
+  fetch: async (address: string): Promise<API_RESPONSE> => {
+    const res = await fetch(FTB_LEADERBOARD_URL, {
+      headers: {
+        Accept: "application/json",
+        "User-Agent": "Checkpoint API (https://checkpoint.exchange)",
+      },
+    });
+
+    if (!res.ok) {
+      throw new Error(
+        `Superform FTB leaderboard request failed with status ${res.status}`,
       );
+    }
 
-      return await (
-        await fetch(url, {
-          headers: {
-            "User-Agent": CHECKPOINT_USER_AGENT,
-          },
-        })
-      ).json();
-    };
+    let data: unknown;
+    try {
+      data = await res.json();
+    } catch {
+      throw new Error("Superform FTB leaderboard returned invalid JSON");
+    }
 
-    const [epoch2, epoch1, epoch0] = await Promise.all([
-      fetchSummary(2),
-      fetchSummary(1),
-      fetchSummary(0),
-    ]);
+    if (!Array.isArray(data)) {
+      throw new Error(
+        "Superform FTB leaderboard returned a malformed response",
+      );
+    }
 
-    return { epoch2, epoch1, epoch0 };
+    const normalizedAddress = address.toLowerCase();
+    const entry = data.find((value) => {
+      if (!value || typeof value !== "object") return false;
+      const walletAddress = (value as Record<string, unknown>).wallet_address;
+      return typeof walletAddress === "string" &&
+        walletAddress.toLowerCase() === normalizedAddress;
+    });
+
+    if (entry === undefined) return {};
+    if (!isLeaderboardEntry(entry)) {
+      throw new Error(
+        "Superform FTB leaderboard returned malformed data for the wallet",
+      );
+    }
+
+    return { entry };
   },
-  data: ({ epoch2, epoch1, epoch0 }: SuperformFetchResponse) => ({
-    "S3 Epoch 2 Points": epoch2.user.points,
-    "S3 Points": epoch2.user.points,
-    "S2 Cred": epoch2.season_2?.user_points ?? 0,
-    "S1 XP": epoch2.season_1?.user_points ?? 0,
-    "S3 Epoch 1 Points": epoch1.user.points,
-    "S3 Epoch 0 Points": epoch0.user.points,
-    "Points Per Day": epoch2.user.points_per_day,
-    "Referrals Direct": epoch2.user.referrals_direct,
-    "Referrals Indirect": epoch2.user.referrals_indirect,
+  data: ({ entry }: API_RESPONSE) => ({
+    "FTB Points": entry?.boosted_score ?? 0,
+    "Base Points": entry?.base_points ?? 0,
+    "Content Points": entry?.content_points ?? 0,
+    "Quest Points": entry?.quest_points ?? 0,
+    "Governance Points": entry?.governance_points ?? 0,
+    "Achievement Points": entry?.achievement_points ?? 0,
+    "Tier Multiplier": entry?.tier_multiplier ?? 0,
+    Tier: entry?.tier ?? "Unranked",
+    Rank: entry?.rank ?? 0,
+    "TVL USD": entry?.tvl_usd ?? 0,
+    "sUP USD": entry?.up_usd ?? 0,
+    "Approved Submissions": entry?.approved_count ?? 0,
+    "Pending Submissions": entry?.pending_count ?? 0,
   }),
-  total: ({ epoch2 }: SuperformFetchResponse) => ({
-    "S3 Points": epoch2.user.points,
+  total: ({ entry }: API_RESPONSE) => ({
+    "FTB Points": entry?.boosted_score ?? 0,
   }),
-  rank: ({ epoch2 }: SuperformFetchResponse) => Number(epoch2.user.rank),
+  rank: ({ entry }: API_RESPONSE) => entry?.rank ?? 0,
   deprecated: () => ({
     "S3 Points": 1780876800, // June 8th 2026 00:00 UTC
   }),

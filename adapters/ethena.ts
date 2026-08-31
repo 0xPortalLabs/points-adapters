@@ -6,11 +6,9 @@ import {
   convertKeysToStartCase,
   convertValuesToNormal,
 } from "../utils/object.ts";
-import { maybeWrapCORSProxy } from "../utils/cors.ts";
 
-const API_URL = await maybeWrapCORSProxy(
-  "https://app.ethena.fi/api/referral/get-referree?address={address}"
-);
+const API_URL =
+  "https://app.ethena.fi/api/referral/get-referree?address={address}";
 
 // { queryWallet: [{ accumulatedTotalShardsEarned: 11.55 }] };
 export default {

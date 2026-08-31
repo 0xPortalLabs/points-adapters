@@ -2,11 +2,7 @@ import type { AdapterExport } from "../utils/adapter.ts";
 
 import { checksumAddress } from "viem";
 
-import { maybeWrapCORSProxy } from "../utils/cors.ts";
-
-const AIRDROP_URL = await maybeWrapCORSProxy(
-  "https://api.dolomite.io/airdrop/regular/{address}"
-);
+const AIRDROP_URL = "https://api.dolomite.io/airdrop/regular/{address}";
 
 export default {
   fetch: async (address: string) => {
