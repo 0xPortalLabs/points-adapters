@@ -1,9 +1,6 @@
 import type { AdapterExport } from "../utils/adapter.ts";
-import { maybeWrapCORSProxy } from "../utils/cors.ts";
 
-const API_URL = await maybeWrapCORSProxy(
-  "https://mini.frm.lol/api/mini/leaderboard/rank/{fid}"
-);
+const API_URL = "https://mini.frm.lol/api/mini/leaderboard/rank/{fid}";
 
 type LeaderboardData = {
   points: number;

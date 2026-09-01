@@ -1,10 +1,8 @@
 import { getAddress } from "viem";
 import type { AdapterExport } from "../utils/adapter.ts";
-import { maybeWrapCORSProxy } from "../utils/cors.ts";
 
-const API_URL = await maybeWrapCORSProxy(
-  "https://api.mainstreet.finance/points/my-data?wallet={address}&season=3"
-);
+const API_URL =
+  "https://api.mainstreet.finance/points/my-data?wallet={address}&season=3";
 
 type API_RESPONSE = {
   success?: boolean;

@@ -1,9 +1,8 @@
 import { AdapterExport } from "../utils/adapter.ts";
-import { maybeWrapCORSProxy } from "../utils/cors.ts";
 import { getAddress } from "viem";
 import { convertKeysToStartCase } from "../utils/object.ts";
 
-const API_URL = await maybeWrapCORSProxy("https://api.doma.xyz/graphql");
+const API_URL = "https://api.doma.xyz/graphql";
 
 export default {
   fetch: async (address: string) => {

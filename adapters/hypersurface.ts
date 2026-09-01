@@ -1,10 +1,6 @@
 import type { AdapterExport } from "../utils/adapter.ts";
 
-import { maybeWrapCORSProxy } from "../utils/cors.ts";
-
-const API_URL = await maybeWrapCORSProxy(
-  "https://points-api.hypersurface.io/points/{address}/state/"
-);
+const API_URL = "https://points-api.hypersurface.io/points/{address}/state/";
 
 type API_RESPONSE = {
   rank: {

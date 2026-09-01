@@ -1,9 +1,6 @@
 import type { AdapterExport } from "../utils/adapter.ts";
-import { maybeWrapCORSProxy } from "../utils/cors.ts";
 
-const API_URL = await maybeWrapCORSProxy(
-  "https://api.re.xyz/wallet/points?address={address}",
-);
+const API_URL = "https://api.re.xyz/wallet/points?address={address}";
 
 type RePointsResponse = {
   success: boolean;

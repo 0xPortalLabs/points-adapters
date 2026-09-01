@@ -1,8 +1,7 @@
 import { getAddress } from "viem";
 import type { AdapterExport } from "../utils/adapter.ts";
-import { maybeWrapCORSProxy } from "../utils/cors.ts";
 
-const API_URL = await maybeWrapCORSProxy("https://api.hotstuff.trade/info");
+const API_URL = "https://api.hotstuff.trade/info";
 
 const headers = {
   "Content-Type": "application/json",

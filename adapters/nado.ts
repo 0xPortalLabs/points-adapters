@@ -1,10 +1,7 @@
 import { formatUnits, getAddress } from "viem";
 import type { AdapterExport } from "../utils/adapter.ts";
-import { maybeWrapCORSProxy } from "../utils/cors.ts";
 
-const ARCHIVE_URL = await maybeWrapCORSProxy(
-  "https://archive.prod.nado.xyz/v1",
-);
+const REWARDS_URL = "https://api.prod.nado.xyz/rewards/v1";
 
 type PointsBreakdown = {
   points: string;
@@ -27,6 +24,7 @@ type API_RESPONSE = PointsResponse;
 const headers = {
   accept: "application/json",
   "content-type": "application/json",
+  "x-nado-client-type": "nado",
 };
 
 const toPointsNumber = (value: string | undefined): number => {
@@ -40,8 +38,33 @@ const buildPointsBreakdown = (points: PointsBreakdown) => ({
   Tier: points.tier,
 });
 
+const isIntegerString = (value: unknown): value is string =>
+  typeof value === "string" && /^-?\d+$/.test(value);
+
+const isPointsBreakdown = (value: unknown): value is PointsBreakdown => {
+  if (!value || typeof value !== "object") return false;
+
+  const points = value as Record<string, unknown>;
+  return isIntegerString(points.points) &&
+    typeof points.rank === "number" &&
+    typeof points.tier === "number";
+};
+
+const isPointsResponse = (value: unknown): value is PointsResponse => {
+  if (!value || typeof value !== "object") return false;
+
+  const response = value as Record<string, unknown>;
+  return Array.isArray(response.points_per_epoch) &&
+    response.points_per_epoch.every((epoch) => {
+      if (!isPointsBreakdown(epoch)) return false;
+      const pointsEpoch = epoch as unknown as Record<string, unknown>;
+      return typeof pointsEpoch.epoch === "number" &&
+        typeof pointsEpoch.description === "string";
+    }) && isPointsBreakdown(response.all_time_points);
+};
+
 const fetchPoints = async (address: string): Promise<PointsResponse> => {
-  const res = await fetch(ARCHIVE_URL, {
+  const res = await fetch(REWARDS_URL, {
     method: "POST",
     headers,
     body: JSON.stringify({
@@ -53,7 +76,21 @@ const fetchPoints = async (address: string): Promise<PointsResponse> => {
     throw new Error(`Nado points request failed with status ${res.status}`);
   }
 
-  return await res.json() as PointsResponse;
+  let data: unknown;
+  try {
+    data = await res.json();
+  } catch (error) {
+    const details = error instanceof Error ? `: ${error.message}` : "";
+    throw new Error(`Nado points request returned invalid JSON${details}`, {
+      cause: error,
+    });
+  }
+
+  if (!isPointsResponse(data)) {
+    throw new Error("Nado points request returned a malformed response");
+  }
+
+  return data;
 };
 
 const buildEpochBreakdown = (epochs: PointsEpoch[]) =>

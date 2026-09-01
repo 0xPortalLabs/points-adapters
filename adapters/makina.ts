@@ -5,7 +5,7 @@ import { maybeWrapCORSProxy } from "../utils/cors.ts";
 const SEASON_0_API_URL = await maybeWrapCORSProxy(
   "https://makina.finance/api/points/{address}",
 );
-const MERKL_API_URL = await maybeWrapCORSProxy("https://api.merkl.xyz/v4");
+const MERKL_API_URL = "https://api.merkl.xyz/v4";
 
 const INK_CHAIN_ID = 57073;
 const MAKINA_POINTS_ADDRESS = "0x3419966bC74fa8f951108d15b053bEd233974d3D";

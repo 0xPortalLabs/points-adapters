@@ -1,8 +1,7 @@
 import { getAddress } from "viem";
 import type { AdapterExport } from "../utils/adapter.ts";
-import { maybeWrapCORSProxy } from "../utils/cors.ts";
 
-const API_BASE_URL = await maybeWrapCORSProxy("https://api.fuul.xyz/api/v1");
+const API_BASE_URL = "https://api.fuul.xyz/api/v1";
 
 const SEASONS = [
   {
