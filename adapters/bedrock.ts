@@ -134,6 +134,11 @@ export default {
         "Bedrock earned Diamonds request returned malformed data",
       );
     }
+    if (typeof earnedDiamonds === "string" && earnedDiamonds.trim() === "") {
+      throw new Error(
+        "Bedrock earned Diamonds request returned malformed data",
+      );
+    }
     const earnedDiamondsNumber = Number(earnedDiamonds);
     if (!Number.isFinite(earnedDiamondsNumber)) {
       throw new Error(
