@@ -1,16 +1,10 @@
 import type { AdapterExport } from "../utils/adapter.ts";
-import { maybeWrapCORSProxy } from "../utils/cors.ts";
 import {
   convertKeysToStartCase,
   convertValuesToNormal,
 } from "../utils/object.ts";
 
-const EARNED_URL = await maybeWrapCORSProxy(
-  "https://app.bedrock.technology/api/v2/bedrock/task/earned",
-);
-const QUESTS_URL = await maybeWrapCORSProxy(
-  "https://app.bedrock.technology/api/v2/bedrock/task/list",
-);
+const TASK_API_URL = "https://affiliate-api-eosin.vercel.app/api/v1/task";
 
 type QuestTask = {
   title?: string;
@@ -48,22 +42,34 @@ const getTotalDiamonds = (data: API_RESPONSE): number =>
 const isObject = (value: unknown): value is Record<string, unknown> =>
   value !== null && typeof value === "object" && !Array.isArray(value);
 
+const hasOptionalString = (value: Record<string, unknown>, key: string) =>
+  value[key] === undefined || typeof value[key] === "string";
+
+const isQuestTask = (value: unknown): value is QuestTask =>
+  isObject(value) &&
+  hasOptionalString(value, "title") &&
+  hasOptionalString(value, "rewards") &&
+  hasOptionalString(value, "status");
+
 const isQuest = (value: unknown): value is Quest =>
   isObject(value) &&
+  hasOptionalString(value, "title") &&
+  hasOptionalString(value, "rewards") &&
+  hasOptionalString(value, "locked") &&
   (value.tasks === undefined ||
-    (Array.isArray(value.tasks) && value.tasks.every(isObject)));
+    (Array.isArray(value.tasks) && value.tasks.every(isQuestTask)));
 
-const postBedrock = async (
-  url: string,
+const fetchBedrock = async (
+  path: "earned" | "all",
   address: string,
   requestName: string,
 ): Promise<unknown> => {
+  const url = new URL(`${TASK_API_URL}/${path}`);
+  url.searchParams.set("addr", address.toLowerCase());
+
   const res = await fetch(url, {
-    method: "POST",
-    body: JSON.stringify({ address: address.toLowerCase() }),
     headers: {
       Accept: "application/json",
-      "Content-Type": "application/json",
       "User-Agent": "Checkpoint API (https://checkpoint.exchange)",
     },
   });
@@ -80,19 +86,28 @@ const postBedrock = async (
 
   try {
     return await res.json();
-  } catch {
-    throw new Error(`Bedrock ${requestName} request returned invalid JSON`);
+  } catch (error) {
+    const details = error instanceof Error ? `: ${error.message}` : "";
+    throw new Error(
+      `Bedrock ${requestName} request returned invalid JSON${details}`,
+      { cause: error },
+    );
   }
 };
 
 export default {
   fetch: async (address: string): Promise<API_RESPONSE> => {
     const [earnedResponse, questsResponse] = await Promise.all([
-      postBedrock(EARNED_URL, address, "earned Diamonds"),
-      postBedrock(QUESTS_URL, address, "quests"),
+      fetchBedrock("earned", address, "earned Diamonds"),
+      fetchBedrock("all", address, "quests"),
     ]);
 
-    if (!isObject(earnedResponse) || !isObject(earnedResponse.data)) {
+    if (
+      !isObject(earnedResponse) ||
+      earnedResponse.code !== 200 ||
+      typeof earnedResponse.message !== "string" ||
+      !isObject(earnedResponse.data)
+    ) {
       throw new Error(
         "Bedrock earned Diamonds request returned malformed data",
       );
@@ -114,7 +129,11 @@ export default {
       );
     }
 
-    if (!isObject(questsResponse)) {
+    if (
+      !isObject(questsResponse) ||
+      questsResponse.code !== 200 ||
+      typeof questsResponse.message !== "string"
+    ) {
       throw new Error("Bedrock quests request returned malformed data");
     }
     const quests = questsResponse.data;
