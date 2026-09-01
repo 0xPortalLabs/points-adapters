@@ -26,9 +26,10 @@ type API_RESPONSE = {
 
 const emptyResponse = (): API_RESPONSE => ({ quests: [] });
 
-const toNumber = (value: unknown): number =>
-  parseFloat(String(value ?? "")) ||
-  0;
+const toNumber = (value: unknown): number => {
+  const numericValue = Number(value ?? 0);
+  return Number.isFinite(numericValue) ? numericValue : 0;
+};
 
 const getCompletedDiamonds = (quests: Quest[]): number =>
   quests.reduce((total, quest) => total + toNumber(quest.rewards), 0);
@@ -45,6 +46,17 @@ const isObject = (value: unknown): value is Record<string, unknown> =>
 const hasOptionalString = (value: Record<string, unknown>, key: string) =>
   value[key] === undefined || typeof value[key] === "string";
 
+const hasOptionalNumericString = (
+  value: Record<string, unknown>,
+  key: string,
+) => {
+  const field = value[key];
+  return field === undefined ||
+    (typeof field === "string" &&
+      field.trim() !== "" &&
+      Number.isFinite(Number(field)));
+};
+
 const isQuestTask = (value: unknown): value is QuestTask =>
   isObject(value) &&
   hasOptionalString(value, "title") &&
@@ -54,8 +66,8 @@ const isQuestTask = (value: unknown): value is QuestTask =>
 const isQuest = (value: unknown): value is Quest =>
   isObject(value) &&
   hasOptionalString(value, "title") &&
-  hasOptionalString(value, "rewards") &&
-  hasOptionalString(value, "locked") &&
+  hasOptionalNumericString(value, "rewards") &&
+  hasOptionalNumericString(value, "locked") &&
   (value.tasks === undefined ||
     (Array.isArray(value.tasks) && value.tasks.every(isQuestTask)));
 
