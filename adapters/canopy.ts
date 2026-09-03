@@ -24,8 +24,21 @@ type CanopyResponse = {
   data?: CanopyAccount[];
 };
 
-const getPoints = (data: CanopyResponse): number =>
-  Number(data.data?.[0]?.amount ?? 0) || 0;
+const getPoints = (data: CanopyResponse): number => {
+  const account = data.data?.[0];
+  if (!account) return 0;
+
+  if (!account.amount?.trim()) {
+    throw new Error("Canopy account response has no amount");
+  }
+
+  const points = Number(account.amount);
+  if (!Number.isFinite(points)) {
+    throw new Error("Canopy account amount is not finite");
+  }
+
+  return points;
+};
 
 export default {
   fetch: async (address: string) => {
