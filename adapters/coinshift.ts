@@ -26,7 +26,11 @@ const getNumber = (
   }
 
   const parsed = Number(value);
-  if (!Number.isFinite(parsed) || parsed < 0) {
+  if (
+    !Number.isFinite(parsed) ||
+    parsed < 0 ||
+    (field === "rank" && (!Number.isInteger(parsed) || parsed === 0))
+  ) {
     throw new Error(`Coinshift response has invalid ${field}`);
   }
 
@@ -37,7 +41,7 @@ export default {
   fetch: async (address: string) => {
     const normalizedAddress = getAddress(address).toLowerCase();
     const res = await fetch(
-      `${API_URL}?user_address=${normalizedAddress}&page=1&page_size=1`,
+      `${API_URL}?user_identifier=${normalizedAddress}&user_identifier_type=evm_address&page=1&page_size=1`,
       {
         headers: {
           Accept: "application/json",
