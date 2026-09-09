@@ -1,4 +1,4 @@
-import { getAddress } from "viem";
+import { formatUnits, getAddress } from "viem";
 import type { AdapterExport } from "../utils/adapter.ts";
 
 const API_URL = "https://back.noon.capital/api/v1/points/{address}";
@@ -25,6 +25,22 @@ const getCurrentSeason = (): string => {
   return String(currentMonth - FIRST_API_SEASON_MONTH + 1);
 };
 
+const getRawPoints = (value: unknown): bigint => {
+  if (typeof value === "number") {
+    if (!Number.isSafeInteger(value) || value < 0) {
+      throw new Error("Noon response has invalid season total");
+    }
+
+    return BigInt(value);
+  }
+
+  if (typeof value !== "string" || !/^\d+$/.test(value.trim())) {
+    throw new Error("Noon response has invalid season total");
+  }
+
+  return BigInt(value.trim());
+};
+
 const getPoints = (data: NoonResponse | undefined): number => {
   if (!data) return 0;
   if (!data.byChain || typeof data.byChain !== "object") {
@@ -41,7 +57,7 @@ const getPoints = (data: NoonResponse | undefined): number => {
   if (!protocols.length) return 0;
 
   const currentSeason = getCurrentSeason();
-  return protocols.reduce((total, protocol) => {
+  const rawPoints = protocols.reduce((total, protocol) => {
     if (!protocol?.bySeasons || typeof protocol.bySeasons !== "object") {
       throw new Error("Noon response has invalid season data");
     }
@@ -49,21 +65,19 @@ const getPoints = (data: NoonResponse | undefined): number => {
     const season = protocol.bySeasons?.[currentSeason];
     if (!season) return total;
 
-    const value = season.total;
-    if (
-      (typeof value !== "number" && typeof value !== "string") ||
-      (typeof value === "string" && !value.trim())
-    ) {
+    if (season.total === undefined || season.total === null) {
       throw new Error("Noon response has no season total");
     }
 
-    const points = Number(value);
-    if (!Number.isFinite(points) || points < 0) {
-      throw new Error("Noon response has invalid season total");
-    }
+    return total + getRawPoints(season.total);
+  }, 0n);
 
-    return total + points;
-  }, 0);
+  const points = Number(formatUnits(rawPoints, 18));
+  if (!Number.isFinite(points)) {
+    throw new Error("Noon response has invalid season total");
+  }
+
+  return points;
 };
 
 export default {
