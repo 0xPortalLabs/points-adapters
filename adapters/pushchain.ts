@@ -6,6 +6,7 @@ const API_URL = "https://us-east1-push-prod-apps.cloudfunctions.net/" +
 
 const EVM_IDENTITIES = [
   ["Ethereum Sepolia", "eip155:11155111"],
+  ["Arbitrum Sepolia", "eip155:421614"],
   ["Ethereum", "eip155:1"],
   ["Push Testnet", "eip155:42101"],
   ["Base Sepolia", "eip155:84532"],
