@@ -61,5 +61,8 @@ export default {
     "Last Updated": data.data?.[0]?.updatedAt ?? "N/A",
   }),
   total: getPoints,
+  deprecated: () => ({
+    Points: 1788739200, // September 7th 2026 00:00 UTC
+  }),
   supportedAddressTypes: ["evm"],
 } as AdapterExport;
