@@ -38,12 +38,20 @@ const getOptionalString = (value: unknown): string | undefined =>
 export default {
   fetch: async (address: string): Promise<API_RESPONSE> => {
     const normalizedAddress = getAddress(address).toLowerCase();
-    const res = await fetch(API_URL.replace("{address}", normalizedAddress), {
-      headers: {
-        Accept: "application/json",
-        "User-Agent": "Checkpoint API (https://checkpoint.exchange)",
-      },
-    });
+    let res: Response;
+    try {
+      res = await fetch(API_URL.replace("{address}", normalizedAddress), {
+        headers: {
+          Accept: "application/json",
+          "User-Agent": "Checkpoint API (https://checkpoint.exchange)",
+        },
+      });
+    } catch (error) {
+      throw new Error(
+        "Katana XP request failed before receiving a response",
+        { cause: error },
+      );
+    }
 
     if (res.status === 404) return emptyResponse();
     if (!res.ok) {
