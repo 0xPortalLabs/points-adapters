@@ -9,6 +9,7 @@ import type { AdapterExport } from "../utils/adapter.ts";
 
 const RPC_URL = "https://api.avax.network/ext/bc/C/rpc";
 const POINTS_URL = "https://api.points.xapp.folks.finance/xchain/account/";
+const REQUEST_TIMEOUT_MS = 5_000;
 const ACCOUNT_MANAGER = "0x12Db9758c4D9902334C523b94e436258EB54156f";
 // Folks chain IDs (not EVM chain IDs): Avalanche, Ethereum, Base, BSC,
 // Arbitrum, Polygon, Sei, Monad. All registrations live on the Avalanche hub.
@@ -33,7 +34,11 @@ const asObject = (value: unknown): Record<string, unknown> => {
 const request = async (url: string, init?: RequestInit): Promise<unknown> => {
   let response: Response;
   try {
-    response = await fetch(url, init);
+    const timeout = AbortSignal.timeout(REQUEST_TIMEOUT_MS);
+    response = await fetch(url, {
+      ...init,
+      signal: init?.signal ? AbortSignal.any([init.signal, timeout]) : timeout,
+    });
   } catch (error) {
     throw new Error(
       "Folks Finance request failed before receiving a response",
