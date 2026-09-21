@@ -111,6 +111,11 @@ const getAccounts = async (address: string): Promise<string[]> => {
     accounts.add(row.result.toLowerCase());
   }
   // The same account may be registered on multiple chains. Count it only once.
+  // Points belong to the Folks account, not exclusively to the queried wallet:
+  // different linked wallets can return the same account balance. Before opening
+  // a Checkpoint market, deduplicate by Folks account ID across wallets/claims so
+  // the shared balance cannot be counted or used to back positions more than once.
+  // This adapter only deduplicates accounts within a single wallet lookup.
   return [...accounts].sort();
 };
 
