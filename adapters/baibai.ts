@@ -1,15 +1,11 @@
 import { getAddress } from "viem";
-import type {
-  AdapterExport,
-  LabelledDetailedData,
-  LabelledPoints,
-} from "../utils/adapter.ts";
+import type { AdapterExport } from "../utils/adapter.ts";
 import { wrapCORSProxy } from "../utils/cors.ts";
 
 const API_URL = "https://app.baibai.cx/trpc/points.summary";
 
 type BaiBaiData = {
-  points?: number;
+  points: number;
 };
 
 const getObject = (value: unknown): Record<string, unknown> => {
@@ -52,13 +48,13 @@ export default {
       throw new Error("BaiBai response returned a different wallet");
     }
 
-    // The API schema makes totalPoints optional; the app displays "Pending"
-    // until a snapshot exists, including for unused wallets. Do not invent zero.
+    // Missing totalPoints means no published balance yet (the app says "Pending").
+    // Report zero credited points, without estimating the next weekly award.
     if (data.totalPoints === undefined) {
       if (typeof data.volumeUsd !== "string" || !Array.isArray(data.quests)) {
         throw new Error("BaiBai response has invalid pending points data");
       }
-      return {};
+      return { points: 0 };
     }
     if (
       typeof data.totalPoints !== "string" ||
@@ -76,12 +72,7 @@ export default {
     // on rollover rather than combining snapshots or hardcoding a season label.
     return { points };
   },
-  data: (data: BaiBaiData): LabelledDetailedData => ({
-    "BaiBai Points": data.points === undefined
-      ? { Status: "Pending" }
-      : { Total: data.points },
-  }),
-  total: (data: BaiBaiData): LabelledPoints =>
-    data.points === undefined ? {} : { "BaiBai Points": data.points },
+  data: (data: BaiBaiData) => ({ "BaiBai Points": { Total: data.points } }),
+  total: (data: BaiBaiData) => ({ "BaiBai Points": data.points }),
   supportedAddressTypes: ["evm"],
 } satisfies AdapterExport<BaiBaiData>;
