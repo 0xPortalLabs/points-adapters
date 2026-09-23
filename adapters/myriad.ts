@@ -29,7 +29,7 @@ export default {
     }
 
     if (res.status === 400) {
-      const error: unknown = await res.json();
+      const error: unknown = await res.json().catch(() => null);
       // Verified against three zero-point leaderboard accounts and unknown wallets.
       // Only this exact upstream error denotes no points; other failures must surface.
       if (
