@@ -1,3 +1,35 @@
+import type { AdapterExport } from "../utils/adapter.ts";
+
+// Disabled as a precaution following a reported security incident; cause unverified.
+// Keep this module network-free, including at import time. Do not restore
+// WheelX requests without an explicit review and approval.
+export default {
+  fetch: () => Promise.resolve(undefined),
+  data: () => ({
+    Status: "Disabled pending security review",
+    "Total XP": 0,
+    "Available XP": 0,
+    "Redeemed XP": 0,
+    "Consumed XP": 0,
+    "Referral XP": 0,
+    "Other XP": 0,
+    "Trade XP": 0,
+    "Deploy XP": 0,
+    "GM XP": 0,
+    Multiplier: 0,
+  }),
+  total: () => 0,
+  rank: () => 0,
+  claimable: () => false,
+  supportedAddressTypes: ["evm"],
+} satisfies AdapterExport<undefined>;
+
+/*
+ARCHIVED IMPLEMENTATION — DISABLED, NOT EXECUTABLE
+Preserved for review only. Reactivation requires explicit security review and
+approval. Replace the disabled export above before restoring this implementation;
+its top-level CORS helper can make requests as soon as the module is imported.
+
 import { getAddress } from "viem";
 import type { AdapterExport } from "../utils/adapter.ts";
 import { maybeWrapCORSProxy } from "../utils/cors.ts";
@@ -89,3 +121,4 @@ export default {
   claimable: isClaimable,
   supportedAddressTypes: ["evm"],
 } as AdapterExport<WheelXResponse>;
+*/
