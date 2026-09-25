@@ -259,5 +259,5 @@ Make sure to normalize addresses in your adapter's fetch function.
 
 console.log(
   "\nData checks completed in Deno. Browser CORS is not verified by this runner. " +
-    "Run the browser smoke checks documented in README.md before integration.",
+    "Verify requests from the supported frontend origin before integration.",
 );
