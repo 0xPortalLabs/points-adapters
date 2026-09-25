@@ -99,7 +99,15 @@ const API_URL = await maybeWrapCORSProxy(
 );
 ```
 
-All adapters should target the browser and this includes using [Browser APIs](https://developer.mozilla.org/en-US/docs/Web/API) and [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS). The function `maybeWrapCORSProxy` will deal with the latter issue for all remote APIs.
+Adapters must work in both the browser and the server. Use `maybeWrapCORSProxy`
+only for an endpoint whose real browser request requires the proxy. This is an
+explicit opt-in: the helper chooses the proxy in a browser and the direct URL on
+the server. It performs no network request during URL selection or import.
+Endpoints verified to work directly should keep their direct URL. `FAST_LOAD`
+does not control adapter transport.
+
+Verify the actual method, headers and body in a browser before choosing a route.
+A GET probe or a successful Deno request does not establish browser compatibility.
 
 ```ts
 // [...]
@@ -221,10 +229,42 @@ export default {
 
 #### Changing CORS Proxy
 
-To change the CORS proxy used by the adapters in local development, use the env variable `CORS_PROXY_URL`.
+To change the proxy URL, use `CORS_PROXY_URL` in Deno/Node or
+`VITE_CORS_PROXY_URL` when building the frontend. The proxy must allow the actual
+page origin, including the port for localhost.
+Use the full proxy URL prefix including its final separator. An empty or
+whitespace-only setting uses the default proxy.
 
 ```sh
 $ CORS_PROXY_URL="https://..." deno run ...
 ```
 
 The function returns a record of `label`: `timestamp` which is in [UNIX time format](https://en.wikipedia.org/wiki/Unix_time). The labels are the same labels used in the adapter, if no labels are used by your other functions then use the label `Points`, which indicates that the points program has completely been deprecated.
+
+
+### CORS regression and browser smoke checks
+
+Run the dependency-free helper tests without network permission:
+
+```sh
+deno test --no-config --no-lock --allow-env --allow-read=utils/cors.ts utils/__tests__/cors.test.ts
+```
+
+The existing `test.ts` runner checks adapter data in Deno; it does not certify
+browser CORS. Do not fake `document` in that runner or inspect response headers to
+infer browser access.
+
+Using the frontend's existing Vite development server, open
+`http://localhost:5173/project/utils/__tests__/cors.browser.html`. This standalone
+test page loads the helper, not the app or adapter bundle. It first verifies that
+import and URL selection make no fetch calls. Its separate live-check button
+uses a synthetic address for a GET and a GraphQL POST through the configured
+proxy; no wallet is connected. Run it again if the proxy URL changes. The page is
+a development test asset, not a production entrypoint.
+
+A localhost pass is not a production-origin certification. Before release, run
+read-only smoke requests from the actual supported origin(s), as proxy allowlists
+and upstream CORS depend on origin. Verify each changed adapter's actual request;
+the sample GET/POST smoke checks do not certify all adapters. Treat upstream 429,
+HTML challenges, and outages separately from CORS errors. Keep frontend rendering
+deadline and late-result tests in the frontend repository.

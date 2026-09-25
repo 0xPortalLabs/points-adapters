@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<title>Adapter CORS smoke checks</title>
+<h1>Adapter CORS smoke checks</h1>
+<p>This page loads only the shared helper. Live checks use a synthetic address,
+  send no credentials, and never render remote response content.</p>
+<button id="live" disabled>Run live GET / POST checks</button>
+<pre id="results" aria-live="polite"></pre>
+<script type="module">
+  const output = document.querySelector('#results');
+  const button = document.querySelector('#live');
+  const results = window.corsSmokeResults = [];
+  const report = (result) => {
+    results.push(result);
+    output.textContent = JSON.stringify({ origin: location.origin, results }, null, 2);
+  };
+  const realFetch = window.fetch;
+  let fetches = 0;
+  let helper;
+  window.fetch = () => {
+    fetches++;
+    throw new Error('Import and URL selection must not fetch');
+  };
+  try {
+    helper = await import('../cors.ts');
+    const target = 'https://api.example.invalid/points?address={address}';
+    const selected = await helper.maybeWrapCORSProxy(target);
+    if (fetches !== 0 || selected !== helper.CORS_PROXY_URL + target) {
+      throw new Error('Unexpected request or incorrect proxy URL');
+    }
+    report({ check: 'Import and browser URL selection', passed: true, fetches });
+    button.disabled = false;
+  } catch (error) {
+    report({ check: 'Import and browser URL selection', passed: false, error: String(error) });
+  } finally {
+    window.fetch = realFetch;
+  }
+
+  button.addEventListener('click', async () => {
+    button.disabled = true;
+    const address = '0x0000000000000000000000000000000000000001';
+    const cases = [
+      {
+        name: 'Blockscout GET',
+        url: `https://merits.blockscout.com/api/v1/leaderboard/users/${address}`,
+        init: { headers: { 'User-Agent': 'Checkpoint API (https://checkpoint.exchange)' } },
+        valid: (body) => typeof body.total_balance === 'string' || body.message === 'user not found',
+      },
+      {
+        name: 'Galxe POST and preflight',
+        url: 'https://graphigo.prd.galaxy.eco/query',
+        init: {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'User-Agent': 'Checkpoint API (https://checkpoint.exchange)',
+          },
+          body: JSON.stringify({
+            operationName: 'AddressInfoXP',
+            query: 'query AddressInfoXP($address: String!) { addressInfo(address: $address) { username userXPLevel { validXP level levelName } } }',
+            variables: { address },
+          }),
+        },
+        valid: (body) => !body.errors && body.data && 'addressInfo' in body.data,
+      },
+    ];
+    try {
+      for (const test of cases) {
+        try {
+          const url = await helper.maybeWrapCORSProxy(test.url);
+          const response = await fetch(url, {
+            ...test.init, credentials: 'omit', redirect: 'error',
+            signal: AbortSignal.timeout(10000),
+          });
+          const json = response.headers.get('content-type')?.includes('application/json');
+          if (!response.ok || !json) throw new Error(`HTTP ${response.status}; JSON=${Boolean(json)}`);
+          const body = await response.json();
+          if (!body || !test.valid(body)) throw new Error('Unexpected API response shape');
+          report({ check: test.name, passed: true, status: response.status });
+        } catch (error) {
+          report({ check: test.name, passed: false, error: String(error) });
+        }
+      }
+    } finally {
+      button.disabled = false;
+    }
+  });
+</script>
+</html>

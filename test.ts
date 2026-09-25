@@ -1,8 +1,5 @@
 // deno --allow-net --allow-read=adapters adapters/etherfi.ts
 
-// @ts-ignore emulate a browser env.
-globalThis.document = {};
-const { isGoodCORS } = await import("./utils/cors.ts");
 import type { AdapterExport, AddressType } from "./utils/adapter.ts";
 import { runAdapter, detectAddressType } from "./utils/adapter.ts";
 
@@ -53,23 +50,6 @@ if (!supported.includes(addressType)) {
 
 const skipAddressCheck =
   Deno.args.includes("--skip-address-check") || Deno.args.includes("-sac");
-
-// Monkey path `fetch()` so we can check if adapter API url is CORS friendly.
-const CORSstatus: Record<string, Promise<boolean> | boolean> = {};
-const _fetch = globalThis.fetch;
-globalThis.fetch = async (input, init) => {
-  if (typeof input === "string") {
-    if (!(input in CORSstatus)) {
-      CORSstatus[input] = false;
-      CORSstatus[input] = isGoodCORS(input);
-    }
-
-    CORSstatus[input] = await CORSstatus[input];
-  }
-
-  // @ts-ignore Overload..
-  return _fetch(input, init);
-};
 
 Object.defineProperty(globalThis, "Deno", {
   get: function () {
@@ -277,24 +257,7 @@ Make sure to normalize addresses in your adapter's fetch function.
   );
 }
 
-console.log("\nDoes the adapter work in the browser?");
-console.log("Is this a good CORS URL?");
-console.table(
-  Object.entries(CORSstatus).map(([url, good]) => ({
-    url,
-    good,
-  }))
+console.log(
+  "\nData checks completed in Deno. Browser CORS is not verified by this runner. " +
+    "Run the browser smoke checks documented in README.md before integration.",
 );
-
-if (Object.values(CORSstatus).some((x) => !x)) {
-  console.error(`
-Make sure to wrap any API URLs with 'maybeWrapCORSProxy' from '/utils/cors.ts'
-so that the adapter works in the browser.
-
-For example:
-\`\`\`js
-  const API_URL = await maybeWrapCORSProxy(
-      "https://app.ether.fi/api/portfolio/v3/{address}"
-  );
-\`\`\``);
-}
