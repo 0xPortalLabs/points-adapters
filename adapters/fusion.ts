@@ -108,7 +108,9 @@ const fetchUserPoints = async (address: string): Promise<PointsAmount> => {
   url.searchParams.set("test", "false");
 
   const res = await fetch(url.toString());
-  if (!res.ok) return emptyPoints();
+  if (!res.ok) {
+    throw new Error(`Fusion Merkl request failed with status ${res.status}`);
+  }
 
   return pointsFromRewards((await res.json()) as MerklUserRewards);
 };
@@ -189,7 +191,9 @@ const referralPathForAddress = async (address: string) => {
 const fetchReferralData = async (address: string): Promise<ReferralData> => {
   const referralPath = await referralPathForAddress(address);
   const res = await fetch(`${EVENTS_API_URL}/points/${referralPath}`);
-  if (!res.ok) return { referrers: [], total: 0 };
+  if (!res.ok) {
+    throw new Error(`Fusion referral request failed with status ${res.status}`);
+  }
 
   return (await res.json()) as ReferralData;
 };
