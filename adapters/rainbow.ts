@@ -53,9 +53,7 @@ export default {
   },
   total: (data: API_RESPONSE) => Number(data.earnings.total),
   claimable: (data: API_RESPONSE) => (data.meta.rewards.total || "0") !== "0",
-  // Preserve historical balances. Use the verified feature-removal date;
-  // the exact points-earning cutoff has not been confirmed.
-  // https://github.com/rainbow-me/rainbow/commit/2582937e97ec10b95c393b3b48da82c99a0f5abf
-  deprecated: () => ({ Points: 1772496000 }), // March 3rd 2026 00:00 UTC
+  // Keep historical balances available. Add deprecated only once the earning
+  // cutoff is verified; the points UI removal date does not establish it.
   supportedAddressTypes: ["evm"],
 } as AdapterExport;
