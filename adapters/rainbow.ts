@@ -53,5 +53,7 @@ export default {
   },
   total: (data: API_RESPONSE) => Number(data.earnings.total),
   claimable: (data: API_RESPONSE) => (data.meta.rewards.total || "0") !== "0",
+  // Keep historical balances available. Add deprecated only once the earning
+  // cutoff is verified; the points UI removal date does not establish it.
   supportedAddressTypes: ["evm"],
 } as AdapterExport;
