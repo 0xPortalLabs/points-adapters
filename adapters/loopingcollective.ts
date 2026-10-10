@@ -1,3 +1,29 @@
+// Disabled 2026-10-10 as a precaution pending security review: the Looping
+// Collective app was reported to contact api.enso.finance, which was flagged
+// by security software. This adapter queries Looping's points API, not Enso;
+// the alert does not establish a compromise. Keep this module network-free
+// until the dependency has been reviewed and reactivation explicitly approved.
+import type { AdapterExport } from "../utils/adapter.ts";
+
+export default {
+  fetch: () => Promise.resolve(undefined),
+  data: () => ({
+    "Phase 3 LOOP Points": {
+      Status: "Disabled pending security review",
+      Total: 0,
+    },
+  }),
+  total: () => ({ "Phase 3 LOOP Points": 0 }),
+  rank: () => 0,
+  claimable: () => false,
+  supportedAddressTypes: ["evm"],
+} satisfies AdapterExport<undefined>;
+
+/*
+ARCHIVED IMPLEMENTATION — DISABLED, NOT EXECUTABLE
+Preserved for review only. Reactivation requires explicit security review and
+approval. Replace the disabled export above before restoring this implementation.
+
 import { getAddress } from "viem";
 import type { AdapterExport } from "../utils/adapter.ts";
 import { wrapCORSProxy } from "../utils/cors.ts";
@@ -100,3 +126,4 @@ export default {
   rank: (data: LoopingCollectiveData) => data.rank,
   supportedAddressTypes: ["evm"],
 } satisfies AdapterExport<LoopingCollectiveData>;
+*/
