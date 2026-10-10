@@ -156,5 +156,10 @@ export default {
     },
   }),
   total: (data: FolksData) => ({ "Folks Points": data.points }),
+  // xChain accrual ended after the October 8, 2026 snapshot; Algorand is unaffected.
+  // https://forum.folks.finance/t/xchain-transition-plan-moving-to-the-next-product-evolution/2063
+  // Use October 8 00:00 UTC as a date-only marker; no snapshot time was published.
+  // Keep historical balance queries available while the upstream API remains live.
+  deprecated: () => ({ "Folks Points": 1791417600 }),
   supportedAddressTypes: ["evm"],
 } satisfies AdapterExport<FolksData>;
