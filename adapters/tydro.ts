@@ -1,5 +1,6 @@
 import { formatUnits, getAddress } from "viem";
 import type { AdapterExport } from "../utils/adapter.ts";
+import { wrapCORSProxy } from "../utils/cors.ts";
 
 const API_URL = "https://api.merkl.xyz/v4/rewards/token/total";
 const CHAIN_ID = "57073";
@@ -15,11 +16,13 @@ export default {
       address: POINTS_TOKEN,
       recipient: wallet,
     });
-    // Tydro's frontend uses this wallet-scoped endpoint. Direct browser fetches
-    // from Checkpoint work without authentication or a CORS proxy.
+    const url = `${API_URL}?${params}`;
+    // Merkl allows Checkpoint's production origin but denies localhost.
+    // Use the configured proxy in browsers; server runtimes stay direct.
+    const requestUrl = "document" in globalThis ? wrapCORSProxy(url) : url;
     let res: Response;
     try {
-      res = await fetch(`${API_URL}?${params}`, {
+      res = await fetch(requestUrl, {
         headers: { Accept: "application/json" },
         signal: AbortSignal.timeout(10000),
       });
