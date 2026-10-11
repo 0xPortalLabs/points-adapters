@@ -1,45 +1,12 @@
 import type { AdapterExport } from "../utils/adapter.ts";
 
-const API_URL = "https://points-api.hypersurface.io/points/{address}/state/";
-
-type API_RESPONSE = {
-  rank: {
-    place: number;
-    total: number;
-  };
-  state: {
-    value: number;
-  };
-};
-
+// Hypersurface has shut down completely.
+// Ref: https://x.com/hypersurfaceX/status/2097672117781512509
 export default {
-  fetch: async (address) => {
-    const res = await fetch(API_URL.replace("{address}", address), {
-      headers: { "User-Agent": "Checkpoint API (https://checkpoint.exchange)" },
-    });
-    if (!res.ok) {
-      throw new Error(`Failed to fetch hypersurface data ${await res.text()}`);
-    }
-    const data = await res.json();
-    if (data.rank == null || data.state == null) {
-      return {
-        rank: {
-          place: 0,
-          total: 0,
-        },
-        state: {
-          value: 0,
-        },
-      };
-    }
-    return data;
-  },
-  data: (data: API_RESPONSE) => ({
-    Rank: data.rank.place,
-    "Total Participants": data.rank.total,
-    Points: data.state.value,
-  }),
-  total: (data: API_RESPONSE) => data.state.value,
-  rank: (data: API_RESPONSE) => data.rank.place,
+  fetch: async () => await Promise.resolve({}),
+  data: () => ({}),
+  total: () => 0,
+  claimable: () => false,
+  deprecated: () => ({ Points: 1788958980 }), // Sep 9th 2026 13:03 UTC
   supportedAddressTypes: ["evm"],
 } as AdapterExport;

@@ -1,12 +1,17 @@
+const viteEnv = (
+  import.meta as ImportMeta & {
+    env?: Record<string, string>;
+  }
+).env;
+
 const maybeReadEnv = (name: string, fallback: string) =>
   typeof Deno !== "undefined" && Deno.env.has(name)
     ? Deno.env.get(name)
-    : typeof import.meta.env !== "undefined" &&
-        Object.hasOwn(import.meta.env, "VITE_" + name)
-      ? import.meta.env["VITE_" + name]
-      : typeof process !== "undefined" && process.env && process.env[name]
-        ? process.env[name]
-        : fallback;
+    : typeof viteEnv !== "undefined" && Object.hasOwn(viteEnv, "VITE_" + name)
+    ? viteEnv["VITE_" + name]
+    : typeof process !== "undefined" && process.env && process.env[name]
+    ? process.env[name]
+    : fallback;
 
 const CORS_PROXY_URL = maybeReadEnv(
   "CORS_PROXY_URL",
