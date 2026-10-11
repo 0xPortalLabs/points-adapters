@@ -2,7 +2,7 @@ import { getAddress } from "viem";
 import type { AdapterExport } from "../utils/adapter.ts";
 import { wrapCORSProxy } from "../utils/cors.ts";
 
-const API_URL = "https://app.baibai.cx/trpc/points.summary";
+const API_URL = "https://app.baibai.cx/v1/trpc/points.summary";
 
 type BaiBaiData = {
   points: number;
