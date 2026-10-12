@@ -1,3 +1,32 @@
+// Disabled 2026-10-12 after repeated points API timeouts and a confirmed HTTP 522.
+// Trading has resumed, but points service and accrual remain unverified.
+// Keep this module network-free until the points endpoint is verified and
+// reactivation is explicitly approved. Zero values below are placeholders,
+// not verified wallet balances.
+import type { AdapterExport } from "../utils/adapter.ts";
+
+export default {
+  fetch: () => Promise.resolve(undefined),
+  data: () => ({
+    Status: "Disabled: points service unavailable",
+    Rank: 0,
+    "Total Participants": 0,
+    Points: 0,
+  }),
+  total: () => 0,
+  rank: () => 0,
+  claimable: () => false,
+  // Retain September 9, 2026 at 00:00 UTC as the requested deprecation date.
+  deprecated: () => ({ Points: 1788912000 }),
+  supportedAddressTypes: ["evm"],
+} satisfies AdapterExport<undefined>;
+
+/*
+ARCHIVED IMPLEMENTATION — DISABLED, NOT EXECUTABLE
+Preserved for review and possible reactivation. Verify the points API and
+accrual before restoring; resumed trading alone does not establish either.
+Replace the disabled export above and review the deprecation date when restoring.
+
 import type { AdapterExport } from "../utils/adapter.ts";
 
 const API_URL = "https://points-api.hypersurface.io/points/{address}/state/";
@@ -47,3 +76,4 @@ export default {
   deprecated: () => ({ Points: 1788912000 }),
   supportedAddressTypes: ["evm"],
 } as AdapterExport;
+*/
