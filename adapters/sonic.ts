@@ -6,10 +6,11 @@ import type { AdapterExport } from "../utils/adapter.ts";
 // https://www.soniclabs.com/blog/sonic-airdrop-burn-and-final-claim-deadline
 export default {
   fetch: async () => await Promise.resolve({}),
-  data: () => ({}),
+  data: () => ({ "Program Claim Deadline": "2026-10-15" }),
   total: () => 0,
-  // Program-level availability, not a wallet eligibility check.
-  claimable: () => Date.now() < Date.parse("2026-10-15T00:00:00Z"),
+  // Eligible fNFT holdings and unclaimed allocations are not checked here.
+  // The program deadline above does not establish eligibility for this wallet.
+  claimable: () => false,
   deprecated: () => ({
     Points: 1761955200, // November 1st 2025 00:00 UTC
   }),
