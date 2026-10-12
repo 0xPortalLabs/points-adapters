@@ -13,7 +13,7 @@ type API_RESPONSE = {
 };
 
 export default {
-  fetch: async (address) => {
+  fetch: async (address: string) => {
     const res = await fetch(API_URL.replace("{address}", address), {
       headers: { "User-Agent": "Checkpoint API (https://checkpoint.exchange)" },
     });
@@ -41,5 +41,9 @@ export default {
   }),
   total: (data: API_RESPONSE) => data.state.value,
   rank: (data: API_RESPONSE) => data.rank.place,
+  // Deprecated effective September 9, 2026, per the supplied cutoff date.
+  // Use 00:00 UTC as a date-only marker; historical balance queries stay enabled.
+  // Review for reinstatement once the points service and accrual are verified.
+  deprecated: () => ({ Points: 1788912000 }),
   supportedAddressTypes: ["evm"],
 } as AdapterExport;
