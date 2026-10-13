@@ -23,9 +23,11 @@ const toNumber = (value: string | number | undefined): number =>
 export default {
   fetch: async (address: string) => {
     const normalizedAddress = getAddress(address).toLowerCase();
+
+    // The API accepts this UA, but rejects "Checkpoint API (...)".
     const res = await fetch(API_URL.replace("{address}", normalizedAddress), {
       headers: {
-        "User-Agent": "Checkpoint API (https://checkpoint.exchange)",
+        "User-Agent": "Checkpoint/1.0 (+https://checkpoint.exchange)",
       },
     });
 
@@ -58,5 +60,8 @@ export default {
   total: (data: API_RESPONSE) => ({
     Points: toNumber(data.currentAmount),
   }),
+  // Season 1 ended; retain historical balances while allocations await TGE.
+  // https://docs.avantprotocol.com/historical-incentives/rewards-overview
+  deprecated: () => ({ Points: Date.parse("2026-05-15T00:00:00Z") / 1000 }),
   supportedAddressTypes: ["evm"],
-} as AdapterExport;
+} satisfies AdapterExport<API_RESPONSE>;

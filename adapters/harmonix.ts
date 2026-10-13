@@ -155,8 +155,8 @@ export default {
     }
 
     return {
-      "S2 Points": s2Total,
-      "S1 Points": s1Total,
+      "S2 Points": s2Total ?? 0,
+      "S1 Points": s1Total ?? 0,
     };
   },
   claimable: (data: API_RESPONSE) => {

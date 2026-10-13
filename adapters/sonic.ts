@@ -1,43 +1,16 @@
 import type { AdapterExport } from "../utils/adapter.ts";
 
-const API_URL =
-  "https://www.data-openblocklabs.com/sonic/user-points-stats?wallet_address={address}";
-
-/**
- * {
-  user_activity_last_detected: "2025-01-28T21:19:14.817735+00:00",
-  wallet_address: "0xa571af45783cf0461aef7329ec7df3eea8c48a1e",
-  sonic_points: 0.0,
-  loyalty_multiplier: 0,
-  ecosystem_points: 0.0,
-  passive_liquidity_points: 0.0,
-  activity_points: 0,
-  rank: 0,
-};
- */
+// Sonic Points ended on November 1, 2025; the OpenBlock points API is retired.
+// https://docs.soniclabs.com/funding/sonic-airdrop/sonic-points
+// Remaining airdrop allocations must be claimed before October 15, 2026.
+// https://www.soniclabs.com/blog/sonic-airdrop-burn-and-final-claim-deadline
 export default {
-  fetch: async (address: string) => {
-    return await (
-      await fetch(API_URL.replace("{address}", address), {
-        headers: {
-          "User-Agent": "Checkpoint API (https://checkpoint.exchange)",
-        },
-      })
-    ).json();
-  },
-  data: (data: Record<string, number>) => ({
-    "User Activity Last Detected": new Date(
-      data.user_activity_last_detected,
-    ).toString(),
-    "Sonic Points": data.sonic_points,
-    "Loyalty Multiplier": data.loyalty_multiplier,
-    "Ecosystem Points": data.ecosystem_points,
-    "Passive Liquidity Points": data.passive_liquidity_points,
-    "Activity Points": data.activity_points,
-    Rank: data.rank,
-  }),
-  total: (data: Record<string, number>) => data.sonic_points,
-  rank: (data: { rank: number }) => data.rank,
+  fetch: async () => await Promise.resolve({}),
+  data: () => ({ "Program Claim Deadline": "2026-10-15" }),
+  total: () => 0,
+  // Eligible fNFT holdings and unclaimed allocations are not checked here.
+  // The program deadline above does not establish eligibility for this wallet.
+  claimable: () => false,
   deprecated: () => ({
     Points: 1761955200, // November 1st 2025 00:00 UTC
   }),

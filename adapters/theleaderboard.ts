@@ -15,6 +15,13 @@ export default {
         "User-Agent": "Checkpoint API (https://checkpoint.exchange)",
       },
     });
+
+    if (!res.ok) {
+      throw new Error(
+        `The Leaderboard request failed with status ${res.status}`
+      );
+    }
+
     const data = await res.json();
     return data;
   },

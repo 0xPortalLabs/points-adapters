@@ -31,12 +31,13 @@ type API_RESPONSE = {
   rank: RANK_RESPONSE;
 };
 
+// The API accepts this UA, but rejects "Checkpoint API (...)".
 const headers = {
-  "User-Agent": "Checkpoint API (https://checkpoint.exchange)",
+  "User-Agent": "CheckpointAPI/1.0 (+https://checkpoint.exchange)",
 };
 
 export default {
-  fetch: async (address) => {
+  fetch: async (address: string) => {
     const checksumAddress = getAddress(address);
 
     const [userStatsResponse, rankResponse] = await Promise.all([
