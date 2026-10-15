@@ -10,9 +10,12 @@ export default {
   fetch: async (address: string): Promise<MeowData> => {
     const wallet = getAddress(address).toLowerCase();
     const url = API_URL + wallet;
-    // Meow blocks cross-origin browser reads. Proxy only in browsers, without
-    // an extra CORS probe; backend requests remain direct.
-    const requestUrl = "document" in globalThis ? wrapCORSProxy(url) : url;
+    // Meow blocks cross-origin reads in pages and browser workers. The latter
+    // expose importScripts (including module workers), but have no document.
+    // Avoid an extra CORS probe; backend requests remain direct.
+    const isBrowser = "document" in globalThis ||
+      typeof Reflect.get(globalThis, "importScripts") === "function";
+    const requestUrl = isBrowser ? wrapCORSProxy(url) : url;
     let res: Response;
     try {
       res = await fetch(requestUrl, {
