@@ -1,95 +1,82 @@
-import { getAddress } from "viem";
 import type { AdapterExport } from "../utils/adapter.ts";
 import { maybeWrapCORSProxy } from "../utils/cors.ts";
 
 const API_URL = await maybeWrapCORSProxy(
-  "https://portal-admin.genlayer.foundation/api/v1/leaderboard/community/?user_address={address}&profile_context=true",
+  "https://portal-admin.genlayer.foundation/api/v1/glp/users/{address}/"
 );
 
-type GenLayerCommunityEntry = {
-  address?: string | null;
-  user_address?: string | null;
-  community_points?: number | null;
-  total_points?: number | null;
-  contribution_count?: number | null;
-  discord_xp?: number | null;
-  pending_portal_points?: number | null;
-  tracked_portal_points_all_time?: number | null;
+type GenLayerGLPAmount = {
+  amount: string;
+  amount_floor: number;
+};
+
+type GenLayerGLPResponse = {
+  state?: string;
+  total?: GenLayerGLPAmount | null;
+  builder?: GenLayerGLPAmount | null;
+  community?: GenLayerGLPAmount | null;
+  general?: GenLayerGLPAmount | null;
+  claimable?: (GenLayerGLPAmount & { expires_at?: string | null }) | null;
+  allocated?: GenLayerGLPAmount | null;
   rank?: number | null;
+  ranking_scope?: string;
+  ranking_is_preseason?: boolean;
+  latest_delta?: {
+    run_id: number;
+    glp_amount: string;
+    bp: number;
+    cp: number;
+  } | null;
 };
 
-type GenLayerCommunityResponse = {
-  requested_address: string;
-  total_community?: number | null;
-  count?: number | null;
-  context_results?: GenLayerCommunityEntry[];
-  user_rank?: number | null;
-  user_total_points?: number | null;
+const getAmount = (value?: string | number | null): number | undefined => {
+  if (value == null) return undefined;
+
+  const points = Number(value) || 0;
+  return Number(points.toFixed(2));
 };
-
-const getPoints = (data: GenLayerCommunityResponse): number =>
-  Number(data.user_total_points ?? 0) || 0;
-
-const getRank = (data: GenLayerCommunityResponse): number =>
-  Number(data.user_rank ?? 0) || 0;
-
-const getUserEntry = (
-  data: GenLayerCommunityResponse,
-): GenLayerCommunityEntry | undefined =>
-  data.context_results?.find((entry) =>
-    (entry.user_address ?? entry.address)?.toLowerCase() ===
-      data.requested_address
-  );
 
 export default {
-  fetch: async (address: string) => {
-    const normalizedAddress = getAddress(address).toLowerCase();
+  fetch: async (address: string): Promise<GenLayerGLPResponse> => {
     const res = await fetch(
-      API_URL.replace("{address}", encodeURIComponent(normalizedAddress)),
+      API_URL.replace("{address}", address.toLowerCase()),
       {
         headers: {
           Accept: "application/json",
           "User-Agent": "Checkpoint API (https://checkpoint.exchange)",
         },
-      },
+      }
     );
 
+    // Unregistered wallets have no GLP profile.
+    if (res.status === 404) return {};
+
     if (!res.ok) {
-      throw new Error(
-        `GenLayer community points request failed with status ${res.status}`,
-      );
+      throw new Error(`GenLayer GLP request failed with status ${res.status}`);
     }
 
-    const data = await res.json() as Omit<
-      GenLayerCommunityResponse,
-      "requested_address"
-    >;
-
-    return {
-      requested_address: normalizedAddress,
-      ...data,
-    };
+    return res.json();
   },
-  data: (data: GenLayerCommunityResponse) => {
-    const entry = getUserEntry(data);
-
-    return {
-      "Community Points": {
-        Points: getPoints(data),
-        Rank: getRank(data),
-        "Contribution Count": Number(entry?.contribution_count ?? 0) || 0,
-        "Discord XP": Number(entry?.discord_xp ?? 0) || 0,
-        "Pending Portal Points": Number(entry?.pending_portal_points ?? 0) || 0,
-        "Tracked Portal Points":
-          Number(entry?.tracked_portal_points_all_time ?? 0) || 0,
-        "Total Community": Number(data.total_community ?? data.count ?? 0) ||
-          0,
-      },
-    };
-  },
-  total: (data: GenLayerCommunityResponse) => ({
-    "Community Points": getPoints(data),
+  data: (data: GenLayerGLPResponse) => ({
+    GLP: {
+      "Builder GLP": getAmount(data.builder?.amount ?? 0),
+      "Community GLP": getAmount(data.community?.amount ?? 0),
+      "General GLP": getAmount(data.general?.amount ?? 0),
+      "Claimable GLP": getAmount(data.claimable?.amount ?? 0),
+      "Allocated GLP": getAmount(data.allocated?.amount ?? 0),
+      State: data.state,
+      "Ranking Scope": data.ranking_scope,
+      "Preseason Ranking": data.ranking_is_preseason?.toString(),
+      "Claim Expires At": data.claimable?.expires_at ?? undefined,
+      "Latest Conversion Run ID": data.latest_delta?.run_id,
+      "Latest Conversion GLP": getAmount(data.latest_delta?.glp_amount),
+      "Latest Conversion Builder Points": getAmount(data.latest_delta?.bp),
+      "Latest Conversion Community Points": getAmount(data.latest_delta?.cp),
+    },
   }),
-  rank: (data: GenLayerCommunityResponse) => getRank(data),
+  total: (data: GenLayerGLPResponse) => ({
+    GLP: getAmount(data.total?.amount ?? 0),
+  }),
+  rank: (data: GenLayerGLPResponse) => Number(data.rank ?? 0) || 0,
   supportedAddressTypes: ["evm"],
 } as AdapterExport;
