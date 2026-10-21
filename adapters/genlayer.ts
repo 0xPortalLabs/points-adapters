@@ -29,8 +29,12 @@ type GenLayerGLPResponse = {
   } | null;
 };
 
-const getAmount = (value?: GenLayerGLPAmount | null): number =>
-  Number(value?.amount ?? 0) || 0;
+const getAmount = (value?: string | number | null): number | undefined => {
+  if (value == null) return undefined;
+
+  const points = Number(value) || 0;
+  return Number(points.toFixed(2));
+};
 
 export default {
   fetch: async (address: string): Promise<GenLayerGLPResponse> => {
@@ -55,22 +59,24 @@ export default {
   },
   data: (data: GenLayerGLPResponse) => ({
     GLP: {
-      "Builder GLP": getAmount(data.builder),
-      "Community GLP": getAmount(data.community),
-      "General GLP": getAmount(data.general),
-      "Claimable GLP": getAmount(data.claimable),
-      "Allocated GLP": getAmount(data.allocated),
+      "Builder GLP": getAmount(data.builder?.amount ?? 0),
+      "Community GLP": getAmount(data.community?.amount ?? 0),
+      "General GLP": getAmount(data.general?.amount ?? 0),
+      "Claimable GLP": getAmount(data.claimable?.amount ?? 0),
+      "Allocated GLP": getAmount(data.allocated?.amount ?? 0),
       State: data.state,
       "Ranking Scope": data.ranking_scope,
       "Preseason Ranking": data.ranking_is_preseason?.toString(),
       "Claim Expires At": data.claimable?.expires_at ?? undefined,
       "Latest Conversion Run ID": data.latest_delta?.run_id,
-      "Latest Conversion GLP": data.latest_delta?.glp_amount,
-      "Latest Conversion Builder Points": data.latest_delta?.bp,
-      "Latest Conversion Community Points": data.latest_delta?.cp,
+      "Latest Conversion GLP": getAmount(data.latest_delta?.glp_amount),
+      "Latest Conversion Builder Points": getAmount(data.latest_delta?.bp),
+      "Latest Conversion Community Points": getAmount(data.latest_delta?.cp),
     },
   }),
-  total: (data: GenLayerGLPResponse) => ({ GLP: getAmount(data.total) }),
+  total: (data: GenLayerGLPResponse) => ({
+    GLP: getAmount(data.total?.amount ?? 0),
+  }),
   rank: (data: GenLayerGLPResponse) => Number(data.rank ?? 0) || 0,
   supportedAddressTypes: ["evm"],
 } as AdapterExport;
