@@ -33,9 +33,11 @@ type PointsResponse = {
   rank: number;
 };
 
+const round2 = (value: number) => +value.toFixed(2);
+
 // Match the frontend's weighted-points conversion: 24 decimals / (10,000 * 104).
 const toPoints = (value: string) =>
-  Number(formatUnits(BigInt(value), 24)) / (10_000 * 104);
+  round2(+formatUnits(BigInt(value), 24) / (10_000 * 104));
 
 export default {
   fetch: async (address: string): Promise<PointsResponse> => {
@@ -84,7 +86,7 @@ export default {
       epoch: Number(participant.currentEpoch),
       points: toPoints(weightedPoints),
       providerPoints: toPoints(seller?.weightedPoints ?? "0"),
-      spent: Number(formatUnits(BigInt(buyer?.volumeUsdc ?? "0"), 6)),
+      spent: round2(+formatUnits(BigInt(buyer?.volumeUsdc ?? "0"), 6)),
       rank,
     };
   },
