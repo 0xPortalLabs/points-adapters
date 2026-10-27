@@ -1,3 +1,32 @@
+// Disabled 2026-10-27 after Meow changed its points API architecture.
+// The public /points/wallet endpoint returns 404; the replacement /api/points
+// requires session/access authorization and is not a public wallet lookup.
+// Only the integration is disabled; points-program expiry is not confirmed. Keep network-free
+// until a public wallet-scoped endpoint is verified and reactivation approved.
+// Zero values below are disabled placeholders, not verified wallet balances.
+import type { AdapterExport } from "../utils/adapter.ts";
+
+export default {
+  fetch: () => Promise.resolve(undefined),
+  data: () => ({
+    "Meow Points": {
+      Status: "Disabled: public wallet points endpoint unavailable",
+      Total: 0,
+    },
+  }),
+  total: () => ({ "Meow Points": 0 }),
+  rank: () => 0,
+  claimable: () => false,
+  supportedAddressTypes: ["evm"],
+} satisfies AdapterExport<undefined>;
+
+/*
+ARCHIVED IMPLEMENTATION — DISABLED, NOT EXECUTABLE
+Preserved for possible reactivation. Verify public wallet lookup, app totals,
+and browser access before restoring. Replace the disabled export above and
+remove meow from monitoring/config.json's disabledAdapters; do not simply
+uncomment this block.
+
 import { getAddress } from "viem";
 import type { AdapterExport } from "../utils/adapter.ts";
 import { wrapCORSProxy } from "../utils/cors.ts";
@@ -70,3 +99,4 @@ export default {
   rank: (data: MeowData) => data.rank,
   supportedAddressTypes: ["evm"],
 } satisfies AdapterExport<MeowData>;
+*/
