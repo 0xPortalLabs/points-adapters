@@ -55,8 +55,12 @@ export default {
     }
     // Match the app's 18-decimal conversion of user.totalPoints, not the
     // top-level totalPoints (the entire program's total). No extra boosts.
-    const points = Number(formatUnits(BigInt(data.totalPoints), 18));
-    if (!Number.isFinite(points) || points > Number.MAX_SAFE_INTEGER) {
+    const rawPoints = BigInt(data.totalPoints);
+    if (rawPoints > BigInt(Number.MAX_SAFE_INTEGER) * 10n ** 18n) {
+      throw new Error("Mezzanine response has invalid points");
+    }
+    const points = Number(formatUnits(rawPoints, 18));
+    if (!Number.isFinite(points)) {
       throw new Error("Mezzanine response has invalid points");
     }
     // Unknown wallets explicitly return zero points and null rank. Missing
