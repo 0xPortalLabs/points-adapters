@@ -75,9 +75,9 @@ export default {
     return { points, rank };
   },
   data: (data: MezzanineData) => ({
-    "Mezzanine Points": { Total: data.points },
+    Mezzies: { Total: data.points },
   }),
-  total: (data: MezzanineData) => ({ "Mezzanine Points": data.points }),
+  total: (data: MezzanineData) => ({ Mezzies: data.points }),
   rank: (data: MezzanineData) => data.rank,
   supportedAddressTypes: ["evm"],
 } satisfies AdapterExport<MezzanineData>;
