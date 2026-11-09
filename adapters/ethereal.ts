@@ -1,4 +1,37 @@
 import type { AdapterExport } from "../utils/adapter.ts";
+
+// Legacy Ethereal points deprecated in Checkpoint on November 9, 2026.
+// The exact campaign end date could not be verified. Use 2026-11-09 00:00 UTC
+// as the date we recorded deprecation, not a confirmed points-accrual cutoff.
+// Meridian is a separate deployment; this does not deprecate Meridian rewards:
+// https://docs.meridian.xyz/developer-guides/trading-api/migrate-from-ethereal
+// The legacy points endpoint returned HTTP 503 for both test wallets on review.
+// Keep this adapter network-free. Reject lookups rather than reporting unknown
+// historical wallet balances as zero. Deprecation metadata is not returned by
+// runAdapter when fetch rejects; catalogue retirement belongs in points-data.
+export default {
+  fetch: () =>
+    Promise.reject(
+      new Error("Ethereal points lookup unavailable: legacy endpoint retired"),
+    ),
+  data: () => ({}),
+  total: () => ({}),
+  rank: () => 0,
+  claimable: () => false,
+  deprecated: () => ({
+    "S0 Points": 1794182400,
+    "S1 Points": 1794182400,
+  }),
+  supportedAddressTypes: ["evm"],
+} satisfies AdapterExport;
+
+/*
+ARCHIVED IMPLEMENTATION — DISABLED, NOT EXECUTABLE
+Retained for reference. Verify the points program, API, and browser access before
+restoring. Replace the retired export above and review monitoring/config.json's
+disabledAdapters entry; do not just swap in Meridian hosts.
+
+import type { AdapterExport } from "../utils/adapter.ts";
 import { checksumAddress } from "viem";
 
 const API_URL =
@@ -88,3 +121,4 @@ export default {
   },
   supportedAddressTypes: ["evm"],
 } as AdapterExport;
+*/
