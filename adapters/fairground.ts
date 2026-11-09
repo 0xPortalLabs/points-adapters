@@ -48,9 +48,7 @@ export default {
     const params = new URLSearchParams({
       page: "1",
       page_size: "1",
-      "filters[0][field]": "owner",
-      "filters[0][op]": "ilike_and",
-      "filters[0][value]": normalizedAddress,
+      owner: normalizedAddress,
     });
 
     const res = await fetch(`${API_URL}?${params}`, {
