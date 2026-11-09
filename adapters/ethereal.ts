@@ -6,12 +6,16 @@ import type { AdapterExport } from "../utils/adapter.ts";
 // Meridian is a separate deployment; this does not deprecate Meridian rewards:
 // https://docs.meridian.xyz/developer-guides/trading-api/migrate-from-ethereal
 // The legacy points endpoint returned HTTP 503 for both test wallets on review.
-// Keep this adapter network-free. Zero totals are retired placeholders, not
-// verified historical wallet balances.
+// Keep this adapter network-free. Reject lookups rather than reporting unknown
+// historical wallet balances as zero. Deprecation metadata is not returned by
+// runAdapter when fetch rejects; catalogue retirement belongs in points-data.
 export default {
-  fetch: () => Promise.resolve({}),
-  data: () => ({ "S0 Points": {}, "S1 Points": {} }),
-  total: () => ({ "S0 Points": 0, "S1 Points": 0 }),
+  fetch: () =>
+    Promise.reject(
+      new Error("Ethereal points lookup unavailable: legacy endpoint retired"),
+    ),
+  data: () => ({}),
+  total: () => ({}),
   rank: () => 0,
   claimable: () => false,
   deprecated: () => ({
@@ -24,7 +28,8 @@ export default {
 /*
 ARCHIVED IMPLEMENTATION — DISABLED, NOT EXECUTABLE
 Retained for reference. Verify the points program, API, and browser access before
-restoring. Replace the retired export above; do not just swap in Meridian hosts.
+restoring. Replace the retired export above and review monitoring/config.json's
+disabledAdapters entry; do not just swap in Meridian hosts.
 
 import type { AdapterExport } from "../utils/adapter.ts";
 import { checksumAddress } from "viem";

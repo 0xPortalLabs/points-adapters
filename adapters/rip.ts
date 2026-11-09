@@ -2,19 +2,19 @@
 // The public stats endpoint returns totalRips (matching packs opened), while
 // the app displays ripsPoints from authenticated profile/ranking endpoints.
 // This retires the integration, not the points campaign; its end is unconfirmed.
-// Keep network-free, including imports and CORS probes. Zero values below are
-// disabled placeholders, not verified account balances.
+// Keep network-free, including imports and CORS probes. Reject lookups rather
+// than reporting unverified account balances as zero.
 import type { AdapterExport } from "../utils/adapter.ts";
 
 export default {
-  fetch: () => Promise.resolve(undefined),
-  data: () => ({
-    Rips: {
-      Status: "Disabled: public account points lookup unavailable",
-      Points: 0,
-    },
-  }),
-  total: () => ({ Rips: 0 }),
+  fetch: () =>
+    Promise.reject(
+      new Error(
+        "Rips points lookup unavailable: public points endpoint required",
+      ),
+    ),
+  data: () => ({}),
+  total: () => ({}),
   rank: () => 0,
   claimable: () => false,
   supportedAddressTypes: ["fid"],
