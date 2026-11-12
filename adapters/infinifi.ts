@@ -58,7 +58,7 @@ export default {
       const chapter = record(entry);
       const points = nonNegativeNumber(chapter.points, "chapter points");
       const referrals = nonNegativeNumber(
-        chapter.referralPoints === undefined ? 0 : chapter.referralPoints,
+        chapter.referralPoints ?? 0,
         "chapter referral points",
       );
       if (typeof chapter.isFinalized !== "boolean") {
@@ -115,9 +115,6 @@ export default {
   rank: (data: InfiniFiData) => data.rank,
   deprecated: () => ({
     "V1 Points": 1764547200, // December 1st 2025
-    // Season 2 is historical in the V3 API. November 12, 2026 is our
-    // verification date, not a confirmed points-accrual cutoff.
-    "V2 Points": 1794441600,
   }),
   supportedAddressTypes: ["evm"],
 } satisfies AdapterExport<InfiniFiData>;
