@@ -3,6 +3,12 @@ import type { AdapterExport } from "../utils/adapter.ts";
 
 const REWARDS_URL = "https://api.prod.nado.xyz/rewards/v1";
 
+// @nadoHQ announced points accrual ended November 12, 2026 at 8pm EST
+// (November 13, 2026 at 01:00 UTC). Keep historical balances queryable:
+// the announcement notes final figures follow the last weekly distribution.
+// This cutoff does not imply claim eligibility or cover Nado PRIME rewards.
+const POINTS_ENDED_AT = 1794531600;
+
 type PointsBreakdown = {
   points: string;
   rank: number;
@@ -112,5 +118,6 @@ export default {
   total: (response: API_RESPONSE) =>
     toPointsNumber(response.all_time_points.points),
   rank: (response: API_RESPONSE) => response.all_time_points.rank,
+  deprecated: () => ({ Points: POINTS_ENDED_AT }),
   supportedAddressTypes: ["evm"],
 } satisfies AdapterExport<API_RESPONSE>;
